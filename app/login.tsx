@@ -1,4 +1,3 @@
-
 import Button from "@/forms/Button";
 import { SizeVariant } from "@/util/variants";
 import { useRouter } from "expo-router";
@@ -8,7 +7,7 @@ export default function Page() {
     const router = useRouter();
   return (
     <View style={styles.container}>
-      <Button onPress={() => router.replace("/login")} radius={SizeVariant.XL4}>
+      <Button onPress={() => router.replace("/")} radius={SizeVariant.XL4} >
         <Text>btn</Text>
       </Button>
     </View>
