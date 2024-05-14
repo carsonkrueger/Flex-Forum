@@ -1,20 +1,80 @@
-import { ComponentProps } from "react";
-import { TextInput } from "react-native";
+import { ComponentProps, useMemo } from "react";
+import { TextInput, StyleSheet } from "react-native";
+import {
+  Control,
+  FieldValues,
+  Path,
+  PathValue,
+  useController,
+} from "react-hook-form";
 
 export enum InputVariant {
   Outline,
   Floating,
 }
 
-export type TouchableProps = ComponentProps<typeof TextInput>;
+export type TextInputProps = ComponentProps<typeof TextInput>;
 
-export type Props = {
+export type InputProps = {
+  inputVariant: InputVariant;
   color: string;
-  text: string;
 };
 
-export default function Input(props: TouchableProps & Props) {
-  return <TextInput {...props} />;
+export type ControlProps<T extends FieldValues> = {
+  control?: Control<T, any>;
+  name: Path<T>;
+  defaultValue: PathValue<T, Path<T>>;
+};
+
+export type Props<T extends FieldValues> = {
+  inputProps: InputProps;
+  textInputProps?: TextInputProps;
+  controlProps: ControlProps<T>;
+};
+
+export default function Input<T extends FieldValues>(props: Props<T>) {
+  const inputStyle = useMemo(
+    () => inputVariantStyle(props.inputProps),
+    [props.inputProps],
+  );
+
+  const { field } = useController<T>({
+    control: props.controlProps.control,
+    name: props.controlProps.name,
+    defaultValue: props.controlProps.defaultValue,
+  });
+
+  return (
+    <TextInput
+      value={field.value}
+      onChangeText={field.onChange}
+      style={[styles.inputBase, inputStyle.inputVariant]}
+      {...props.textInputProps}
+    />
+  );
 }
 
-// const
+const styles = StyleSheet.create({
+  inputBase: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 20,
+    paddingHorizontal: 12,
+    maxWidth: 300,
+    minWidth: 150,
+    width: "80%",
+    height: 38,
+    fontSize: 15,
+  },
+});
+
+const inputVariantStyle = ({ color, inputVariant }: InputProps) =>
+  StyleSheet.create({
+    inputVariant: {
+      color: inputVariant == InputVariant.Outline ? color : undefined,
+      borderColor: inputVariant == InputVariant.Outline ? color : undefined,
+      borderWidth: inputVariant == InputVariant.Outline ? 1.5 : undefined,
+      shadowRadius: inputVariant == InputVariant.Floating ? 20 : undefined,
+    },
+  });
