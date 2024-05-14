@@ -1,11 +1,11 @@
 import { ComponentProps, useMemo } from "react";
 import { TextInput, StyleSheet } from "react-native";
 import {
-  Control,
   FieldValues,
   Path,
-  PathValue,
+  UseControllerProps,
   useController,
+  Controller,
 } from "react-hook-form";
 
 export enum InputVariant {
@@ -20,16 +20,10 @@ export type InputProps = {
   color: string;
 };
 
-export type ControlProps<T extends FieldValues> = {
-  control?: Control<T, any>;
-  name: Path<T>;
-  defaultValue: PathValue<T, Path<T>>;
-};
-
 export type Props<T extends FieldValues> = {
   inputProps: InputProps;
   textInputProps?: TextInputProps;
-  controlProps: ControlProps<T>;
+  controlProps: UseControllerProps<T, Path<T>>;
 };
 
 export default function Input<T extends FieldValues>(props: Props<T>) {
@@ -38,18 +32,27 @@ export default function Input<T extends FieldValues>(props: Props<T>) {
     [props.inputProps],
   );
 
-  const { field } = useController<T>({
-    control: props.controlProps.control,
-    name: props.controlProps.name,
-    defaultValue: props.controlProps.defaultValue,
-  });
+  // const { field } = useController<T>({
+  //   control: props.controlProps.control,
+  //   name: props.controlProps.name,
+  //   defaultValue: props.controlProps.defaultValue,
+  // });
 
   return (
-    <TextInput
-      value={field.value}
-      onChangeText={field.onChange}
-      style={[styles.inputBase, inputStyle.inputVariant]}
-      {...props.textInputProps}
+    <Controller
+      control={props.controlProps.control}
+      name={props.controlProps.name}
+      defaultValue={props.controlProps.defaultValue}
+      rules={props.controlProps.rules}
+      render={({ field }) => (
+        <TextInput
+          onBlur={field.onBlur}
+          value={field.value}
+          onChangeText={field.onChange}
+          style={[styles.inputBase, inputStyle.inputVariant]}
+          {...props.textInputProps}
+        />
+      )}
     />
   );
 }
