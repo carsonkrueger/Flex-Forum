@@ -1,27 +1,50 @@
 import Input, { InputVariant } from "@/forms/Input";
 import Submit, { ButtonVariant } from "@/forms/Submit";
-import useSettingsStore from "@/stores/settings";
+import useUserStore from "@/stores/user";
 import { useRouter } from "expo-router";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { StyleSheet, View, Text } from "react-native";
 import { useForm } from "react-hook-form";
-import LoginModel from "@/models/login-model";
+import LoginModel, { login } from "@/models/login-model";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 export default function Page() {
   const router = useRouter();
-  const scheme = useSettingsStore((state) => state.colorScheme);
+  const queryClient = useQueryClient();
+  const scheme = useUserStore((state) => state.colorScheme);
+  const userId = useUserStore((state) => state.userId);
+  const setUserId = useUserStore((state) => state.setUserId);
   const calcStyle = useMemo(
     () => calcStyles(scheme.primary, scheme.quaternary, scheme.secondary),
     [scheme],
   );
+  const [isQueryLoading, setIsQueryLoading] = useState<boolean>(false);
 
   const {
     control,
     handleSubmit,
     getValues,
-    formState: { isLoading, errors },
+    formState: { isLoading: isFormLoading, errors },
   } = useForm<LoginModel>({ mode: "all" });
-  const onSubmit = (data: LoginModel) => alert(JSON.stringify(data));
+
+  // let loginFormData = {
+  //   username: "",
+  //   password: "",
+  // };
+
+  const onSubmit = async (data: LoginModel) => {
+    setIsQueryLoading(true);
+    try {
+      let id = await login(data);
+      setUserId(id);
+      router.replace("/");
+    } catch {
+      console.error("err");
+    }
+    setIsQueryLoading(false);
+  };
+
+  const isAnyLoading = () => isFormLoading || isQueryLoading;
 
   return (
     <View style={[styles.container, calcStyle.container]}>
@@ -96,7 +119,7 @@ export default function Page() {
         }}
         touchableProps={{
           onPress: handleSubmit(onSubmit),
-          disabled: isLoading,
+          disabled: isAnyLoading(),
         }}
       />
 
@@ -109,7 +132,7 @@ export default function Page() {
         }}
         touchableProps={{
           onPress: () => router.replace("/"),
-          disabled: isLoading,
+          disabled: isAnyLoading(),
         }}
       />
 
@@ -127,12 +150,13 @@ const styles = StyleSheet.create({
     flex: 1,
     gap: 15,
     padding: 10,
+    paddingTop: 100,
   },
   title: {
     alignContent: "center",
     textAlign: "center",
     backgroundColor: "white",
-    width: 600,
+    width: "160%",
     height: 200,
     paddingTop: 30,
     marginBottom: 50,

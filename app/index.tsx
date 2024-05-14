@@ -1,5 +1,5 @@
 import Button, { ButtonVariant } from "@/forms/Submit";
-import useSettingsStore from "@/stores/settings";
+import useUserStore from "@/stores/user";
 import { useFonts } from "expo-font";
 import { useRouter } from "expo-router";
 import { StyleSheet, View } from "react-native";
@@ -10,7 +10,7 @@ export default function Page() {
   });
 
   const router = useRouter();
-  const scheme = useSettingsStore((state) => state.colorScheme);
+  const scheme = useUserStore((state) => state.colorScheme);
   return (
     <View style={styles.container}>
       <Button
