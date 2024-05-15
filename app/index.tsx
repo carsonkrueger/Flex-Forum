@@ -7,13 +7,8 @@ import { StyleSheet, View, Text } from "react-native";
 import { useForm } from "react-hook-form";
 import LoginModel, { login } from "@/models/login-model";
 import { routes } from "@/util/routes";
-import { useFonts } from "expo-font";
 
 export default function Page() {
-  const [fontsLoaded, fontsError] = useFonts({
-    PermanentMarker: require("../assets/fonts/PermanentMarker-Regular.ttf"),
-  });
-
   const router = useRouter();
   const scheme = useUserStore((state) => state.colorScheme);
   const setUserId = useUserStore((state) => state.setUserId);
@@ -165,7 +160,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     width: "160%",
     height: 180,
-    paddingTop: 30,
+    paddingTop: 27,
     marginBottom: 50,
     fontFamily: "PermanentMarker",
     fontSize: 90,

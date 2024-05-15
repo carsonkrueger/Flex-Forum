@@ -7,7 +7,7 @@ export interface ColorScheme {
 
 const LightColorScheme: ColorScheme = {
   primary: "#FFF",
-  secondary: "#33E1ED",
+  secondary: "#4d5359", //#4d5359 #33E1ED
   tertiary: "#33E1ED",
   quaternary: "#33E1ED",
 };
