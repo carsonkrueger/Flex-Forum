@@ -4,6 +4,7 @@ import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
 import * as NavigationBar from "expo-navigation-bar";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const queryClient = new QueryClient();
 

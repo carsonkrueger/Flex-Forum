@@ -5,7 +5,6 @@ import {
   Path,
   UseControllerProps,
   useController,
-  Controller,
 } from "react-hook-form";
 
 export enum InputVariant {
@@ -32,27 +31,20 @@ export default function Input<T extends FieldValues>(props: Props<T>) {
     [props.inputProps],
   );
 
-  // const { field } = useController<T>({
-  //   control: props.controlProps.control,
-  //   name: props.controlProps.name,
-  //   defaultValue: props.controlProps.defaultValue,
-  // });
+  const { field } = useController<T>({
+    control: props.controlProps.control,
+    name: props.controlProps.name,
+    defaultValue: props.controlProps.defaultValue,
+    rules: props.controlProps.rules,
+  });
 
   return (
-    <Controller
-      control={props.controlProps.control}
-      name={props.controlProps.name}
-      defaultValue={props.controlProps.defaultValue}
-      rules={props.controlProps.rules}
-      render={({ field }) => (
-        <TextInput
-          onBlur={field.onBlur}
-          value={field.value}
-          onChangeText={field.onChange}
-          style={[styles.inputBase, inputStyle.inputVariant]}
-          {...props.textInputProps}
-        />
-      )}
+    <TextInput
+      onBlur={field.onBlur}
+      value={field.value}
+      onChangeText={field.onChange}
+      style={[styles.inputBase, inputStyle.inputVariant]}
+      {...props.textInputProps}
     />
   );
 }
