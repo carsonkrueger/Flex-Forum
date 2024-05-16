@@ -37,7 +37,7 @@ export default function Layout() {
         <View style={styles.navCenterContainer}>
           <NavItem
             style={[styles.navCenter, calcStyle.navCenter]}
-            onPress={() => router.navigate(routes.workout)}
+            onPress={() => router.navigate(routes.selectWorkout)}
             icon={
               <MaterialCommunityIcons
                 name="weight-lifter"

@@ -3,6 +3,7 @@ export const routes = {
   signup: "/signup",
   home: "/home",
   user: "/user/:username",
+  selectWorkout: "/workout",
   workout: "/workout/:id",
   exercizes: "/workout/exercizes",
 } as const;
