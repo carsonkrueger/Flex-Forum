@@ -1,4 +1,4 @@
-import useUserStore from "@/stores/user";
+import useSettingsStore from "@/stores/settings";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
@@ -13,7 +13,7 @@ export default function Layout() {
   const [fontsLoaded] = useFonts({
     PermanentMarker: require("../assets/fonts/PermanentMarker-Regular.ttf"),
   });
-  const scheme = useUserStore((state) => state.colorScheme);
+  const scheme = useSettingsStore((state) => state.colorScheme);
 
   useEffect(() => {
     NavigationBar.setBackgroundColorAsync(scheme.primary);
@@ -24,7 +24,7 @@ export default function Layout() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <StatusBar />
+      <StatusBar backgroundColor={scheme.primary} />
       <Stack screenOptions={{ headerShown: false, animation: "ios" }}>
         <Stack.Screen name="index" />
         <Stack.Screen name="signup" />

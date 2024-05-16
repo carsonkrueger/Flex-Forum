@@ -1,9 +1,9 @@
-import useUserStore from "@/stores/user";
+import useSettingsStore from "@/stores/settings";
 import { useMemo } from "react";
 import { View, StyleSheet, Dimensions } from "react-native";
 
 export default function Post() {
-  const scheme = useUserStore((state) => state.colorScheme);
+  const scheme = useSettingsStore((state) => state.colorScheme);
   const calcStyle = useMemo(
     () => calcStyles(scheme.quaternary, Dimensions.get("screen").width),
     [scheme],

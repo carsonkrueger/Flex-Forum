@@ -1,10 +1,10 @@
-import useUserStore from "@/stores/user";
+import useSettingsStore from "@/stores/settings";
 import { useMemo } from "react";
 import { Text, View, StyleSheet } from "react-native";
 import PostImage from "./PostImage";
 
 export default function Post() {
-  const scheme = useUserStore((state) => state.colorScheme);
+  const scheme = useSettingsStore((state) => state.colorScheme);
   const calcStyle = useMemo(() => calcStyles(), [scheme]);
 
   return (

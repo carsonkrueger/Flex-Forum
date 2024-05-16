@@ -1,6 +1,7 @@
 import Input, { InputVariant } from "@/forms/Input";
 import Submit, { ButtonVariant } from "@/forms/Submit";
 import useUserStore from "@/stores/user";
+import useSettingsStore from "@/stores/settings";
 import { useRouter } from "expo-router";
 import { useMemo, useState } from "react";
 import { StyleSheet, View, Text } from "react-native";
@@ -10,8 +11,10 @@ import { routes } from "@/util/routes";
 
 export default function Page() {
   const router = useRouter();
-  const scheme = useUserStore((state) => state.colorScheme);
+  const scheme = useSettingsStore((state) => state.colorScheme);
   const setUserId = useUserStore((state) => state.setUserId);
+  const userId = useUserStore((state) => state.userId);
+
   const calcStyle = useMemo(
     () =>
       calcStyles(
@@ -44,6 +47,10 @@ export default function Page() {
   };
 
   const isAnyLoading = () => isFormLoading || isQueryLoading;
+
+  if (userId !== undefined) {
+    router.replace(routes.home);
+  }
 
   return (
     <View style={[styles.container, calcStyle.container]}>

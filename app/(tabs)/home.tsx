@@ -1,26 +1,23 @@
 import Post from "@/components/post/Post";
-import PostImage from "@/components/post/PostImage";
-import useUserStore from "@/stores/user";
+import useSettingsStore from "@/stores/settings";
 import { FlashList } from "@shopify/flash-list";
 import { useMemo } from "react";
-import { Text, StyleSheet } from "react-native";
-import { ScrollView } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { Text, StyleSheet, View } from "react-native";
 
 export default function Page() {
-  const scheme = useUserStore((state) => state.colorScheme);
+  const scheme = useSettingsStore((state) => state.colorScheme);
   const calcStyle = useMemo(() => calcStyles(scheme.primary), [scheme]);
   const data = [1, 2, 3, 4, 5, 6, 7, 8];
 
   return (
-    <SafeAreaView style={[styles.container, calcStyle.container]}>
+    <View style={[styles.container, calcStyle.container]}>
       <Text>home</Text>
       <FlashList
         data={data}
         renderItem={() => <Post />}
         estimatedItemSize={500}
       />
-    </SafeAreaView>
+    </View>
   );
 }
 
