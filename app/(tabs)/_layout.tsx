@@ -17,7 +17,7 @@ export default function Layout() {
     () => calcStyles(scheme.secondary, scheme.quaternary),
     [scheme],
   );
-  const iconColor = scheme.quaternary;
+  const iconColor = scheme.tertiary;
   const setUserId = useUserStore((s) => s.setUserId);
 
   return (
@@ -37,7 +37,7 @@ export default function Layout() {
         <View style={styles.navCenterContainer}>
           <NavItem
             style={[styles.navCenter, calcStyle.navCenter]}
-            onPress={() => router.navigate(routes.selectWorkout)}
+            onPress={() => router.navigate(routes.templates)}
             icon={
               <MaterialCommunityIcons
                 name="weight-lifter"

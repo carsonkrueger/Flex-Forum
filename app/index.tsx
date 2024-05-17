@@ -37,8 +37,8 @@ export default function Page() {
   const onSubmit = async (data: LoginModel) => {
     setIsQueryLoading(true);
     try {
-      let id = await login(data);
-      setUserId(id);
+      // let id = await login(data);
+      // setUserId(id);
       router.replace(routes.home);
     } catch {
       console.error("err");
@@ -67,7 +67,7 @@ export default function Page() {
         }}
         textInputProps={{
           placeholder: "Username",
-          placeholderTextColor: scheme.quaternary,
+          placeholderTextColor: scheme.secondary,
         }}
         controlProps={{
           defaultValue: "",
@@ -95,7 +95,7 @@ export default function Page() {
         }}
         textInputProps={{
           placeholder: "Password",
-          placeholderTextColor: scheme.quaternary,
+          placeholderTextColor: scheme.secondary,
           secureTextEntry: true,
         }}
         controlProps={{

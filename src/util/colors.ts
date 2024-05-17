@@ -15,7 +15,7 @@ const LightColorScheme: ColorScheme = {
 const DarkColorScheme: ColorScheme = {
   primary: "#343b42",
   secondary: "#4d5359",
-  tertiary: "#26527a",
+  tertiary: "#EEE",
   quaternary: "#eb6e65",
 };
 

@@ -3,9 +3,10 @@ export const routes = {
   signup: "/signup",
   home: "/home",
   user: "/user/:username",
-  selectWorkout: "/workout",
-  workout: "/workout/:id",
-  exercizes: "/workout/exercizes",
+  templates: "/workout/templates",
+  workout: (id: number) => `/workout/${id}`,
+  // workout: "/workout/:id",
+  exercises: "/workout/exercises",
 } as const;
 
 export type Route = (typeof routes)[keyof typeof routes];
