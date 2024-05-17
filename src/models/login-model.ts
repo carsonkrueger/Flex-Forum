@@ -11,13 +11,7 @@ export interface UserModel {
   last_name: string;
 }
 
-export const login = (model: LoginModel) =>
-  // fetch("http://192.168.1.6:3001/users/login", {method: "Post", });
+export const login = (model: LoginModel): Promise<number> =>
   axios
     .post("http://192.168.1.6:3001/users/login", model)
     .then((res) => res.data);
-// axios.post("/users/login", model, {
-//   timeout: 2000,
-//   httpAgent: true,
-//   baseURL: "192.168.1.6:3001",
-// });

@@ -1,9 +1,9 @@
 import useSettingsStore from "@/stores/settings";
 import { Slot, router } from "expo-router";
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import { View, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import useAuth from "@/hooks/useAuth";
+// import useAuth from "@/hooks/useAuth";
 import NavItem from "@/components/nav/NavItem";
 import { routes } from "@/util/routes";
 import { Ionicons } from "@expo/vector-icons";
@@ -13,12 +13,12 @@ import useUserStore from "@/stores/user";
 export default function Layout() {
   // useAuth();
   const scheme = useSettingsStore((state) => state.colorScheme);
-  const setUserId = useUserStore((state) => state.setUserId);
   const calcStyle = useMemo(
     () => calcStyles(scheme.secondary, scheme.quaternary),
     [scheme],
   );
   const iconColor = scheme.quaternary;
+  const setUserId = useUserStore((s) => s.setUserId);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -56,7 +56,10 @@ export default function Layout() {
 
         <NavItem
           icon={<Ionicons name="person" size={30} color={iconColor} />}
-          onPress={() => router.navigate(routes.login)}
+          onPress={() => {
+            setUserId(undefined);
+            router.navigate(routes.login);
+          }}
         />
       </View>
     </SafeAreaView>
