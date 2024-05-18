@@ -47,7 +47,7 @@ export default function Page() {
         }}
         textInputProps={{
           placeholder: "Username",
-          placeholderTextColor: scheme.quaternary,
+          placeholderTextColor: scheme.loQuaternary,
         }}
         controlProps={{
           defaultValue: "",
@@ -75,7 +75,7 @@ export default function Page() {
         }}
         textInputProps={{
           placeholder: "Email",
-          placeholderTextColor: scheme.quaternary,
+          placeholderTextColor: scheme.loQuaternary,
         }}
         controlProps={{
           defaultValue: "",
@@ -107,7 +107,7 @@ export default function Page() {
         }}
         textInputProps={{
           placeholder: "First Name",
-          placeholderTextColor: scheme.quaternary,
+          placeholderTextColor: scheme.loQuaternary,
         }}
         controlProps={{
           name: "first_name",
@@ -134,7 +134,7 @@ export default function Page() {
         }}
         textInputProps={{
           placeholder: "Last Name",
-          placeholderTextColor: scheme.quaternary,
+          placeholderTextColor: scheme.loQuaternary,
         }}
         controlProps={{
           name: "last_name",
@@ -161,7 +161,7 @@ export default function Page() {
         }}
         textInputProps={{
           placeholder: "Password",
-          placeholderTextColor: scheme.quaternary,
+          placeholderTextColor: scheme.loQuaternary,
         }}
         controlProps={{
           name: "password",
@@ -188,7 +188,7 @@ export default function Page() {
         }}
         textInputProps={{
           placeholder: "Repeat Password",
-          placeholderTextColor: scheme.quaternary,
+          placeholderTextColor: scheme.loQuaternary,
           secureTextEntry: true,
         }}
         controlProps={{

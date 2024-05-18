@@ -1,3 +1,4 @@
+import Modal from "@/components/modal";
 import Exercise from "@/components/workout/Exercise";
 import useSettingsStore from "@/stores/settings";
 import useWorkoutStore from "@/stores/workout";
@@ -5,7 +6,7 @@ import { ColorScheme } from "@/util/colors";
 import { FlashList } from "@shopify/flash-list";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useMemo } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 export default function Page() {
   const router = useRouter();
@@ -13,6 +14,10 @@ export default function Page() {
   const calcStyle = useMemo(() => calcStyles(scheme), [scheme]);
   const id = (useLocalSearchParams<{ id: string }>().id ?? 0) as number;
   const workout = useWorkoutStore((s) => s.workouts[id]);
+  const [showModal, toggleModal] = useWorkoutStore((s) => [
+    s.showModal,
+    s.toggleModal,
+  ]);
 
   return (
     <View style={[calcStyle.container, styles.container]}>
@@ -22,6 +27,7 @@ export default function Page() {
         renderItem={({ item }) => <Exercise id={item} />}
         estimatedItemSize={100}
       />
+      <Modal hidden={showModal} onPress={toggleModal} opacity={0.0} />
     </View>
   );
 }

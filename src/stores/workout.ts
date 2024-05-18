@@ -9,15 +9,21 @@ export type Workout = {
   exerciseIds: Id[];
 };
 
-type State = { nextId: Id; workouts: { [id: Id]: Workout } };
+type State = {
+  showModal: boolean;
+  nextId: Id;
+  workouts: { [id: Id]: Workout };
+};
 
 type Action = {
   setWorkout: (w: Workout) => void;
   setName: (name: Workout["name"], id: Workout["id"]) => void;
   addExercise: (id: Id, exerciseId: Id) => void;
+  toggleModal: () => void;
 };
 
 const useWorkoutStore = create<State & Action>((set) => ({
+  showModal: false,
   nextId: 0,
   workouts: {},
 
@@ -37,6 +43,8 @@ const useWorkoutStore = create<State & Action>((set) => ({
         },
       },
     })),
+
+  toggleModal: () => set((s) => ({ showModal: !s.showModal })),
 }));
 
 export default useWorkoutStore;

@@ -27,9 +27,53 @@ export default function Exercise({ id }: Props) {
     <View style={[styles.container, calcStyle.container]}>
       {/* Header container */}
       <View style={styles.headerContainer}>
-        <Text style={[styles.headerText, calcStyle.headerText]}>
-          {exercise.name}
-        </Text>
+        {/* Top header */}
+        <View style={styles.topHeaderContainer}>
+          <Text style={[styles.headerText, calcStyle.headerText]}>
+            {exercise.name}
+          </Text>
+        </View>
+        {/* Bottom header */}
+        <View style={styles.btmHeaderContainer}>
+          <Text
+            style={[
+              styles.columnHeaderText,
+              calcStyle.columnHeaderText,
+              { flex: flexWidths.set },
+            ]}
+          >
+            set
+          </Text>
+          <Text
+            style={[
+              styles.columnHeaderText,
+              calcStyle.columnHeaderText,
+              { flex: flexWidths.prev },
+            ]}
+          >
+            prev
+          </Text>
+          <Text
+            style={[
+              styles.columnHeaderText,
+              calcStyle.columnHeaderText,
+              { flex: flexWidths.weight },
+            ]}
+          >
+            weight
+          </Text>
+          <Text
+            style={[
+              styles.columnHeaderText,
+              calcStyle.columnHeaderText,
+              { flex: flexWidths.reps },
+            ]}
+          >
+            reps
+          </Text>
+          {/* empty view for check box header */}
+          <View style={{ flex: flexWidths.check }} />
+        </View>
       </View>
       {/* Sets */}
       {exercise.setIds.map((setId) => (
@@ -44,13 +88,30 @@ export default function Exercise({ id }: Props) {
   );
 }
 
+export const flexWidths = {
+  set: 1,
+  prev: 2,
+  weight: 2,
+  reps: 2,
+  check: 1,
+};
+
 const styles = StyleSheet.create({
   container: {},
-  headerContainer: {
+  headerContainer: {},
+  topHeaderContainer: {
     flexDirection: "row",
+  },
+  btmHeaderContainer: {
+    flexDirection: "row",
+    justifyContent: "space-around",
   },
   headerText: {
     fontSize: 18,
+  },
+  columnHeaderText: {
+    fontSize: 12,
+    textAlign: "center",
   },
   addSet: { width: 20, height: 20 },
 });
@@ -58,12 +119,15 @@ const styles = StyleSheet.create({
 const calcStyles = (scheme: ColorScheme) =>
   StyleSheet.create({
     container: {
-      backgroundColor: scheme.quaternary,
+      backgroundColor: scheme.secondary,
       padding: 8,
     },
     headerContainer: {},
     headerText: {
-      color: scheme.primary,
+      color: scheme.tertiary,
+    },
+    columnHeaderText: {
+      color: scheme.tertiary,
     },
     addSet: {
       backgroundColor: scheme.loQuaternary,
