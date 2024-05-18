@@ -22,11 +22,16 @@ export default function Page() {
   return (
     <View style={[calcStyle.container, styles.container]}>
       <Text>workout {workout.name}</Text>
+      {/* Exercises */}
       <FlashList
         data={workout.exerciseIds}
         renderItem={({ item }) => <Exercise id={item} />}
         estimatedItemSize={100}
       />
+      {/* Add Exercise */}
+      <TouchableOpacity>
+        <Text>Add Exercise</Text>
+      </TouchableOpacity>
       <Modal hidden={showModal} onPress={toggleModal} opacity={0.0} />
     </View>
   );

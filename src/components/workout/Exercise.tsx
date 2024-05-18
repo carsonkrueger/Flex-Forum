@@ -6,6 +6,7 @@ import { useMemo } from "react";
 import { Text, View, StyleSheet, TouchableOpacity } from "react-native";
 import Set from "./Set";
 import useSetStore from "@/stores/sets";
+import flexWidths from "@/util/setFlexWidths";
 
 export type Props = {
   id: Id;
@@ -42,7 +43,7 @@ export default function Exercise({ id }: Props) {
               { flex: flexWidths.set },
             ]}
           >
-            set
+            SET
           </Text>
           <Text
             style={[
@@ -51,7 +52,7 @@ export default function Exercise({ id }: Props) {
               { flex: flexWidths.prev },
             ]}
           >
-            prev
+            PREV
           </Text>
           <Text
             style={[
@@ -60,7 +61,7 @@ export default function Exercise({ id }: Props) {
               { flex: flexWidths.weight },
             ]}
           >
-            weight
+            WEIGHT
           </Text>
           <Text
             style={[
@@ -69,7 +70,7 @@ export default function Exercise({ id }: Props) {
               { flex: flexWidths.reps },
             ]}
           >
-            reps
+            REPS
           </Text>
           {/* empty view for check box header */}
           <View style={{ flex: flexWidths.check }} />
@@ -88,17 +89,11 @@ export default function Exercise({ id }: Props) {
   );
 }
 
-const flexWidths = {
-  set: 1,
-  prev: 2,
-  weight: 2,
-  reps: 2,
-  check: 1,
-};
-
 const styles = StyleSheet.create({
   container: {},
-  headerContainer: {},
+  headerContainer: {
+    paddingVertical: 5,
+  },
   topHeaderContainer: {
     flexDirection: "row",
   },
@@ -119,14 +114,14 @@ const styles = StyleSheet.create({
 const calcStyles = (scheme: ColorScheme) =>
   StyleSheet.create({
     container: {
-      backgroundColor: scheme.secondary,
+      // backgroundColor: scheme.secondary,
     },
     headerContainer: {},
     headerText: {
       color: scheme.tertiary,
     },
     columnHeaderText: {
-      color: scheme.tertiary,
+      color: scheme.quaternary,
     },
     addSet: {
       backgroundColor: scheme.loQuaternary,
