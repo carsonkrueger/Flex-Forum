@@ -1,7 +1,7 @@
 import { Id } from "./workout";
 import { create } from "zustand";
 
-export type State = {
+export type Set = {
   id: Id;
   weight?: number;
   reps?: number;
@@ -9,18 +9,40 @@ export type State = {
   prevReps?: number;
 };
 
+type State = { nextId: Id; sets: { [id: Id]: Set } };
+
 type Action = {
-  setWeight: (weight: State["weight"]) => void;
-  setReps: (reps: State["reps"]) => void;
-  setPrev: (w: State["prevWeight"], r: State["prevReps"]) => void;
+  createSet: () => Id;
+  setWeight: (weight: Set["weight"], id: Set["id"]) => void;
+  setReps: (reps: Set["reps"], id: Set["id"]) => void;
+  setPrev: (w: Set["prevWeight"], r: Set["prevReps"], id: Set["id"]) => void;
 };
 
-const useExerciseStore = create<State & Action>((set) => ({
-  id: -1,
-  setWeight: (weight: State["weight"]) => set(() => ({ weight: weight })),
-  setReps: (reps: State["reps"]) => set(() => ({ reps: reps })),
-  setPrev: (w: State["prevWeight"], r: State["prevReps"]) =>
-    set(() => ({ prevReps: r, prevWeight: w })),
+const useSetStore = create<State & Action>((set, get) => ({
+  nextId: 0,
+  sets: {},
+
+  createSet: () => {
+    let prevId = get().nextId;
+    set((s) => ({
+      nextId: s.nextId + 1,
+      sets: { ...s.sets, [s.nextId]: { id: s.nextId } },
+    }));
+    return prevId;
+  },
+
+  setWeight: (weight: Set["weight"], id: Set["id"]) =>
+    set((s) => ({
+      sets: { ...s.sets, [id]: { ...s.sets[id], weight: weight } },
+    })),
+
+  setReps: (reps: Set["reps"], id: Set["id"]) =>
+    set((s) => ({ sets: { ...s.sets, [id]: { ...s.sets[id], reps: reps } } })),
+
+  setPrev: (w: Set["prevWeight"], r: Set["prevReps"], id: Set["id"]) =>
+    set((s) => ({
+      sets: { ...s.sets, [id]: { ...s.sets[id], prevWeight: w, prevReps: r } },
+    })),
 }));
 
-export default useExerciseStore;
+export default useSetStore;

@@ -1,40 +1,38 @@
-import Template from "@/components/workout/Template";
+import useSetStore from "@/stores/sets";
 import useSettingsStore from "@/stores/settings";
+import { Id } from "@/stores/workout";
 import { ColorScheme } from "@/util/colors";
 import { useMemo } from "react";
 import { Text, View, StyleSheet } from "react-native";
 
-export default function Page() {
+export type Props = {
+  id: Id;
+};
+
+export default function Set({ id }: Props) {
   const scheme = useSettingsStore((state) => state.colorScheme);
   const calcStyle = useMemo(() => calcStyles(scheme), [scheme]);
+  const set = useSetStore((s) => s.sets[id]);
 
   return (
     <View style={[styles.container, calcStyle.container]}>
-      <Text style={[styles.headerText, calcStyle.headerText]}>Workouts</Text>
-      <Template id={0} />
+      <Text>{set.id}</Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    padding: 20,
-    alignItems: "center",
-    gap: 8,
-  },
-  headerText: {
-    fontFamily: "PermanentMarker",
-    fontSize: 25,
+    flexDirection: "row",
   },
 });
 
 const calcStyles = (scheme: ColorScheme) =>
   StyleSheet.create({
     container: {
-      backgroundColor: scheme.primary,
+      backgroundColor: scheme.quaternary,
     },
-    headerText: {
-      color: scheme.tertiary,
+    text: {
+      color: scheme.primary,
     },
   });

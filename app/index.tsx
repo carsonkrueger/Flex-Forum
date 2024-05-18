@@ -67,7 +67,7 @@ export default function Page() {
         }}
         textInputProps={{
           placeholder: "Username",
-          placeholderTextColor: scheme.secondary,
+          placeholderTextColor: scheme.loQuaternary,
         }}
         controlProps={{
           defaultValue: "",
@@ -95,7 +95,7 @@ export default function Page() {
         }}
         textInputProps={{
           placeholder: "Password",
-          placeholderTextColor: scheme.secondary,
+          placeholderTextColor: scheme.loQuaternary,
           secureTextEntry: true,
         }}
         controlProps={{
