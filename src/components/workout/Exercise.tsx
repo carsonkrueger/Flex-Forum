@@ -76,8 +76,8 @@ export default function Exercise({ id }: Props) {
         </View>
       </View>
       {/* Sets */}
-      {exercise.setIds.map((setId) => (
-        <Set key={`set.${setId}`} id={setId} />
+      {exercise.setIds.map((setId, idx) => (
+        <Set key={`set.${setId}`} id={setId} idx={idx} />
       ))}
       {/* Add set */}
       <TouchableOpacity
@@ -88,7 +88,7 @@ export default function Exercise({ id }: Props) {
   );
 }
 
-export const flexWidths = {
+const flexWidths = {
   set: 1,
   prev: 2,
   weight: 2,
@@ -120,7 +120,6 @@ const calcStyles = (scheme: ColorScheme) =>
   StyleSheet.create({
     container: {
       backgroundColor: scheme.secondary,
-      padding: 8,
     },
     headerContainer: {},
     headerText: {
@@ -133,3 +132,5 @@ const calcStyles = (scheme: ColorScheme) =>
       backgroundColor: scheme.loQuaternary,
     },
   });
+
+export { flexWidths };
