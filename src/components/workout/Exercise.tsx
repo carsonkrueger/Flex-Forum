@@ -27,7 +27,7 @@ export default function Exercise({ id }: Props) {
   return (
     <View style={[styles.container, calcStyle.container]}>
       {/* Header container */}
-      <View style={styles.headerContainer}>
+      <View style={[styles.headerContainer, calcStyle.headerContainer]}>
         {/* Top header */}
         <View style={styles.topHeaderContainer}>
           <Text style={[styles.headerText, calcStyle.headerText]}>
@@ -49,10 +49,19 @@ export default function Exercise({ id }: Props) {
             style={[
               styles.columnHeaderText,
               calcStyle.columnHeaderText,
-              { flex: flexWidths.prev },
+              { flex: flexWidths.prevVol },
             ]}
           >
-            PREV
+            PREV{"\n"}VOL
+          </Text>
+          <Text
+            style={[
+              styles.columnHeaderText,
+              calcStyle.columnHeaderText,
+              { flex: flexWidths.curVol },
+            ]}
+          >
+            CUR{"\n"}VOL
           </Text>
           <Text
             style={[
@@ -107,6 +116,7 @@ const styles = StyleSheet.create({
   columnHeaderText: {
     fontSize: 12,
     textAlign: "center",
+    alignSelf: "center",
   },
   addSet: { width: 20, height: 20 },
 });
@@ -116,12 +126,14 @@ const calcStyles = (scheme: ColorScheme) =>
     container: {
       // backgroundColor: scheme.secondary,
     },
-    headerContainer: {},
+    headerContainer: {
+      // backgroundColor: scheme.secondary,
+    },
     headerText: {
-      color: scheme.tertiary,
+      color: scheme.primary,
     },
     columnHeaderText: {
-      color: scheme.quaternary,
+      color: scheme.tertiary,
     },
     addSet: {
       backgroundColor: scheme.loQuaternary,

@@ -3,9 +3,10 @@ import Submit, { ButtonVariant } from "@/forms/Submit";
 import useSettingsStore from "@/stores/settings";
 import { useRouter } from "expo-router";
 import { useMemo, useState } from "react";
-import { StyleSheet, View, Text } from "react-native";
+import { StyleSheet, View, Text, SafeAreaView } from "react-native";
 import { useForm } from "react-hook-form";
 import SignupViewModel, { signup } from "@/models/signup-model";
+import Back from "@/components/nav/Back";
 
 export default function Page() {
   const router = useRouter();
@@ -15,13 +16,14 @@ export default function Page() {
     [scheme],
   );
   const [isQueryLoading, setIsQueryLoading] = useState<boolean>(false);
+  const errMsgColor = scheme.loQuaternary;
 
   const {
     control,
     handleSubmit,
     getValues,
     formState: { isLoading: isFormLoading, errors },
-  } = useForm<SignupViewModel>({ mode: "all" });
+  } = useForm<SignupViewModel>({ mode: "onBlur" });
 
   const onSubmit = async (data: SignupViewModel) => {
     setIsQueryLoading(true);
@@ -37,13 +39,19 @@ export default function Page() {
   const isAnyLoading = () => isFormLoading || isQueryLoading;
 
   return (
-    <View style={[styles.container, calcStyle.container]}>
+    <SafeAreaView style={[styles.container, calcStyle.container]}>
+      <View style={styles.back}>
+        <Back text="Login" />
+      </View>
+
       <Text style={[styles.title, calcStyle.title]}>Sign Up</Text>
 
       <Input
         inputProps={{
           inputVariant: InputVariant.Outline,
           color: scheme.quaternary,
+          errorMessage: errors.username?.message,
+          errorMessageTextColor: errMsgColor,
         }}
         textInputProps={{
           placeholder: "Username",
@@ -72,6 +80,8 @@ export default function Page() {
         inputProps={{
           inputVariant: InputVariant.Outline,
           color: scheme.quaternary,
+          errorMessage: errors.email?.message,
+          errorMessageTextColor: errMsgColor,
         }}
         textInputProps={{
           placeholder: "Email",
@@ -104,6 +114,8 @@ export default function Page() {
         inputProps={{
           inputVariant: InputVariant.Outline,
           color: scheme.quaternary,
+          errorMessage: errors.first_name?.message,
+          errorMessageTextColor: errMsgColor,
         }}
         textInputProps={{
           placeholder: "First Name",
@@ -131,6 +143,8 @@ export default function Page() {
         inputProps={{
           inputVariant: InputVariant.Outline,
           color: scheme.quaternary,
+          errorMessage: errors.last_name?.message,
+          errorMessageTextColor: errMsgColor,
         }}
         textInputProps={{
           placeholder: "Last Name",
@@ -158,6 +172,8 @@ export default function Page() {
         inputProps={{
           inputVariant: InputVariant.Outline,
           color: scheme.quaternary,
+          errorMessage: errors.password?.message,
+          errorMessageTextColor: errMsgColor,
         }}
         textInputProps={{
           placeholder: "Password",
@@ -185,6 +201,8 @@ export default function Page() {
         inputProps={{
           inputVariant: InputVariant.Outline,
           color: scheme.quaternary,
+          errorMessage: errors.repeat_password?.message,
+          errorMessageTextColor: errMsgColor,
         }}
         textInputProps={{
           placeholder: "Repeat Password",
@@ -217,7 +235,7 @@ export default function Page() {
 
       {/* {/* <Text style={calcStyle.errorText}>{errors.username?.message}</Text> */}
       {/* <Text style={calcStyle.errorText}></Text> */}
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -226,7 +244,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     flex: 1,
-    gap: 15,
+    gap: 18,
     padding: 10,
     paddingTop: 100,
   },
@@ -237,6 +255,11 @@ const styles = StyleSheet.create({
     fontFamily: "PermanentMarker",
     fontSize: 70,
     lineHeight: 90,
+  },
+  back: {
+    position: "absolute",
+    top: 40,
+    left: 10,
   },
 });
 

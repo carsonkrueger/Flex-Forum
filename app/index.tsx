@@ -14,6 +14,7 @@ export default function Page() {
   const scheme = useSettingsStore((state) => state.colorScheme);
   const setUserId = useUserStore((state) => state.setUserId);
   const userId = useUserStore((state) => state.userId);
+  const errMsgColor = scheme.loQuaternary;
 
   const calcStyle = useMemo(
     () =>
@@ -64,6 +65,8 @@ export default function Page() {
         inputProps={{
           inputVariant: InputVariant.Outline,
           color: scheme.quaternary,
+          errorMessage: errors.username?.message,
+          errorMessageTextColor: errMsgColor,
         }}
         textInputProps={{
           placeholder: "Username",
@@ -92,6 +95,8 @@ export default function Page() {
         inputProps={{
           inputVariant: InputVariant.Outline,
           color: scheme.quaternary,
+          errorMessage: errors.password?.message,
+          errorMessageTextColor: errMsgColor,
         }}
         textInputProps={{
           placeholder: "Password",
@@ -141,14 +146,6 @@ export default function Page() {
           disabled: isAnyLoading(),
         }}
       />
-
-      <Text style={calcStyle.forgotPassword}>Forgot Password?</Text>
-      {errors.username && (
-        <Text style={calcStyle.errorText}>{errors.username?.message}</Text>
-      )}
-      {errors.password && (
-        <Text style={calcStyle.errorText}>{errors.password?.message}</Text>
-      )}
     </View>
   );
 }
@@ -158,7 +155,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     flex: 1,
-    gap: 15,
+    gap: 17,
     padding: 10,
     paddingTop: 100,
   },

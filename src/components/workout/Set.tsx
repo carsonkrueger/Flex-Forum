@@ -2,7 +2,7 @@ import useSetStore from "@/stores/sets";
 import useSettingsStore from "@/stores/settings";
 import useWorkoutStore, { Id } from "@/stores/workout";
 import { ColorScheme } from "@/util/colors";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import {
   Text,
   View,
@@ -21,22 +21,37 @@ export type Props = {
 export default function Set({ id, idx }: Props) {
   const scheme = useSettingsStore((state) => state.colorScheme);
   const set = useSetStore((s) => s.sets[id]);
-  const [setWeight, setReps] = useSetStore((s) => [s.setWeight, s.setReps]);
+  const setWeight = useSetStore((s) => s.setWeight);
+  const setReps = useSetStore((s) => s.setReps);
   const [finished, setFinished] = useState<boolean>(false);
-  const prevStr = useMemo(calcPrevStr, []);
   const calcStyle = useMemo(
     () => calcStyles(scheme, finished),
     [scheme, finished],
   );
 
-  function calcPrevStr(): string {
-    if (set.prevReps === undefined && set.prevWeight === undefined) {
-      return "-";
+  const calcVolume = (weight?: number, reps?: number): number | undefined => {
+    if (weight === undefined || reps === undefined) {
+      return undefined;
     }
-    return `${set.prevWeight}x${set.prevReps}`;
-  }
+    return weight * reps;
+  };
+
+  const curVolume = useMemo(
+    () => calcVolume(set.weight, set.reps),
+    [set.weight, set.reps],
+  );
+  const prevVolume = useMemo(
+    () => calcVolume(set.weight, set.reps),
+    [set.prevWeight, set.prevReps],
+  );
 
   const onCheckClick = () => {
+    if (set.reps === undefined) {
+      setReps(set.prevReps, id);
+    }
+    if (set.weight === undefined) {
+      setReps(set.prevWeight, id);
+    }
     setFinished((prev) => !prev);
   };
 
@@ -58,10 +73,17 @@ export default function Set({ id, idx }: Props) {
           {idx + 1}
         </Text>
       </View>
+
       {/* prev */}
       <View style={styles.prevContainer}>
-        <Text style={calcStyle.text}>{prevStr}</Text>
+        <Text style={calcStyle.text}>{prevVolume}</Text>
       </View>
+
+      {/* prev */}
+      <View style={styles.prevContainer}>
+        <Text style={calcStyle.text}>{curVolume}</Text>
+      </View>
+
       {/* weight */}
       <View style={styles.weightContainer}>
         <TextInput
@@ -78,11 +100,14 @@ export default function Set({ id, idx }: Props) {
           keyboardType="numeric"
           maxLength={3}
           onChangeText={onChangeTextWeight}
+          multiline={true}
         />
       </View>
+
       {/* reps */}
       <View style={styles.repsContainer}>
         <TextInput
+          value={set.reps?.toString()}
           editable={!finished}
           style={[
             styles.weight_reps,
@@ -95,15 +120,21 @@ export default function Set({ id, idx }: Props) {
           keyboardType="numeric"
           maxLength={3}
           onChangeText={onChangeTextReps}
+          multiline={true}
         />
       </View>
+
       {/* check */}
       <View style={styles.checkContainer}>
         <TouchableOpacity
           style={[styles.check, calcStyle.check]}
           onPress={onCheckClick}
         >
-          <Ionicons name="checkmark" size={28} color={scheme.loQuaternary} />
+          <Ionicons
+            name="checkmark"
+            size={28}
+            color={finished ? scheme.secondary : scheme.primary}
+          />
         </TouchableOpacity>
       </View>
     </View>
@@ -127,7 +158,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   prevContainer: {
-    flex: flexWidths.prev,
+    flex: flexWidths.prevVol,
     alignItems: "center",
   },
   weightContainer: {
@@ -160,18 +191,18 @@ const styles = StyleSheet.create({
 const calcStyles = (scheme: ColorScheme, finished: boolean) =>
   StyleSheet.create({
     container: {
-      backgroundColor: finished ? scheme.quaternary : scheme.primary,
+      backgroundColor: finished ? scheme.secondary : scheme.primary,
     },
     text: {
-      color: finished ? scheme.loQuaternary : scheme.tertiary,
+      color: finished ? scheme.primary : scheme.tertiary,
     },
     set_prev: {
-      color: finished ? scheme.loQuaternary : scheme.tertiary,
+      color: finished ? scheme.primary : scheme.tertiary,
     },
     check: {
-      backgroundColor: finished ? scheme.loQuaternary : scheme.quaternary,
+      backgroundColor: finished ? scheme.primary : scheme.quaternary,
     },
     weight_reps: {
-      backgroundColor: finished ? scheme.quaternary : scheme.secondary,
+      backgroundColor: finished ? scheme.secondary : scheme.secondary,
     },
   });
