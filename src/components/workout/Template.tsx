@@ -1,4 +1,4 @@
-import useExerciseStore, { Exercise } from "@/stores/exercises";
+import useExerciseStore from "@/stores/exercises";
 import useSettingsStore from "@/stores/settings";
 import useWorkoutStore, { Workout } from "@/stores/workout";
 import { ColorScheme } from "@/util/colors";
@@ -23,6 +23,7 @@ export default function Page(props: Props) {
       id: 0,
       exerciseIds: [0],
       name: "push",
+      isLocked: true,
     };
     workout.setWorkout(w);
     createExercise();

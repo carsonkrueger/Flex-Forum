@@ -13,6 +13,7 @@ type State = { nextId: Id; sets: { [id: Id]: Set } };
 
 type Action = {
   createSet: () => Id;
+  deleteSet: (id: Id) => void;
   setWeight: (weight: Set["weight"], id: Set["id"]) => void;
   setReps: (reps: Set["reps"], id: Set["id"]) => void;
   setPrev: (w: Set["prevWeight"], r: Set["prevReps"], id: Set["id"]) => void;
@@ -30,6 +31,13 @@ const useSetStore = create<State & Action>((set, get) => ({
     }));
     return prevId;
   },
+
+  deleteSet: (id: Id) =>
+    set((s) => {
+      const newSets = { ...s.sets };
+      delete newSets[id];
+      return { sets: newSets };
+    }),
 
   setWeight: (weight: Set["weight"], id: Set["id"]) =>
     set((s) => ({

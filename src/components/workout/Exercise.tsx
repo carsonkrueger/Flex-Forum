@@ -1,27 +1,29 @@
 import useExerciseStore from "@/stores/exercises";
 import useSettingsStore from "@/stores/settings";
-import { Id } from "@/stores/workout";
+import useWorkoutStore, { Id } from "@/stores/workout";
 import { ColorScheme } from "@/util/colors";
 import { useMemo } from "react";
 import { Text, View, StyleSheet, TouchableOpacity } from "react-native";
 import Set from "./Set";
-import useSetStore from "@/stores/sets";
 import flexWidths from "@/util/setFlexWidths";
+import { Ionicons } from "@expo/vector-icons";
 
 export type Props = {
   id: Id;
+  workoutId: Id;
 };
 
-export default function Exercise({ id }: Props) {
+export default function Exercise({ id, workoutId }: Props) {
   const scheme = useSettingsStore((state) => state.colorScheme);
-  const calcStyle = useMemo(() => calcStyles(scheme), [scheme]);
+  const isLocked = useWorkoutStore((s) => s.workouts[workoutId].isLocked);
+  const calcStyle = useMemo(
+    () => calcStyles(scheme, isLocked),
+    [scheme, isLocked],
+  );
   const exercise = useExerciseStore((s) => s.exercises[id]);
-  const addSet = useExerciseStore((s) => s.addSet);
-  const createSet = useSetStore((s) => s.createSet);
 
-  const onCreateSet = () => {
-    // let setId = createSet();
-    addSet(id, createSet());
+  const onEllipsisClick = () => {
+    //todo
   };
 
   return (
@@ -30,9 +32,24 @@ export default function Exercise({ id }: Props) {
       <View style={[styles.headerContainer, calcStyle.headerContainer]}>
         {/* Top header */}
         <View style={styles.topHeaderContainer}>
-          <Text style={[styles.headerText, calcStyle.headerText]}>
-            {exercise.name}
-          </Text>
+          <TouchableOpacity>
+            <Text style={[styles.headerText, calcStyle.headerText]}>
+              {exercise.exerciseId
+                ? exercise.exerciseId
+                : isLocked
+                  ? " "
+                  : "Select Exercise"}
+            </Text>
+          </TouchableOpacity>
+          {!isLocked && (
+            <TouchableOpacity onPress={onEllipsisClick}>
+              <Ionicons
+                name="ellipsis-horizontal-sharp"
+                size={30}
+                color={scheme.quaternary}
+              />
+            </TouchableOpacity>
+          )}
         </View>
         {/* Bottom header */}
         <View style={styles.btmHeaderContainer}>
@@ -89,11 +106,6 @@ export default function Exercise({ id }: Props) {
       {exercise.setIds.map((setId, idx) => (
         <Set key={`set.${setId}`} id={setId} idx={idx} />
       ))}
-      {/* Add set */}
-      <TouchableOpacity
-        style={[styles.addSet, calcStyle.addSet]}
-        onPress={onCreateSet}
-      />
     </View>
   );
 }
@@ -104,33 +116,43 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
   },
   topHeaderContainer: {
+    justifyContent: "space-between",
     flexDirection: "row",
+    paddingHorizontal: 10,
+    paddingVertical: 10,
   },
   btmHeaderContainer: {
     flexDirection: "row",
     justifyContent: "space-around",
   },
   headerText: {
-    fontSize: 18,
+    fontFamily: "PermanentMarker",
+    fontSize: 20,
+    borderRadius: 6,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    minWidth: 140,
   },
   columnHeaderText: {
     fontSize: 12,
     textAlign: "center",
     alignSelf: "center",
   },
-  addSet: { width: 20, height: 20 },
+  exerciseMenu: {
+    position: "absolute",
+    top: 10,
+    right: 8,
+    elevation: 1000,
+  },
 });
 
-const calcStyles = (scheme: ColorScheme) =>
+const calcStyles = (scheme: ColorScheme, isLocked: boolean) =>
   StyleSheet.create({
-    container: {
-      // backgroundColor: scheme.secondary,
-    },
-    headerContainer: {
-      // backgroundColor: scheme.secondary,
-    },
+    container: {},
+    headerContainer: {},
     headerText: {
-      color: scheme.primary,
+      color: isLocked ? scheme.tertiary : scheme.primary,
+      backgroundColor: isLocked ? scheme.primary : scheme.secondary,
     },
     columnHeaderText: {
       color: scheme.tertiary,
@@ -139,5 +161,3 @@ const calcStyles = (scheme: ColorScheme) =>
       backgroundColor: scheme.loQuaternary,
     },
   });
-
-export { flexWidths };

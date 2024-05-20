@@ -9,6 +9,7 @@ import { routes } from "@/util/routes";
 import { Ionicons } from "@expo/vector-icons";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import useUserStore from "@/stores/user";
+import { StatusBar } from "expo-status-bar";
 
 export default function Layout() {
   // useAuth();
@@ -22,6 +23,7 @@ export default function Layout() {
 
   return (
     <SafeAreaView style={styles.container}>
+      <StatusBar backgroundColor={scheme.primary} />
       <Slot initialRouteName={routes.home} />
       <View style={[styles.navContainer, calcStyle.navContainer]}>
         <NavItem

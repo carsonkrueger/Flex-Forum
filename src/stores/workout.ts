@@ -5,14 +5,13 @@ export type Id = number;
 export type Workout = {
   id: Id;
   name: string;
+  isLocked: boolean;
   lastPerformed?: Date;
   exerciseIds: Id[];
 };
 
 type State = {
-  showModal: boolean;
   nextId: Id;
-  isLocked: boolean;
   workouts: { [id: Id]: Workout };
 };
 
@@ -20,14 +19,11 @@ type Action = {
   setWorkout: (w: Workout) => void;
   setName: (name: Workout["name"], id: Workout["id"]) => void;
   addExercise: (id: Id, exerciseId: Id) => void;
-  toggleModal: () => void;
-  toggleLocked: () => void;
+  toggleLocked: (id: Id) => void;
 };
 
 const useWorkoutStore = create<State & Action>((set) => ({
-  showModal: false,
   nextId: 0,
-  isLocked: false,
   workouts: {},
 
   setWorkout: (w: Workout) =>
@@ -47,8 +43,13 @@ const useWorkoutStore = create<State & Action>((set) => ({
       },
     })),
 
-  toggleModal: () => set((s) => ({ showModal: !s.showModal })),
-  toggleLocked: () => set((s) => ({ isLocked: !s.isLocked })),
+  toggleLocked: (id: Id) =>
+    set((s) => ({
+      workouts: {
+        ...s.workouts,
+        [id]: { ...s.workouts[id], isLocked: !s.workouts[id].isLocked },
+      },
+    })),
 }));
 
 export default useWorkoutStore;

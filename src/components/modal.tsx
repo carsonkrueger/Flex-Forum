@@ -24,6 +24,7 @@ export default function Modal(props: Props & TouchableWithoutFeedbackProps) {
           left: 0,
           right: 0,
           elevation: 10,
+          zIndex: 10,
         }}
       />
     </TouchableWithoutFeedback>
