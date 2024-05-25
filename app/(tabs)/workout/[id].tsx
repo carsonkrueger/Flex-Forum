@@ -24,6 +24,9 @@ import {
   BottomSheetView,
 } from "@gorhom/bottom-sheet";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import CircularButton from "@/forms/CircularButton";
+import { SizeVariant } from "@/util/variants";
+import { Ionicons } from "@expo/vector-icons";
 
 export default function Page() {
   const id = (useLocalSearchParams<{ id: string }>().id ?? 0) as number;
@@ -33,7 +36,10 @@ export default function Page() {
   const toggleLocked = useWorkoutStore((s) => s.toggleLocked);
   const workout = useWorkoutStore((s) => s.workouts[id]);
   const addExercise = useWorkoutStore((s) => s.addExercise);
+  const removeExercise = useWorkoutStore((s) => s.removeExercise);
   const createExercise = useExerciseStore((s) => s.createExercise);
+  const deleteExercise = useExerciseStore((s) => s.deleteExercise);
+  const getExercise = useExerciseStore((s) => s.getExercise);
   const addSet = useExerciseStore((s) => s.addSet);
   const popSet = useExerciseStore((s) => s.popSet);
   const createSet = useSetStore((s) => s.createSet);
@@ -48,6 +54,13 @@ export default function Page() {
     addExercise(id, exerciseId);
     let setId = createSet();
     addSet(exerciseId, setId);
+  }
+
+  function onToggleLocked(): void {
+    if (sheetIndex !== undefined) {
+      setSheetIndex(undefined);
+    }
+    toggleLocked(id);
   }
 
   function onSheetChange(index: number): void {
@@ -69,12 +82,26 @@ export default function Page() {
       if (setId !== undefined) {
         deleteSet(setId);
       }
+      let setsLen = getExercise(sheetIndex).setIds.length;
+      if (setsLen === 0) {
+        addSet(sheetIndex, createSet());
+      }
     }
+  }
+
+  function onDeleteExercise() {
+    if (sheetIndex === undefined) {
+      return;
+    }
+    removeExercise(id, sheetIndex);
+    deleteExercise(sheetIndex);
   }
 
   useEffect(() => {
     if (sheetIndex !== undefined) {
       sheetRef.current?.present();
+    } else {
+      sheetRef.current?.close();
     }
   }, [sheetIndex]);
 
@@ -89,7 +116,7 @@ export default function Page() {
             >
               {workout.name}
             </TextInput>
-            <TouchableOpacity onPress={() => toggleLocked(id)}>
+            <TouchableOpacity onPress={onToggleLocked}>
               <Octicons
                 name={isLocked ? "lock" : "unlock"}
                 size={30}
@@ -125,15 +152,54 @@ export default function Page() {
           ref={sheetRef}
           snapPoints={["40%"]}
           onChange={onSheetChange}
-          backgroundStyle={[
-            styles.bottomSheetCotainer,
-            calcStyle.bottomSheetContainer,
-          ]}
+          backgroundStyle={[styles.bottomSheet, calcStyle.bottomSheetContainer]}
           handleIndicatorStyle={{ backgroundColor: scheme.loPrimary }}
         >
-          <BottomSheetView>
-            <Button title="add" onPress={onAddSet} />
-            <Button title="remove" onPress={onRemoveSet} />
+          <BottomSheetView style={styles.bottomSheetView}>
+            <View style={styles.bottomSheetRowContainer}>
+              <CircularButton
+                backgroundColor={scheme.quaternary}
+                size={SizeVariant.LG}
+                onPress={onRemoveSet}
+              >
+                <Ionicons
+                  name="remove-outline"
+                  size={22}
+                  color={scheme.hiPrimary}
+                />
+              </CircularButton>
+              <Text style={[styles.sheetText, calcStyle.sheetText]}>SETS</Text>
+              <CircularButton
+                backgroundColor={scheme.quaternary}
+                size={SizeVariant.LG}
+                onPress={onAddSet}
+              >
+                <Ionicons
+                  name="add-outline"
+                  size={22}
+                  color={scheme.hiPrimary}
+                />
+              </CircularButton>
+            </View>
+
+            <Submit
+              btnProps={{
+                text: "NOTES",
+                primaryColor: scheme.secondary,
+                secondaryColor: scheme.tertiary,
+                variant: ButtonVariant.Filled,
+              }}
+            />
+
+            <Submit
+              btnProps={{
+                text: "DELETE EXERCISE",
+                primaryColor: scheme.hiPrimary,
+                secondaryColor: scheme.quaternary,
+                variant: ButtonVariant.Filled,
+              }}
+              touchableProps={{ onPress: onDeleteExercise }}
+            />
           </BottomSheetView>
         </BottomSheetModal>
       </BottomSheetModalProvider>
@@ -160,11 +226,24 @@ const styles = StyleSheet.create({
   addExercise: {
     alignItems: "center",
     paddingTop: 30,
-    paddingBottom: 250,
     paddingHorizontal: 100,
+    marginBottom: 300,
   },
-  bottomSheetCotainer: {
-    // backgroundColor:
+  bottomSheet: {},
+  bottomSheetView: {
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 5,
+  },
+  bottomSheetRowContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 15,
+    paddingVertical: 10,
+  },
+  sheetText: {
+    fontSize: 15,
   },
 });
 
@@ -181,5 +260,8 @@ const calcStyles = (scheme: ColorScheme) =>
     },
     bottomSheetContainer: {
       backgroundColor: scheme.hiPrimary,
+    },
+    sheetText: {
+      color: scheme.tertiary,
     },
   });

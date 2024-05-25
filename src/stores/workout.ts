@@ -20,11 +20,12 @@ type Action = {
   setWorkout: (w: Workout) => void;
   setName: (name: Workout["name"], id: Workout["id"]) => void;
   addExercise: (id: Id, exerciseId: Id) => void;
+  removeExercise: (id: Id, exerciseId: Id) => void;
   toggleLocked: (id: Id) => void;
   setSheetIndex: (id?: Id) => void;
 };
 
-const useWorkoutStore = create<State & Action>((set) => ({
+const useWorkoutStore = create<State & Action>((set, get) => ({
   nextId: 0,
   sheetIndex: undefined,
   workouts: {},
@@ -42,6 +43,19 @@ const useWorkoutStore = create<State & Action>((set) => ({
         [id]: {
           ...s.workouts[id],
           exerciseIds: [...s.workouts[id].exerciseIds, exerciseId],
+        },
+      },
+    })),
+
+  removeExercise: (id: Id, exerciseId: Id) =>
+    set((s) => ({
+      workouts: {
+        ...s.workouts,
+        [id]: {
+          ...s.workouts[id],
+          exerciseIds: get().workouts[id].exerciseIds.filter(
+            (i) => i !== exerciseId,
+          ),
         },
       },
     })),

@@ -13,7 +13,9 @@ type State = { nextId: Id; exercises: { [id: Id]: Exercise } };
 
 type Action = {
   setExercise: (e: Exercise) => void;
+  getExercise: (id: Id) => Exercise;
   createExercise: () => Id;
+  deleteExercise: (id: Id) => void;
   setExerciseId: (id: Id, exerciseId: Id) => void;
   setTimerDuration: (id: Id, duration: number) => void;
   addSet: (id: Id, setId: Id) => void;
@@ -26,6 +28,8 @@ const useExerciseStore = create<State & Action>((set, get) => ({
 
   setExercise: (ex: Exercise) =>
     set((s) => ({ exercises: { ...s.exercises, [ex.id]: ex } })),
+
+  getExercise: (id: Id) => get().exercises[id],
 
   setExerciseId: (id: Id, exerciseId: Id) =>
     set((s) => ({
@@ -68,6 +72,7 @@ const useExerciseStore = create<State & Action>((set, get) => ({
     }));
     return lastSetId;
   },
+
   createExercise: () => {
     let prevId = get().nextId;
     set((s) => ({
@@ -78,6 +83,14 @@ const useExerciseStore = create<State & Action>((set, get) => ({
       },
     }));
     return prevId;
+  },
+
+  deleteExercise: (id: Id) => {
+    set((s) => {
+      const exercises = { ...s.exercises };
+      delete exercises[id];
+      return { exercises: exercises };
+    });
   },
 }));
 

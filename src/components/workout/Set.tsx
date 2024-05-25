@@ -1,8 +1,8 @@
 import useSetStore from "@/stores/sets";
 import useSettingsStore from "@/stores/settings";
-import useWorkoutStore, { Id } from "@/stores/workout";
+import { Id } from "@/stores/workout";
 import { ColorScheme } from "@/util/colors";
-import { useCallback, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import {
   Text,
   View,

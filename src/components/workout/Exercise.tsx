@@ -17,6 +17,7 @@ export default function Exercise({ id, workoutId }: Props) {
   const scheme = useSettingsStore((state) => state.colorScheme);
   const isLocked = useWorkoutStore((s) => s.workouts[workoutId].isLocked);
   const setSheetIndex = useWorkoutStore((s) => s.setSheetIndex);
+  const sheetIndex = useWorkoutStore((s) => s.sheetIndex);
   const calcStyle = useMemo(
     () => calcStyles(scheme, isLocked),
     [scheme, isLocked],
@@ -24,8 +25,11 @@ export default function Exercise({ id, workoutId }: Props) {
   const exercise = useExerciseStore((s) => s.exercises[id]);
 
   const onEllipsisClick = () => {
-    //todo
-    setSheetIndex(exercise.id);
+    if (sheetIndex === exercise.id) {
+      setSheetIndex(undefined);
+    } else {
+      setSheetIndex(exercise.id);
+    }
   };
 
   return (
@@ -47,7 +51,7 @@ export default function Exercise({ id, workoutId }: Props) {
             <TouchableOpacity onPress={onEllipsisClick}>
               <Ionicons
                 name="ellipsis-horizontal-sharp"
-                size={30}
+                size={23}
                 color={scheme.quaternary}
               />
             </TouchableOpacity>
@@ -153,7 +157,7 @@ const calcStyles = (scheme: ColorScheme, isLocked: boolean) =>
     container: {},
     headerContainer: {},
     headerText: {
-      color: isLocked ? scheme.tertiary : scheme.primary,
+      color: isLocked ? scheme.tertiary : scheme.tertiary,
       backgroundColor: isLocked ? scheme.primary : scheme.secondary,
     },
     columnHeaderText: {
