@@ -12,6 +12,7 @@ export type Workout = {
 
 type State = {
   nextId: Id;
+  sheetIndex?: Id;
   workouts: { [id: Id]: Workout };
 };
 
@@ -20,10 +21,12 @@ type Action = {
   setName: (name: Workout["name"], id: Workout["id"]) => void;
   addExercise: (id: Id, exerciseId: Id) => void;
   toggleLocked: (id: Id) => void;
+  setSheetIndex: (id?: Id) => void;
 };
 
 const useWorkoutStore = create<State & Action>((set) => ({
   nextId: 0,
+  sheetIndex: undefined,
   workouts: {},
 
   setWorkout: (w: Workout) =>
@@ -50,6 +53,8 @@ const useWorkoutStore = create<State & Action>((set) => ({
         [id]: { ...s.workouts[id], isLocked: !s.workouts[id].isLocked },
       },
     })),
+
+  setSheetIndex: (id?: Id) => set((s) => ({ sheetIndex: id })),
 }));
 
 export default useWorkoutStore;

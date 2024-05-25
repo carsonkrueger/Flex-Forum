@@ -16,6 +16,7 @@ export type Props = {
 export default function Exercise({ id, workoutId }: Props) {
   const scheme = useSettingsStore((state) => state.colorScheme);
   const isLocked = useWorkoutStore((s) => s.workouts[workoutId].isLocked);
+  const setSheetIndex = useWorkoutStore((s) => s.setSheetIndex);
   const calcStyle = useMemo(
     () => calcStyles(scheme, isLocked),
     [scheme, isLocked],
@@ -24,6 +25,7 @@ export default function Exercise({ id, workoutId }: Props) {
 
   const onEllipsisClick = () => {
     //todo
+    setSheetIndex(exercise.id);
   };
 
   return (

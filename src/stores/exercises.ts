@@ -17,7 +17,7 @@ type Action = {
   setExerciseId: (id: Id, exerciseId: Id) => void;
   setTimerDuration: (id: Id, duration: number) => void;
   addSet: (id: Id, setId: Id) => void;
-  removeSet: (id: Id) => void;
+  popSet: (id: Id) => Id | undefined;
 };
 
 const useExerciseStore = create<State & Action>((set, get) => ({
@@ -54,7 +54,9 @@ const useExerciseStore = create<State & Action>((set, get) => ({
       },
     })),
 
-  removeSet: (id: Id) =>
+  popSet: (id: Id) => {
+    let len = get().exercises[id].setIds.length;
+    let lastSetId = len > 0 ? get().exercises[id].setIds[len - 1] : undefined;
     set((s) => ({
       exercises: {
         ...s.exercises,
@@ -63,8 +65,9 @@ const useExerciseStore = create<State & Action>((set, get) => ({
           setIds: s.exercises[id].setIds.slice(0, -1),
         },
       },
-    })),
-
+    }));
+    return lastSetId;
+  },
   createExercise: () => {
     let prevId = get().nextId;
     set((s) => ({

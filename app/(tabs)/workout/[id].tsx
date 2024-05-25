@@ -7,13 +7,14 @@ import useWorkoutStore from "@/stores/workout";
 import { ColorScheme } from "@/util/colors";
 import { FlashList } from "@shopify/flash-list";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import {
   StyleSheet,
   TextInput,
   Text,
   TouchableOpacity,
   View,
+  Button,
 } from "react-native";
 import { Octicons } from "@expo/vector-icons";
 
@@ -34,8 +35,13 @@ export default function Page() {
   const addExercise = useWorkoutStore((s) => s.addExercise);
   const createExercise = useExerciseStore((s) => s.createExercise);
   const addSet = useExerciseStore((s) => s.addSet);
+  const popSet = useExerciseStore((s) => s.popSet);
   const createSet = useSetStore((s) => s.createSet);
+  const deleteSet = useSetStore((s) => s.deleteSet);
   const calcStyle = useMemo(() => calcStyles(scheme), [scheme, isLocked]);
+  const setSheetIndex = useWorkoutStore((s) => s.setSheetIndex);
+  const sheetIndex = useWorkoutStore((s) => s.sheetIndex);
+  const sheetRef = useRef<BottomSheetModal>(null);
 
   function onCreateExercise(): void {
     let exerciseId = createExercise();
@@ -43,6 +49,34 @@ export default function Page() {
     let setId = createSet();
     addSet(exerciseId, setId);
   }
+
+  function onSheetChange(index: number): void {
+    // if index is -1 then it is closed
+    if (index === -1) {
+      setSheetIndex(undefined);
+    }
+  }
+
+  function onAddSet(): void {
+    if (sheetIndex !== undefined) {
+      addSet(sheetIndex, createSet());
+    }
+  }
+
+  function onRemoveSet(): void {
+    if (sheetIndex !== undefined) {
+      let setId = popSet(sheetIndex);
+      if (setId !== undefined) {
+        deleteSet(setId);
+      }
+    }
+  }
+
+  useEffect(() => {
+    if (sheetIndex !== undefined) {
+      sheetRef.current?.present();
+    }
+  }, [sheetIndex]);
 
   return (
     <GestureHandlerRootView>
@@ -87,9 +121,19 @@ export default function Page() {
           />
         </View>
         {/* Modal bottom sheet */}
-        <BottomSheetModal>
+        <BottomSheetModal
+          ref={sheetRef}
+          snapPoints={["40%"]}
+          onChange={onSheetChange}
+          backgroundStyle={[
+            styles.bottomSheetCotainer,
+            calcStyle.bottomSheetContainer,
+          ]}
+          handleIndicatorStyle={{ backgroundColor: scheme.loPrimary }}
+        >
           <BottomSheetView>
-            <Text>hi</Text>
+            <Button title="add" onPress={onAddSet} />
+            <Button title="remove" onPress={onRemoveSet} />
           </BottomSheetView>
         </BottomSheetModal>
       </BottomSheetModalProvider>
@@ -99,9 +143,6 @@ export default function Page() {
 
 const styles = StyleSheet.create({
   container: {
-    // flex: 1,
-    // zIndex: -1,
-    // elevation: -1,
     height: "100%",
   },
   headerContainer: {
@@ -122,6 +163,9 @@ const styles = StyleSheet.create({
     paddingBottom: 250,
     paddingHorizontal: 100,
   },
+  bottomSheetCotainer: {
+    // backgroundColor:
+  },
 });
 
 const calcStyles = (scheme: ColorScheme) =>
@@ -134,5 +178,8 @@ const calcStyles = (scheme: ColorScheme) =>
     },
     headerText: {
       color: scheme.primary,
+    },
+    bottomSheetContainer: {
+      backgroundColor: scheme.hiPrimary,
     },
   });
