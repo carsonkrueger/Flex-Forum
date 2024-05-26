@@ -47,16 +47,24 @@ export default function Page() {
   const popSet = useExerciseStore((s) => s.popSet);
   const createSet = useSetStore((s) => s.createSet);
   const deleteSet = useSetStore((s) => s.deleteSet);
-  const calcStyle = useMemo(() => calcStyles(scheme), [scheme, isLocked]);
+  const calcStyle = useMemo(
+    () => calcStyles(scheme, isLocked),
+    [scheme, isLocked],
+  );
   const setSheetId = useWorkoutStore((s) => s.setSheetId);
   const sheetId = useWorkoutStore((s) => s.sheetId);
   const sheetRef = useRef<BottomSheetModal>(null);
+  const setName = useWorkoutStore((s) => s.setName);
 
   function onCreateExercise(): void {
     let exerciseId = createExercise();
     addExercise(id, exerciseId);
     let setId = createSet();
     addSet(exerciseId, setId);
+  }
+
+  function onSetWorkoutName(text: string): void {
+    setName(text, id);
   }
 
   function onToggleLocked(): void {
@@ -138,9 +146,9 @@ export default function Page() {
             <TextInput
               editable={!isLocked}
               style={[styles.headerText, calcStyle.headerText]}
-            >
-              {workout.name}
-            </TextInput>
+              value={workout.name}
+              onChangeText={onSetWorkoutName}
+            />
             <TouchableOpacity onPress={onToggleLocked}>
               <Octicons
                 name={isLocked ? "lock" : "unlock"}
@@ -279,9 +287,13 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
   },
   headerText: {
+    minWidth: 220,
+    maxWidth: 260,
+    paddingHorizontal: 6,
+    borderRadius: 8,
     fontFamily: "PermanentMarker",
     fontSize: 30,
-    textAlign: "center",
+    // textAlign: "center",
   },
   addExercise: {
     alignItems: "center",
@@ -307,7 +319,7 @@ const styles = StyleSheet.create({
   },
 });
 
-const calcStyles = (scheme: ColorScheme) =>
+const calcStyles = (scheme: ColorScheme, isLocked: boolean) =>
   StyleSheet.create({
     container: {
       backgroundColor: scheme.primary,
@@ -316,6 +328,7 @@ const calcStyles = (scheme: ColorScheme) =>
       backgroundColor: scheme.quaternary,
     },
     headerText: {
+      backgroundColor: isLocked ? scheme.quaternary : scheme.loQuaternary,
       color: scheme.primary,
     },
     bottomSheetContainer: {

@@ -1,6 +1,5 @@
-import useExerciseStore from "@/stores/exercises";
 import useSettingsStore from "@/stores/settings";
-import useWorkoutStore, { Workout } from "@/stores/workout";
+import useWorkoutStore from "@/stores/workout";
 import { ColorScheme } from "@/util/colors";
 import { routes } from "@/util/routes";
 import { useRouter } from "expo-router";
@@ -15,20 +14,7 @@ export default function Page(props: Props) {
   const router = useRouter();
   const scheme = useSettingsStore((state) => state.colorScheme);
   const calcStyle = useMemo(() => calcStyles(scheme), [scheme]);
-  const workout = useWorkoutStore((s) => s);
-  const createExercise = useExerciseStore((s) => s.createExercise);
-
-  const createFakeWorkout = () => {
-    let w: Workout = {
-      id: 0,
-      exerciseIds: [0],
-      name: "push",
-      isLocked: true,
-    };
-    workout.setWorkout(w);
-    createExercise();
-    onPress();
-  };
+  const workout = useWorkoutStore((s) => s.workouts[props.id]);
 
   const onPress = () => {
     router.push({ pathname: routes.workout(props.id) });
@@ -38,10 +24,12 @@ export default function Page(props: Props) {
     <TouchableOpacity
       style={[styles.container, calcStyle.container]}
       activeOpacity={0.5}
-      onPress={createFakeWorkout}
+      onPress={onPress}
     >
       <View style={styles.leftTemplate}>
-        <Text style={[styles.templateHeader, calcStyle.text]}>template</Text>
+        <Text style={[styles.templateHeader, calcStyle.text]}>
+          {workout.name}
+        </Text>
       </View>
     </TouchableOpacity>
   );

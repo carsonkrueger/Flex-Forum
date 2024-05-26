@@ -7,6 +7,7 @@ export type Set = {
   reps?: number;
   prevWeight?: number;
   prevReps?: number;
+  finished: boolean;
 };
 
 type State = { nextId: Id; sets: { [id: Id]: Set } };
@@ -17,6 +18,7 @@ type Action = {
   setWeight: (weight: Set["weight"], id: Set["id"]) => void;
   setReps: (reps: Set["reps"], id: Set["id"]) => void;
   setPrev: (w: Set["prevWeight"], r: Set["prevReps"], id: Set["id"]) => void;
+  toggleFinished: (id: Id) => void;
 };
 
 const useSetStore = create<State & Action>((set, get) => ({
@@ -27,7 +29,7 @@ const useSetStore = create<State & Action>((set, get) => ({
     let prevId = get().nextId;
     set((s) => ({
       nextId: s.nextId + 1,
-      sets: { ...s.sets, [s.nextId]: { id: s.nextId } },
+      sets: { ...s.sets, [s.nextId]: { id: s.nextId, finished: false } },
     }));
     return prevId;
   },
@@ -50,6 +52,14 @@ const useSetStore = create<State & Action>((set, get) => ({
   setPrev: (w: Set["prevWeight"], r: Set["prevReps"], id: Set["id"]) =>
     set((s) => ({
       sets: { ...s.sets, [id]: { ...s.sets[id], prevWeight: w, prevReps: r } },
+    })),
+
+  toggleFinished: (id: Id) =>
+    set((s) => ({
+      sets: {
+        ...s.sets,
+        [id]: { ...s.sets[id], finished: !s.sets[id].finished },
+      },
     })),
 }));
 

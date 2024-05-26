@@ -23,10 +23,10 @@ export default function Set({ id, idx }: Props) {
   const set = useSetStore((s) => s.sets[id]);
   const setWeight = useSetStore((s) => s.setWeight);
   const setReps = useSetStore((s) => s.setReps);
-  const [finished, setFinished] = useState<boolean>(false);
+  const toggleFinished = useSetStore((s) => s.toggleFinished);
   const calcStyle = useMemo(
-    () => calcStyles(scheme, finished),
-    [scheme, finished],
+    () => calcStyles(scheme, set.finished),
+    [scheme, set.finished],
   );
 
   const calcVolume = (weight?: number, reps?: number): number | undefined => {
@@ -52,7 +52,7 @@ export default function Set({ id, idx }: Props) {
     if (set.weight === undefined) {
       setReps(set.prevWeight, id);
     }
-    setFinished((prev) => !prev);
+    toggleFinished(id);
   };
 
   const onChangeTextWeight = (t: string) => {
@@ -88,7 +88,7 @@ export default function Set({ id, idx }: Props) {
       <View style={styles.weightContainer}>
         <TextInput
           value={set.weight?.toString()}
-          editable={!finished}
+          editable={!set.finished}
           style={[
             styles.weight_reps,
             calcStyle.weight_reps,
@@ -108,7 +108,7 @@ export default function Set({ id, idx }: Props) {
       <View style={styles.repsContainer}>
         <TextInput
           value={set.reps?.toString()}
-          editable={!finished}
+          editable={!set.finished}
           style={[
             styles.weight_reps,
             calcStyle.weight_reps,
@@ -133,7 +133,7 @@ export default function Set({ id, idx }: Props) {
           <Ionicons
             name="checkmark"
             size={28}
-            color={finished ? scheme.secondary : scheme.primary}
+            color={set.finished ? scheme.secondary : scheme.primary}
           />
         </TouchableOpacity>
       </View>
