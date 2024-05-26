@@ -12,7 +12,7 @@ export type Workout = {
 
 type State = {
   nextId: Id;
-  sheetIndex?: Id;
+  sheetId?: Id;
   workouts: { [id: Id]: Workout };
 };
 
@@ -22,12 +22,14 @@ type Action = {
   addExercise: (id: Id, exerciseId: Id) => void;
   removeExercise: (id: Id, exerciseId: Id) => void;
   toggleLocked: (id: Id) => void;
-  setSheetIndex: (id?: Id) => void;
+  setSheetId: (id?: Id) => void;
+  moveUp: (id: Id, exerciseId: Id) => void;
+  moveDown: (id: Id, exerciseId: Id) => void;
 };
 
 const useWorkoutStore = create<State & Action>((set, get) => ({
   nextId: 0,
-  sheetIndex: undefined,
+  sheetId: undefined,
   workouts: {},
 
   setWorkout: (w: Workout) =>
@@ -68,7 +70,41 @@ const useWorkoutStore = create<State & Action>((set, get) => ({
       },
     })),
 
-  setSheetIndex: (id?: Id) => set((s) => ({ sheetIndex: id })),
+  setSheetId: (id?: Id) => set((s) => ({ sheetId: id })),
+
+  moveUp: (id: Id, exerciseId: Id) => {
+    let ids = [...get().workouts[id].exerciseIds];
+    let index = ids.findIndex((i) => i === exerciseId);
+    let upIndex = index - 1;
+    if (upIndex < 0 || index == -1) {
+      return;
+    }
+    [ids[index], ids[upIndex]] = [ids[upIndex], ids[index]]; // swap
+
+    set((s) => ({
+      workouts: {
+        ...s.workouts,
+        [id]: { ...s.workouts[id], exerciseIds: ids },
+      },
+    }));
+  },
+
+  moveDown: (id: Id, exerciseId: Id) => {
+    let ids = [...get().workouts[id].exerciseIds];
+    let index = ids.findIndex((i) => i === exerciseId);
+    let downIndex = index + 1;
+    if (downIndex >= ids.length || index == -1) {
+      return;
+    }
+    [ids[index], ids[downIndex]] = [ids[downIndex], ids[index]]; // swap
+
+    set((s) => ({
+      workouts: {
+        ...s.workouts,
+        [id]: { ...s.workouts[id], exerciseIds: ids },
+      },
+    }));
+  },
 }));
 
 export default useWorkoutStore;

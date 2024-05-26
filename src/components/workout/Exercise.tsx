@@ -16,8 +16,7 @@ export type Props = {
 export default function Exercise({ id, workoutId }: Props) {
   const scheme = useSettingsStore((state) => state.colorScheme);
   const isLocked = useWorkoutStore((s) => s.workouts[workoutId].isLocked);
-  const setSheetIndex = useWorkoutStore((s) => s.setSheetIndex);
-  const sheetIndex = useWorkoutStore((s) => s.sheetIndex);
+  const setSheetIndex = useWorkoutStore((s) => s.setSheetId);
   const calcStyle = useMemo(
     () => calcStyles(scheme, isLocked),
     [scheme, isLocked],
@@ -25,11 +24,7 @@ export default function Exercise({ id, workoutId }: Props) {
   const exercise = useExerciseStore((s) => s.exercises[id]);
 
   const onEllipsisClick = () => {
-    if (sheetIndex === exercise.id) {
-      setSheetIndex(undefined);
-    } else {
-      setSheetIndex(exercise.id);
-    }
+    setSheetIndex(exercise.id);
   };
 
   return (

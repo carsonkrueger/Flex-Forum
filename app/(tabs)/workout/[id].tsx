@@ -7,7 +7,7 @@ import useWorkoutStore from "@/stores/workout";
 import { ColorScheme } from "@/util/colors";
 import { FlashList } from "@shopify/flash-list";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   StyleSheet,
   TextInput,
@@ -27,6 +27,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import CircularButton from "@/forms/CircularButton";
 import { SizeVariant } from "@/util/variants";
 import { Ionicons } from "@expo/vector-icons";
+import Modal from "@/components/modal";
 
 export default function Page() {
   const id = (useLocalSearchParams<{ id: string }>().id ?? 0) as number;
@@ -39,14 +40,16 @@ export default function Page() {
   const removeExercise = useWorkoutStore((s) => s.removeExercise);
   const createExercise = useExerciseStore((s) => s.createExercise);
   const deleteExercise = useExerciseStore((s) => s.deleteExercise);
+  const moveUp = useWorkoutStore((s) => s.moveUp);
+  const moveDown = useWorkoutStore((s) => s.moveDown);
   const getExercise = useExerciseStore((s) => s.getExercise);
   const addSet = useExerciseStore((s) => s.addSet);
   const popSet = useExerciseStore((s) => s.popSet);
   const createSet = useSetStore((s) => s.createSet);
   const deleteSet = useSetStore((s) => s.deleteSet);
   const calcStyle = useMemo(() => calcStyles(scheme), [scheme, isLocked]);
-  const setSheetIndex = useWorkoutStore((s) => s.setSheetIndex);
-  const sheetIndex = useWorkoutStore((s) => s.sheetIndex);
+  const setSheetId = useWorkoutStore((s) => s.setSheetId);
+  const sheetId = useWorkoutStore((s) => s.sheetId);
   const sheetRef = useRef<BottomSheetModal>(null);
 
   function onCreateExercise(): void {
@@ -57,8 +60,8 @@ export default function Page() {
   }
 
   function onToggleLocked(): void {
-    if (sheetIndex !== undefined) {
-      setSheetIndex(undefined);
+    if (sheetId !== undefined) {
+      setSheetId(undefined);
     }
     toggleLocked(id);
   }
@@ -66,44 +69,66 @@ export default function Page() {
   function onSheetChange(index: number): void {
     // if index is -1 then it is closed
     if (index === -1) {
-      setSheetIndex(undefined);
+      setSheetId(undefined);
     }
   }
 
   function onAddSet(): void {
-    if (sheetIndex !== undefined) {
-      addSet(sheetIndex, createSet());
+    if (sheetId !== undefined) {
+      addSet(sheetId, createSet());
     }
   }
 
   function onRemoveSet(): void {
-    if (sheetIndex !== undefined) {
-      let setId = popSet(sheetIndex);
+    if (sheetId !== undefined) {
+      let setId = popSet(sheetId);
       if (setId !== undefined) {
         deleteSet(setId);
       }
-      let setsLen = getExercise(sheetIndex).setIds.length;
+      let setsLen = getExercise(sheetId).setIds.length;
       if (setsLen === 0) {
-        addSet(sheetIndex, createSet());
+        addSet(sheetId, createSet());
       }
     }
   }
 
   function onDeleteExercise() {
-    if (sheetIndex === undefined) {
+    if (sheetId === undefined) {
       return;
     }
-    removeExercise(id, sheetIndex);
-    deleteExercise(sheetIndex);
+    removeExercise(id, sheetId);
+    deleteExercise(sheetId);
+  }
+
+  function closeSheet() {
+    setSheetId(undefined);
+  }
+
+  function onMoveUp() {
+    if (sheetId === undefined) {
+      return;
+    }
+    moveUp(id, sheetId);
+  }
+
+  function onMoveDown() {
+    if (sheetId === undefined) {
+      return;
+    }
+    moveDown(id, sheetId);
   }
 
   useEffect(() => {
-    if (sheetIndex !== undefined) {
+    if (sheetId !== undefined && !isLocked) {
       sheetRef.current?.present();
     } else {
       sheetRef.current?.close();
     }
-  }, [sheetIndex]);
+  }, [sheetId]);
+
+  useEffect(() => {
+    setSheetId(undefined);
+  }, []);
 
   return (
     <GestureHandlerRootView>
@@ -147,10 +172,17 @@ export default function Page() {
             ListFooterComponentStyle={styles.addExercise}
           />
         </View>
+        {/* Modal */}
+        <Modal
+          hidden={sheetId === undefined}
+          zIndex={0}
+          opacity={0}
+          onPress={closeSheet}
+        />
         {/* Modal bottom sheet */}
         <BottomSheetModal
           ref={sheetRef}
-          snapPoints={["40%"]}
+          snapPoints={["48%"]}
           onChange={onSheetChange}
           backgroundStyle={[styles.bottomSheet, calcStyle.bottomSheetContainer]}
           handleIndicatorStyle={{ backgroundColor: scheme.loPrimary }}
@@ -176,6 +208,34 @@ export default function Page() {
               >
                 <Ionicons
                   name="add-outline"
+                  size={22}
+                  color={scheme.hiPrimary}
+                />
+              </CircularButton>
+            </View>
+
+            <View style={styles.bottomSheetRowContainer}>
+              <CircularButton
+                backgroundColor={scheme.quaternary}
+                size={SizeVariant.LG}
+                onPress={onMoveDown}
+              >
+                <Ionicons
+                  name="chevron-down"
+                  size={22}
+                  color={scheme.hiPrimary}
+                />
+              </CircularButton>
+              <Text style={[styles.sheetText, calcStyle.sheetText]}>
+                POSITION
+              </Text>
+              <CircularButton
+                backgroundColor={scheme.quaternary}
+                size={SizeVariant.LG}
+                onPress={onMoveUp}
+              >
+                <Ionicons
+                  name="chevron-up"
                   size={22}
                   color={scheme.hiPrimary}
                 />
