@@ -7,14 +7,13 @@ import useWorkoutStore from "@/stores/workout";
 import { ColorScheme } from "@/util/colors";
 import { FlashList } from "@shopify/flash-list";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import {
   StyleSheet,
   TextInput,
   Text,
   TouchableOpacity,
   View,
-  Button,
 } from "react-native";
 import { Octicons } from "@expo/vector-icons";
 
@@ -28,6 +27,7 @@ import CircularButton from "@/forms/CircularButton";
 import { SizeVariant } from "@/util/variants";
 import { Ionicons } from "@expo/vector-icons";
 import Modal from "@/components/modal";
+import { routes } from "@/util/routes";
 
 export default function Page() {
   const id = (useLocalSearchParams<{ id: string }>().id ?? 0) as number;
@@ -36,6 +36,7 @@ export default function Page() {
   const isLocked = useWorkoutStore((s) => s.workouts[id].isLocked);
   const toggleLocked = useWorkoutStore((s) => s.toggleLocked);
   const workout = useWorkoutStore((s) => s.workouts[id]);
+  const removeInProgress = useWorkoutStore((s) => s.removeInProgress);
   const addExercise = useWorkoutStore((s) => s.addExercise);
   const removeExercise = useWorkoutStore((s) => s.removeExercise);
   const createExercise = useExerciseStore((s) => s.createExercise);
@@ -126,6 +127,11 @@ export default function Page() {
     moveDown(id, sheetId);
   }
 
+  function onFinishWorkout(): void {
+    removeInProgress(id);
+    router.navigate(routes.templates);
+  }
+
   useEffect(() => {
     if (sheetId !== undefined && !isLocked) {
       sheetRef.current?.present();
@@ -163,19 +169,30 @@ export default function Page() {
             renderItem={({ item }) => <Exercise workoutId={id} id={item} />}
             estimatedItemSize={100}
             ListFooterComponent={
-              !isLocked ? (
+              <>
+                {!isLocked ? (
+                  <Submit
+                    touchableProps={{ onPress: onCreateExercise }}
+                    btnProps={{
+                      primaryColor: scheme.quaternary,
+                      text: "NEW EXERCISE",
+                      variant: ButtonVariant.Filled,
+                      secondaryColor: scheme.primary,
+                    }}
+                  />
+                ) : (
+                  <></>
+                )}
                 <Submit
-                  touchableProps={{ onPress: onCreateExercise }}
+                  touchableProps={{ onPress: onFinishWorkout }}
                   btnProps={{
-                    primaryColor: scheme.quaternary,
-                    text: "NEW EXERCISE",
+                    text: "FINISH WORKOUT",
                     variant: ButtonVariant.Filled,
-                    secondaryColor: scheme.primary,
+                    primaryColor: scheme.primary,
+                    secondaryColor: scheme.quaternary,
                   }}
                 />
-              ) : (
-                <></>
-              )
+              </>
             }
             ListFooterComponentStyle={styles.addExercise}
           />

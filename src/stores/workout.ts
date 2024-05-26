@@ -14,6 +14,7 @@ type State = {
   nextId: Id;
   sheetId?: Id;
   inProgress: Id[];
+  loaded: Id[];
   workouts: { [id: Id]: Workout };
 };
 
@@ -27,8 +28,10 @@ type Action = {
   setSheetId: (id?: Id) => void;
   moveUp: (id: Id, exerciseId: Id) => void;
   moveDown: (id: Id, exerciseId: Id) => void;
-  startWorkout: (id: Id) => void;
-  finishWorkout: (id: Id) => void;
+  addInProgress: (id: Id) => void;
+  removeInProgress: (id: Id) => void;
+  addLoaded: (id: Id) => void;
+  removeLoaded: (id: Id) => void;
 };
 
 const useWorkoutStore = create<State & Action>((set, get) => ({
@@ -36,6 +39,7 @@ const useWorkoutStore = create<State & Action>((set, get) => ({
   sheetId: undefined,
   workouts: {},
   inProgress: [],
+  loaded: [],
 
   setWorkout: (w: Workout) =>
     set((s) => ({ workouts: { ...s.workouts[w.id], [w.id]: w } })),
@@ -125,10 +129,18 @@ const useWorkoutStore = create<State & Action>((set, get) => ({
     }));
   },
 
-  startWorkout: (id: Id) => set((s) => ({ inProgress: [...s.inProgress, id] })),
+  addInProgress: (id: Id) =>
+    set((s) => ({ inProgress: [id, ...s.inProgress] })),
 
-  finishWorkout: (id: Id) =>
-    set((s) => ({ inProgress: s.inProgress.filter((i) => i !== id) })),
+  removeInProgress: (id: Id) => {
+    const copy = get().inProgress.filter((i) => i !== id);
+    set((s) => ({ inProgress: copy }));
+  },
+
+  addLoaded: (id: Id) => set((s) => ({ loaded: [...s.loaded, id] })),
+
+  removeLoaded: (id: Id) =>
+    set((s) => ({ loaded: s.loaded.filter((i) => i !== id) })),
 }));
 
 export default useWorkoutStore;

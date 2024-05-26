@@ -3,7 +3,7 @@ import Submit, { ButtonVariant } from "@/forms/Submit";
 import useExerciseStore from "@/stores/exercises";
 import useSetStore from "@/stores/sets";
 import useSettingsStore from "@/stores/settings";
-import useWorkoutStore from "@/stores/workout";
+import useWorkoutStore, { Id } from "@/stores/workout";
 import { ColorScheme } from "@/util/colors";
 import { routes } from "@/util/routes";
 import { useRouter } from "expo-router";
@@ -19,8 +19,9 @@ export default function Page() {
   const createWorkout = useWorkoutStore((s) => s.createWorkout);
   const addSet = useExerciseStore((s) => s.addSet);
   const createSet = useSetStore((s) => s.createSet);
-  const startWorkout = useWorkoutStore((s) => s.startWorkout);
+  const addInProgress = useWorkoutStore((s) => s.addInProgress);
   const inProgress = useWorkoutStore((s) => s.inProgress);
+  const loaded = useWorkoutStore((s) => s.loaded);
 
   const createNewWorkout = () => {
     let wid = createWorkout();
@@ -28,7 +29,7 @@ export default function Page() {
     addExercise(wid, eid);
     let sid = createSet();
     addSet(eid, sid);
-    startWorkout(wid);
+    addInProgress(wid);
     router.push({ pathname: routes.workout(wid) });
   };
 
@@ -42,19 +43,29 @@ export default function Page() {
         </Text>
       )}
 
-      {inProgress.map((id) => (
-        <Template key={`inprogress.${id}`} id={id} />
+      {inProgress.toReversed().map((id) => (
+        <Template key={`inprogress.${id}`} id={id} alreadyInProgress={true} />
       ))}
 
       <Submit
         btnProps={{
-          text: "New Workout",
-          primaryColor: scheme.quaternary,
-          secondaryColor: scheme.primary,
+          text: "NEW WORKOUT",
+          primaryColor: scheme.primary,
+          secondaryColor: scheme.quaternary,
           variant: ButtonVariant.Filled,
         }}
         touchableProps={{ onPress: createNewWorkout }}
       />
+
+      {loaded.length > 0 && (
+        <Text style={[styles.subHeaderText, calcStyle.subHeaderText]}>
+          My Workouts
+        </Text>
+      )}
+
+      {loaded.map((id) => (
+        <Template key={`workout.${id}`} id={id} alreadyInProgress={false} />
+      ))}
     </View>
   );
 }

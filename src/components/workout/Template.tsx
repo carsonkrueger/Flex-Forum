@@ -8,6 +8,7 @@ import { View, StyleSheet, TouchableOpacity, Text } from "react-native";
 
 export type Props = {
   id: number;
+  alreadyInProgress: boolean;
 };
 
 export default function Page(props: Props) {
@@ -15,8 +16,10 @@ export default function Page(props: Props) {
   const scheme = useSettingsStore((state) => state.colorScheme);
   const calcStyle = useMemo(() => calcStyles(scheme), [scheme]);
   const workout = useWorkoutStore((s) => s.workouts[props.id]);
+  const addInProgress = useWorkoutStore((s) => s.addInProgress);
 
   const onPress = () => {
+    if (!props.alreadyInProgress) addInProgress(props.id);
     router.push({ pathname: routes.workout(props.id) });
   };
 
