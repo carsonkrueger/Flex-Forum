@@ -8,7 +8,6 @@ import { View, StyleSheet, TouchableOpacity, Text } from "react-native";
 
 export type Props = {
   id: number;
-  alreadyInProgress: boolean;
 };
 
 export default function Page(props: Props) {
@@ -17,9 +16,19 @@ export default function Page(props: Props) {
   const calcStyle = useMemo(() => calcStyles(scheme), [scheme]);
   const workout = useWorkoutStore((s) => s.workouts[props.id]);
   const addInProgress = useWorkoutStore((s) => s.addInProgress);
+  const removeLoaded = useWorkoutStore((s) => s.removeLoaded);
+  const alreadyInProgress = useWorkoutStore((s) =>
+    s.inProgress.includes(props.id),
+  );
+  const isLoaded = useWorkoutStore((s) => s.loaded.includes(props.id));
 
   const onPress = () => {
-    if (!props.alreadyInProgress) addInProgress(props.id);
+    if (!alreadyInProgress) {
+      addInProgress(props.id);
+    }
+    if (isLoaded) {
+      removeLoaded(props.id);
+    }
     router.push({ pathname: routes.workout(props.id) });
   };
 
@@ -54,7 +63,7 @@ const calcStyles = (scheme: ColorScheme) =>
 const styles = StyleSheet.create({
   container: {
     borderWidth: 1.5,
-    borderRadius: 12,
+    borderRadius: 7,
     padding: 7,
     minHeight: 80,
     width: "100%",

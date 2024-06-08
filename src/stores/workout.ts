@@ -30,7 +30,7 @@ type Action = {
   moveDown: (id: Id, exerciseId: Id) => void;
   addInProgress: (id: Id) => void;
   removeInProgress: (id: Id) => void;
-  addLoaded: (id: Id) => void;
+  addLoadedIfNotExists: (id: Id) => void;
   removeLoaded: (id: Id) => void;
 };
 
@@ -58,7 +58,7 @@ const useWorkoutStore = create<State & Action>((set, get) => ({
 
   setName: (name: Workout["name"], id: Workout["id"]) =>
     set((s) => ({
-      workouts: { ...s.workouts[id], [id]: { ...s.workouts[id], name: name } },
+      workouts: { ...s.workouts, [id]: { ...s.workouts[id], name: name } },
     })),
 
   addExercise: (id: Id, exerciseId: Id) =>
@@ -133,11 +133,19 @@ const useWorkoutStore = create<State & Action>((set, get) => ({
     set((s) => ({ inProgress: [id, ...s.inProgress] })),
 
   removeInProgress: (id: Id) => {
-    const copy = get().inProgress.filter((i) => i !== id);
-    set((s) => ({ inProgress: copy }));
+    // filter seems to be not working
+    const index = get().inProgress.findIndex((i) => i == id);
+    let copy = [...get().inProgress];
+    copy.splice(index, 1);
+    set(() => ({ inProgress: copy }));
   },
 
-  addLoaded: (id: Id) => set((s) => ({ loaded: [...s.loaded, id] })),
+  addLoadedIfNotExists: (id: Id) => {
+    if (get().loaded.includes(id)) {
+      return;
+    }
+    set((s) => ({ loaded: [...s.loaded, id] }));
+  },
 
   removeLoaded: (id: Id) =>
     set((s) => ({ loaded: s.loaded.filter((i) => i !== id) })),

@@ -1,16 +1,16 @@
 import { create } from "zustand";
 
 type State = {
-  userId?: number;
+  username?: string;
 };
 
 type Action = {
-  setUserId: (id: State["userId"]) => void;
+  setUsername: (id: State["username"]) => void;
 };
 
 const useUserStore = create<State & Action>((set) => ({
   userId: undefined,
-  setUserId: (id) => set(() => ({ userId: id })),
+  setUsername: (username) => set(() => ({ username: username })),
 }));
 
 export default useUserStore;

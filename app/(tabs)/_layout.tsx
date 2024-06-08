@@ -19,7 +19,7 @@ export default function Layout() {
     [scheme],
   );
   const iconColor = scheme.tertiary;
-  const setUserId = useUserStore((s) => s.setUserId);
+  const setUserId = useUserStore((s) => s.setUsername);
 
   return (
     <SafeAreaView style={styles.container}>

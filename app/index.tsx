@@ -12,8 +12,8 @@ import { routes } from "@/util/routes";
 export default function Page() {
   const router = useRouter();
   const scheme = useSettingsStore((state) => state.colorScheme);
-  const setUserId = useUserStore((state) => state.setUserId);
-  const userId = useUserStore((state) => state.userId);
+  const setUsername = useUserStore((state) => state.setUsername);
+  const username = useUserStore((state) => state.username);
   const errMsgColor = scheme.loQuaternary;
 
   const calcStyle = useMemo(
@@ -38,18 +38,18 @@ export default function Page() {
   const onSubmit = async (data: LoginModel) => {
     setIsQueryLoading(true);
     try {
-      // let id = await login(data);
-      // setUserId(id);
+      await login(data);
+      setUsername(data.username);
       router.replace(routes.home);
-    } catch {
-      console.error("err");
+    } catch (e) {
+      console.error("err", e);
     }
     setIsQueryLoading(false);
   };
 
   const isAnyLoading = () => isFormLoading || isQueryLoading;
 
-  if (userId !== undefined) {
+  if (username !== undefined) {
     router.replace(routes.home);
   }
 

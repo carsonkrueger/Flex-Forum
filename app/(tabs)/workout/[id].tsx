@@ -30,13 +30,14 @@ import Modal from "@/components/modal";
 import { routes } from "@/util/routes";
 
 export default function Page() {
-  const id = (useLocalSearchParams<{ id: string }>().id ?? 0) as number;
+  const id = (useLocalSearchParams<{ id: string }>().id ?? -1) as number;
   const router = useRouter();
   const scheme = useSettingsStore((state) => state.colorScheme);
   const isLocked = useWorkoutStore((s) => s.workouts[id].isLocked);
   const toggleLocked = useWorkoutStore((s) => s.toggleLocked);
   const workout = useWorkoutStore((s) => s.workouts[id]);
   const removeInProgress = useWorkoutStore((s) => s.removeInProgress);
+  const addLoadedIfNotExists = useWorkoutStore((s) => s.addLoadedIfNotExists);
   const addExercise = useWorkoutStore((s) => s.addExercise);
   const removeExercise = useWorkoutStore((s) => s.removeExercise);
   const createExercise = useExerciseStore((s) => s.createExercise);
@@ -107,6 +108,7 @@ export default function Page() {
     }
     removeExercise(id, sheetId);
     deleteExercise(sheetId);
+    setSheetId(undefined);
   }
 
   function closeSheet() {
@@ -129,6 +131,7 @@ export default function Page() {
 
   function onFinishWorkout(): void {
     removeInProgress(id);
+    addLoadedIfNotExists(id);
     router.navigate(routes.templates);
   }
 
@@ -155,7 +158,7 @@ export default function Page() {
               value={workout.name}
               onChangeText={onSetWorkoutName}
             />
-            <TouchableOpacity onPress={onToggleLocked}>
+            <TouchableOpacity onPress={onToggleLocked} style={styles.lock}>
               <Octicons
                 name={isLocked ? "lock" : "unlock"}
                 size={30}
@@ -169,8 +172,8 @@ export default function Page() {
             renderItem={({ item }) => <Exercise workoutId={id} id={item} />}
             estimatedItemSize={100}
             ListFooterComponent={
-              <>
-                {!isLocked ? (
+              <View style={styles.listFooter}>
+                {!isLocked && (
                   <Submit
                     touchableProps={{ onPress: onCreateExercise }}
                     btnProps={{
@@ -180,19 +183,26 @@ export default function Page() {
                       secondaryColor: scheme.primary,
                     }}
                   />
-                ) : (
-                  <></>
                 )}
                 <Submit
                   touchableProps={{ onPress: onFinishWorkout }}
                   btnProps={{
                     text: "FINISH WORKOUT",
                     variant: ButtonVariant.Filled,
+                    primaryColor: scheme.secondary,
+                    secondaryColor: scheme.tertiary,
+                  }}
+                />
+                <Submit
+                  touchableProps={{ onPress: onFinishWorkout }}
+                  btnProps={{
+                    text: "CANCEL WORKOUT",
+                    variant: ButtonVariant.Filled,
                     primaryColor: scheme.primary,
                     secondaryColor: scheme.quaternary,
                   }}
                 />
-              </>
+              </View>
             }
             ListFooterComponentStyle={styles.addExercise}
           />
@@ -298,25 +308,29 @@ const styles = StyleSheet.create({
   },
   headerContainer: {
     flexDirection: "row",
-    justifyContent: "space-between",
     alignItems: "center",
     paddingHorizontal: 12,
     paddingVertical: 8,
   },
   headerText: {
-    minWidth: 220,
-    maxWidth: 260,
+    flex: 13,
+    height: 40,
     paddingHorizontal: 6,
-    borderRadius: 8,
+    borderRadius: 5,
     fontFamily: "PermanentMarker",
-    fontSize: 30,
-    // textAlign: "center",
+    fontSize: 26,
+  },
+  lock: {
+    flex: 1,
+    paddingLeft: 10,
   },
   addExercise: {
     alignItems: "center",
     paddingTop: 30,
-    paddingHorizontal: 100,
     marginBottom: 300,
+  },
+  listFooter: {
+    gap: 20,
   },
   bottomSheet: {},
   bottomSheetView: {
@@ -346,7 +360,7 @@ const calcStyles = (scheme: ColorScheme, isLocked: boolean) =>
     },
     headerText: {
       backgroundColor: isLocked ? scheme.quaternary : scheme.loQuaternary,
-      color: scheme.primary,
+      color: isLocked ? scheme.primary : scheme.tertiary,
     },
     bottomSheetContainer: {
       backgroundColor: scheme.hiPrimary,

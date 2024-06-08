@@ -3,7 +3,7 @@ import Submit, { ButtonVariant } from "@/forms/Submit";
 import useExerciseStore from "@/stores/exercises";
 import useSetStore from "@/stores/sets";
 import useSettingsStore from "@/stores/settings";
-import useWorkoutStore, { Id } from "@/stores/workout";
+import useWorkoutStore from "@/stores/workout";
 import { ColorScheme } from "@/util/colors";
 import { routes } from "@/util/routes";
 import { useRouter } from "expo-router";
@@ -44,7 +44,7 @@ export default function Page() {
       )}
 
       {inProgress.toReversed().map((id) => (
-        <Template key={`inprogress.${id}`} id={id} alreadyInProgress={true} />
+        <Template key={`inprogress.${id}`} id={id} />
       ))}
 
       <Submit
@@ -64,7 +64,7 @@ export default function Page() {
       )}
 
       {loaded.map((id) => (
-        <Template key={`workout.${id}`} id={id} alreadyInProgress={false} />
+        <Template key={`workout.${id}`} id={id} />
       ))}
     </View>
   );
