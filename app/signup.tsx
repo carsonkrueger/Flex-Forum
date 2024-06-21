@@ -30,8 +30,8 @@ export default function Page() {
     try {
       await signup(data);
       router.back();
-    } catch {
-      console.error("err");
+    } catch (e) {
+      console.error(e);
     }
     setIsQueryLoading(false);
   };

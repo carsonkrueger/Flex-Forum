@@ -8,6 +8,7 @@ export default function Page() {
   const scheme = useSettingsStore((state) => state.colorScheme);
   const calcStyle = useMemo(() => calcStyles(scheme.primary), [scheme]);
   const data = [1, 2, 3, 4, 5, 6, 7, 8];
+  // const data = [1];
 
   return (
     <View style={[styles.container, calcStyle.container]}>

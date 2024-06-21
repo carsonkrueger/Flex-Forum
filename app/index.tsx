@@ -3,7 +3,7 @@ import Submit, { ButtonVariant } from "@/forms/Submit";
 import useUserStore from "@/stores/user";
 import useSettingsStore from "@/stores/settings";
 import { useRouter } from "expo-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { StyleSheet, View, Text } from "react-native";
 import { useForm } from "react-hook-form";
 import LoginModel, { login } from "@/models/login-model";
@@ -49,9 +49,11 @@ export default function Page() {
 
   const isAnyLoading = () => isFormLoading || isQueryLoading;
 
-  if (username !== undefined) {
-    router.replace(routes.home);
-  }
+  useEffect(() => {
+    if (username !== undefined) {
+      router.replace(routes.home);
+    }
+  }, []);
 
   return (
     <View style={[styles.container, calcStyle.container]}>
@@ -102,6 +104,7 @@ export default function Page() {
           placeholder: "Password",
           placeholderTextColor: scheme.loQuaternary,
           secureTextEntry: true,
+          autoCapitalize: "none",
         }}
         controlProps={{
           name: "password",
