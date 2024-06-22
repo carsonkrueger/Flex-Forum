@@ -1,23 +1,30 @@
 import Post from "@/components/post/Post";
+import { PostModel, downloadNextFivePosts } from "@/models/post-model";
 import useSettingsStore from "@/stores/settings";
 import { FlashList } from "@shopify/flash-list";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Text, StyleSheet, View, Dimensions } from "react-native";
 
 export default function Page() {
   const scheme = useSettingsStore((state) => state.colorScheme);
   const calcStyle = useMemo(() => calcStyles(scheme.primary), [scheme]);
-  const data = [1, 2, 3, 4, 5, 6, 7, 8];
+  const [postModels, setPostModels] = useState<PostModel[]>([]);
   const windowWidth = Dimensions.get("window").width;
-  // const data = [1];
+  const lastDate: string = "2024-06-06T19:49:01.727 -0000";
+
+  const handleEndReached = async () => {
+    let posts = await downloadNextFivePosts(lastDate);
+    setPostModels(posts);
+  };
 
   return (
     <View style={[styles.container, calcStyle.container]}>
       <Text>home</Text>
       <FlashList
-        data={data}
-        renderItem={() => <Post width={windowWidth} />}
+        data={postModels}
+        renderItem={({ item }) => <Post postModel={item} width={windowWidth} />}
         estimatedItemSize={500}
+        onEndReached={handleEndReached}
       />
     </View>
   );
