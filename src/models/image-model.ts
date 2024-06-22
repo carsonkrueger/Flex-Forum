@@ -6,7 +6,7 @@ export default interface ImageModel {
   image_id: number;
 }
 
-export const download_image = (model: ImageModel) =>
+export const downloadImage = (model: ImageModel) =>
   client.get(
     `/content/images/${model.username}/${model.post_id}/${model.image_id}`,
     { responseType: "blob", timeout: 3000 },

@@ -1,15 +1,48 @@
+import ImageModel, { downloadImage } from "@/models/image-model";
 import useSettingsStore from "@/stores/settings";
-import { useMemo } from "react";
-import { View, StyleSheet, Dimensions } from "react-native";
+import { useEffect, useMemo, useState } from "react";
+import { View, StyleSheet, Dimensions, Image, Text } from "react-native";
 
-export default function Post() {
+export type Props = {
+  imageModel: ImageModel;
+  width: number;
+  aspectRatio?: number;
+};
+
+export default function Post({ imageModel, width, aspectRatio = 1 }: Props) {
   const scheme = useSettingsStore((state) => state.colorScheme);
   const calcStyle = useMemo(
     () => calcStyles(scheme.quaternary, Dimensions.get("screen").width),
     [scheme],
   );
+  const [imgSrc, setImgSrc] = useState<string | undefined>("");
 
-  return <View style={[styles.image, calcStyle.image]} />;
+  useEffect(() => {
+    downloadImage(imageModel).then(({ data }) => {
+      let fr = new FileReader();
+      fr.readAsDataURL(data);
+      fr.onloadend = () => {
+        setImgSrc(fr.result as string);
+      };
+    });
+  }, []);
+
+  return (
+    <>
+      {imgSrc ? (
+        <Image
+          style={{
+            width: width,
+            height: width * aspectRatio,
+            aspectRatio: aspectRatio,
+          }}
+          source={{ uri: imgSrc }}
+        />
+      ) : (
+        <Text>skeleton</Text>
+      )}
+    </>
+  );
 }
 
 const styles = StyleSheet.create({
