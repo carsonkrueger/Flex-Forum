@@ -1,23 +1,38 @@
 import ImageModel, { downloadImage } from "@/models/image-model";
 import useSettingsStore from "@/stores/settings";
+import { ColorScheme } from "@/util/colors";
 import { useEffect, useMemo, useState } from "react";
-import { View, StyleSheet, Dimensions, Image, Text } from "react-native";
+import { View, StyleSheet, Image } from "react-native";
 
 export type Props = {
   imageModel: ImageModel;
+  curImgIdx: number;
   width: number;
   aspectRatio?: number;
 };
 
-export default function Post({ imageModel, width, aspectRatio = 1 }: Props) {
+export default function Post({
+  imageModel,
+  curImgIdx,
+  width,
+  aspectRatio = 1,
+}: Props) {
   const scheme = useSettingsStore((state) => state.colorScheme);
   const calcStyle = useMemo(
-    () => calcStyles(scheme.quaternary, Dimensions.get("screen").width),
+    () => calcStyles(width, aspectRatio, scheme),
     [scheme],
   );
-  const [imgSrc, setImgSrc] = useState<string | undefined>("");
+  const [imgSrc, setImgSrc] = useState<string | undefined>(undefined);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   useEffect(() => {
+    if (
+      isLoading ||
+      imgSrc !== undefined ||
+      imageModel.image_id > curImgIdx + 1
+    )
+      return;
+    setIsLoading(true);
     downloadImage(imageModel).then(({ data }) => {
       let fr = new FileReader();
       fr.readAsDataURL(data);
@@ -25,40 +40,31 @@ export default function Post({ imageModel, width, aspectRatio = 1 }: Props) {
         setImgSrc(fr.result as string);
       };
     });
-  }, []);
+  }, [curImgIdx]);
 
   return (
     <>
       {imgSrc ? (
-        <Image
-          style={{
-            width: width,
-            height: width * aspectRatio,
-            aspectRatio: aspectRatio,
-          }}
-          source={{ uri: imgSrc }}
-        />
+        <Image style={calcStyle.image} source={{ uri: imgSrc }} />
       ) : (
-        <Text>skeleton</Text>
+        <View style={calcStyle.skeleton} />
       )}
     </>
   );
 }
 
-const styles = StyleSheet.create({
-  image: {
-    width: "100%",
-    height: "100%",
-  },
-});
+const styles = StyleSheet.create({});
 
-const calcStyles = (color: string, maxWidth: number) =>
+const calcStyles = (width: number, aspectRatio: number, scheme: ColorScheme) =>
   StyleSheet.create({
     image: {
-      // backgroundColor: color,
-      borderColor: color,
-      borderWidth: 1.5,
-      maxWidth: maxWidth,
-      maxHeight: maxWidth * 1.2,
+      width: width,
+      height: width * aspectRatio,
+      aspectRatio: aspectRatio,
+    },
+    skeleton: {
+      width: width,
+      height: width * aspectRatio,
+      backgroundColor: scheme.hiPrimary,
     },
   });

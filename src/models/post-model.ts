@@ -6,7 +6,9 @@ export interface PostModel {
   num_images: number;
   description: string;
   created_at: Date;
+  num_likes: number;
+  is_liked: boolean;
 }
 
-export const downloadNextFivePosts = (after: string): Promise<PostModel[]> =>
+export const downloadNextPosts = (after: string): Promise<PostModel[]> =>
   client.get(`/content/posts/${after}`).then((res) => res.data);

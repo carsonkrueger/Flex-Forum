@@ -1,5 +1,5 @@
 import useSettingsStore from "@/stores/settings";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Text,
   View,
@@ -14,6 +14,7 @@ import PostImage from "./PostImage";
 import ImageModel from "@/models/image-model";
 import { ColorScheme } from "@/util/colors";
 import { PostModel } from "@/models/post-model";
+import { likePost, unlikePost } from "@/models/like-model";
 
 export type Props = {
   postModel: PostModel;
@@ -23,7 +24,9 @@ export type Props = {
 export default function Post({ postModel, width }: Props) {
   const scheme = useSettingsStore((state) => state.colorScheme);
   const [curId_OneRelative, setCurId_OneRelative] = useState<number>(1);
-  const [isLiked, setIsLiked] = useState<boolean>(false);
+  const [isLiked, setIsLiked] = useState<boolean>(postModel.is_liked);
+  const [numLikes, setNumLikes] = useState<number>(postModel.num_likes);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const imageModels = useRef<ImageModel[]>(initImageModels(postModel));
   const calcStyle = useMemo(() => calcStyles(scheme), [scheme]);
   const iconSize = useRef<number>(35);
@@ -49,6 +52,19 @@ export default function Post({ postModel, width }: Props) {
     }));
   }
 
+  const onLikeClicked = () => {
+    if (isLoading) return;
+
+    setIsLiked(!isLiked);
+    setNumLikes(isLiked ? postModel.num_likes : postModel.num_likes + 1);
+    if (isLiked) unlikePost(postModel.id);
+    else if (!isLiked) likePost(postModel.id);
+  };
+
+  useEffect(() => {
+    setIsLoading(false);
+  }, []);
+
   return (
     <View style={[styles.container, calcStyle.container]}>
       <View style={[styles.headerContainer]}>
@@ -63,12 +79,14 @@ export default function Post({ postModel, width }: Props) {
           horizontal={true}
           snapToInterval={width}
           onScroll={handleScroll}
+          showsHorizontalScrollIndicator={false}
         >
           {imageModels.current.map((model) => (
             <PostImage
-              width={width}
-              key={`${postModel.id}.${model.image_id}`}
+              key={`img.${postModel.id}.${model.image_id}`}
               imageModel={model}
+              curImgIdx={curId_OneRelative}
+              width={width}
             />
           ))}
         </ScrollView>
@@ -77,6 +95,7 @@ export default function Post({ postModel, width }: Props) {
           <View style={styles.dotsContainer}>
             {imageModels.current.map((_, idx) => (
               <View
+                key={`dot.${postModel.id}.${idx}`}
                 style={[
                   styles.dot,
                   calcStyle.dot,
@@ -91,23 +110,32 @@ export default function Post({ postModel, width }: Props) {
       </View>
 
       <View style={[styles.bottomContainer, calcStyle.bottomContainer]}>
+        {/* Like/chat Icons */}
         <View style={[styles.iconsBar]}>
-          <TouchableOpacity>
+          <TouchableOpacity
+            style={styles.like}
+            disabled={isLoading}
+            onPress={onLikeClicked}
+          >
             <Ionicons
               name={isLiked ? "heart-sharp" : "heart-outline"}
               size={iconSize.current}
               color={scheme.quaternary}
             />
+            <Text style={[styles.numLikes, calcStyle.numLikes]}>
+              {numLikes}
+            </Text>
           </TouchableOpacity>
-          <TouchableOpacity>
+          <TouchableOpacity disabled={isLoading}>
             <Ionicons
               name={"chatbubble-outline"}
               size={iconSize.current}
-              color={scheme.quaternary}
+              color={scheme.loTertiary}
             />
           </TouchableOpacity>
         </View>
-        <Text style={[styles.comments, calcStyle.comments]}>
+        {/* description */}
+        <Text style={[styles.description, calcStyle.description]}>
           {postModel.description}
         </Text>
       </View>
@@ -117,8 +145,8 @@ export default function Post({ postModel, width }: Props) {
 
 const styles = StyleSheet.create({
   container: {
+    paddingVertical: 5,
     alignItems: "center",
-    maxHeight: 550,
   },
   headerContainer: {
     flexDirection: "row",
@@ -144,8 +172,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 12,
   },
-  comments: {
+  description: {
     width: "100%",
+    fontSize: 13,
+    overflow: "hidden",
+    // maxHeight: 65,
   },
   dotsContainer: {
     position: "absolute",
@@ -161,6 +192,13 @@ const styles = StyleSheet.create({
     height: 6,
     borderWidth: 1,
     borderRadius: 100,
+  },
+  like: {
+    flexDirection: "column",
+    alignItems: "center",
+  },
+  numLikes: {
+    fontSize: 9,
   },
 });
 
@@ -179,8 +217,11 @@ const calcStyles = (scheme: ColorScheme) =>
     selectedDot: {
       backgroundColor: scheme.loTertiary,
     },
-    comments: {
+    description: {
       color: scheme.loTertiary,
     },
     bottomContainer: {},
+    numLikes: {
+      color: scheme.tertiary,
+    },
   });
