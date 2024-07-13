@@ -1,18 +1,18 @@
-import ImageModel, { downloadImage } from "@/models/image-model";
+import ContentModel, { downloadContent } from "@/models/content-model";
 import useSettingsStore from "@/stores/settings";
 import { ColorScheme } from "@/util/colors";
 import { useEffect, useMemo, useState } from "react";
 import { View, StyleSheet, Image } from "react-native";
 
 export type Props = {
-  imageModel: ImageModel;
+  contentModel: ContentModel;
   curImgIdx: number;
   width: number;
   aspectRatio?: number;
 };
 
-export default function Post({
-  imageModel,
+export default function PostImage({
+  contentModel,
   curImgIdx,
   width,
   aspectRatio = 1,
@@ -29,11 +29,11 @@ export default function Post({
     if (
       isLoading ||
       imgSrc !== undefined ||
-      imageModel.image_id > curImgIdx + 1
+      contentModel.content_id > curImgIdx + 1
     )
       return;
     setIsLoading(true);
-    downloadImage(imageModel).then(({ data }) => {
+    downloadContent(contentModel).then((data) => {
       let fr = new FileReader();
       fr.readAsDataURL(data);
       fr.onloadend = () => {
@@ -52,8 +52,6 @@ export default function Post({
     </>
   );
 }
-
-const styles = StyleSheet.create({});
 
 const calcStyles = (width: number, aspectRatio: number, scheme: ColorScheme) =>
   StyleSheet.create({

@@ -11,10 +11,11 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import PostImage from "./PostImage";
-import ImageModel from "@/models/image-model";
+import ContentModel from "@/models/content-model";
 import { ColorScheme } from "@/util/colors";
 import { PostModel } from "@/models/post-model";
 import { likePost, unlikePost } from "@/models/like-model";
+import PostWorkout from "./PostWorkout";
 
 export type Props = {
   postModel: PostModel;
@@ -27,7 +28,7 @@ export default function Post({ postModel, width }: Props) {
   const [isLiked, setIsLiked] = useState<boolean>(postModel.is_liked);
   const [numLikes, setNumLikes] = useState<number>(postModel.num_likes);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const imageModels = useRef<ImageModel[]>(initImageModels(postModel));
+  const imageModels = useRef<ContentModel[]>(initImageModels(postModel));
   const calcStyle = useMemo(() => calcStyles(scheme), [scheme]);
   const iconSize = useRef<number>(35);
 
@@ -44,11 +45,12 @@ export default function Post({ postModel, width }: Props) {
     );
   }
 
-  function initImageModels(postModel: PostModel): ImageModel[] {
+  function initImageModels(postModel: PostModel): ContentModel[] {
     return arrayRange(1, postModel.num_images, 1).map((v) => ({
-      image_id: v,
       post_id: postModel.id,
       username: postModel.username,
+      content_id: v,
+      post_type: postModel.post_type,
     }));
   }
 
@@ -74,38 +76,57 @@ export default function Post({ postModel, width }: Props) {
         </Text>
       </View>
 
+      {/* Main Content */}
       <View style={{ height: width }}>
-        <ScrollView
-          horizontal={true}
-          snapToInterval={width}
-          onScroll={handleScroll}
-          showsHorizontalScrollIndicator={false}
-        >
-          {imageModels.current.map((model) => (
-            <PostImage
-              key={`img.${postModel.id}.${model.image_id}`}
-              imageModel={model}
-              curImgIdx={curId_OneRelative}
-              width={width}
-            />
-          ))}
-        </ScrollView>
-        {/* Dot indices */}
-        {imageModels.current.length > 1 && (
-          <View style={styles.dotsContainer}>
-            {imageModels.current.map((_, idx) => (
-              <View
-                key={`dot.${postModel.id}.${idx}`}
-                style={[
-                  styles.dot,
-                  calcStyle.dot,
-                  curId_OneRelative === idx + 1
-                    ? calcStyle.selectedDot
-                    : undefined,
-                ]}
-              />
-            ))}
-          </View>
+        {/* Images */}
+        {postModel.post_type == "images" && (
+          <>
+            <ScrollView
+              horizontal={true}
+              snapToInterval={width}
+              onScroll={handleScroll}
+              showsHorizontalScrollIndicator={false}
+            >
+              {imageModels.current.map((model) => (
+                <PostImage
+                  key={`img.${postModel.id}.${model.content_id}`}
+                  contentModel={model}
+                  curImgIdx={curId_OneRelative}
+                  width={width}
+                />
+              ))}
+            </ScrollView>
+            {/* Dot indices */}
+            {imageModels.current.length > 1 && (
+              <View style={styles.dotsContainer}>
+                {imageModels.current.map((_, idx) => (
+                  <View
+                    key={`dot.${postModel.id}.${idx}`}
+                    style={[
+                      styles.dot,
+                      calcStyle.dot,
+                      curId_OneRelative === idx + 1
+                        ? calcStyle.selectedDot
+                        : undefined,
+                    ]}
+                  />
+                ))}
+              </View>
+            )}
+          </>
+        )}
+
+        {/* Workout */}
+        {postModel.post_type == "workout" && (
+          <PostWorkout
+            contentModel={{
+              content_id: 1,
+              post_id: postModel.id,
+              username: postModel.username,
+              post_type: postModel.post_type,
+            }}
+            width={width}
+          />
         )}
       </View>
 

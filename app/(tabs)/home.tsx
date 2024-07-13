@@ -10,7 +10,7 @@ export default function Page() {
   const calcStyle = useMemo(() => calcStyles(scheme.primary), [scheme]);
   const [postCards, setPostCards] = useState<PostModel[]>([]);
   const windowWidth = Dimensions.get("window").width;
-  const lastDate: string = "2024-06-23T19:49:01.727 -0000";
+  const lastDate: string = "2024-07-23T19:49:01.727 -0000";
 
   const handleEndReached = async () => {
     let posts = await downloadNextPosts(lastDate);

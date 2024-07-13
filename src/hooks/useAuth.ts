@@ -4,9 +4,9 @@ import { useRouter } from "expo-router";
 
 export default function useAuth() {
   const router = useRouter();
-  const userId = useUserStore((state) => state.userId);
+  const username = useUserStore((state) => state.username);
 
-  if (userId === null) {
+  if (username === null) {
     router.navigate(routes.login);
   }
 }
