@@ -35,6 +35,7 @@ const DarkColorScheme: ColorScheme = {
   loTertiary: "#BBB",
   hiQuaternary: "#f57971",
   quaternary: "#eb6e65",
+  // quaternary: "#FF8080",
   loQuaternary: "#bf564e",
 };
 

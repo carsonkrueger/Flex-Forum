@@ -77,7 +77,9 @@ export default function Post({ postModel, width }: Props) {
       </View>
 
       {/* Main Content */}
-      <View style={{ height: width }}>
+      <View
+        style={{ height: postModel.post_type === "images" ? width : "auto" }}
+      >
         {/* Images */}
         {postModel.post_type == "images" && (
           <>
