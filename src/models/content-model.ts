@@ -21,12 +21,12 @@ export interface WorkoutSummary {
   exercises: ExerciseSummary[];
 }
 
-export const downloadContent = (
+export const downloadContent = <T>(
   model: ContentModel,
   responseType?: ResponseType,
-): Promise<Blob> =>
+): Promise<T> =>
   client
-    .get(
+    .get<T>(
       `/content/${model.post_type}/${model.username}/${model.post_id}/${model.content_id}`,
       { responseType: responseType, timeout: 3000 },
     )

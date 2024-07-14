@@ -33,7 +33,7 @@ export default function PostImage({
     )
       return;
     setIsLoading(true);
-    downloadContent(contentModel).then((data) => {
+    downloadContent<Blob>(contentModel).then((data) => {
       let fr = new FileReader();
       fr.readAsDataURL(data);
       fr.onloadend = () => {

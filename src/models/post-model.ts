@@ -6,11 +6,11 @@ export interface PostModel {
   id: number;
   username: string;
   num_images: number;
+  post_type: PostType;
   description: string | null;
   created_at: Date;
   num_likes: number;
   is_liked: boolean;
-  post_type: PostType;
 }
 
 export const downloadNextPosts = (after: string): Promise<PostModel[]> =>
