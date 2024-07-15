@@ -38,85 +38,80 @@ export default function PostImage({
   return (
     <View>
       {workout && (
-        <View>
-          {/* Header */}
-          <Text style={[styles.workoutNameHeader, calcStyle.workoutNameHeader]}>
-            {workout.workout_name.toUpperCase()}
-          </Text>
-          <View style={[styles.workoutHeader, calcStyle.workoutHeader]}>
+        <>
+          <View style={[styles.body, calcStyle.body]}>
+            {/* Workout Name */}
             <Text
-              style={[styles.exerciseNameHeader, calcStyle.exerciseNameHeader]}
+              style={[
+                styles.roundItem,
+                calcStyle.exercise,
+                calcStyle.workoutName,
+              ]}
             >
-              Exercise
+              {workout.workout_name}
             </Text>
-            <Text style={[styles.setsHeader, calcStyle.setsHeader]}>Sets</Text>
-            <Text style={[styles.repsHeader, calcStyle.repsHeader]}>Reps</Text>
-          </View>
-
-          {/* Body */}
-          <View style={[styles.body]}>
-            {workout.exercises.map((e) => (
-              <View>
-                <Text>{e.exercise_name}</Text>
+            {/* Exercises */}
+            {workout.exercises.map((e, idx) => (
+              <View
+                key={`ex.${contentModel.post_id}.${idx}`}
+                style={[styles.roundItem, calcStyle.exercise]}
+              >
+                <Text style={[styles.exerciseText, calcStyle.exerciseText]}>
+                  {e.exercise_name}
+                </Text>
+                <Text style={[styles.exerciseText, calcStyle.exerciseText]}>
+                  {e.num_sets}x{e.num_reps}
+                </Text>
               </View>
             ))}
+            <View style={[styles.roundItem, calcStyle.timer]}>
+              <Text style={[calcStyle.timerText]}>120</Text>
+            </View>
           </View>
-        </View>
+        </>
       )}
     </View>
   );
 }
 
-const exerciseNameFlex = 3;
-const setsFlex = 1.3;
-const repsFlex = 1.3;
-
 const calcStyles = (width: number, scheme: ColorScheme) =>
   StyleSheet.create({
-    workoutHeader: {
+    body: {
       width: width,
+    },
+    workoutName: {
+      backgroundColor: scheme.tertiary,
+      color: scheme.primary,
+    },
+    exercise: {
       backgroundColor: scheme.quaternary,
     },
-    workoutNameHeader: {
-      color: scheme.tertiary,
-    },
-    exerciseNameHeader: {
+    exerciseText: {
       color: scheme.primary,
     },
-    setsHeader: {
-      color: scheme.primary,
+    timer: {
+      backgroundColor: scheme.tertiary,
     },
-    repsHeader: {
+    timerText: {
       color: scheme.primary,
     },
   });
 
 const styles = StyleSheet.create({
-  workoutHeader: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    paddingVertical: 10,
-    paddingHorizontal: 15,
-  },
-  workoutNameHeader: {
-    textAlign: "center",
-    fontSize: 17,
-    paddingVertical: 6,
-  },
-  exerciseNameHeader: {
-    flex: exerciseNameFlex,
-  },
-  setsHeader: {
-    flex: setsFlex,
-    textAlign: "center",
-  },
-  repsHeader: {
-    flex: repsFlex,
-    textAlign: "center",
-  },
   body: {
-    flexDirection: "column",
-    gap: 8,
-    padding: 8,
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 10,
+    padding: 10,
   },
+  roundItem: {
+    display: "flex",
+    flexDirection: "row",
+    gap: 8,
+    maxWidth: 200,
+    borderRadius: 20,
+    padding: 8,
+    paddingHorizontal: 14,
+  },
+  exerciseText: {},
 });

@@ -76,61 +76,67 @@ export default function Post({ postModel, width }: Props) {
         </Text>
       </View>
 
-      {/* Main Content */}
-      <View
-        style={{ height: postModel.post_type === "images" ? width : "auto" }}
-      >
-        {/* Images */}
-        {postModel.post_type == "images" && (
-          <>
-            <ScrollView
-              horizontal={true}
-              snapToInterval={width}
-              onScroll={handleScroll}
-              showsHorizontalScrollIndicator={false}
-            >
-              {imageModels.current.map((model) => (
-                <PostImage
-                  key={`img.${postModel.id}.${model.content_id}`}
-                  contentModel={model}
-                  curImgIdx={curId_OneRelative}
-                  width={width}
-                />
-              ))}
-            </ScrollView>
-            {/* Dot indices */}
-            {imageModels.current.length > 1 && (
-              <View style={styles.dotsContainer}>
-                {imageModels.current.map((_, idx) => (
-                  <View
-                    key={`dot.${postModel.id}.${idx}`}
-                    style={[
-                      styles.dot,
-                      calcStyle.dot,
-                      curId_OneRelative === idx + 1
-                        ? calcStyle.selectedDot
-                        : undefined,
-                    ]}
+      {/* Images */}
+      {postModel.post_type === "images" && (
+        <View
+          style={{
+            height: width,
+          }}
+        >
+          {postModel.post_type == "images" && (
+            <>
+              <ScrollView
+                horizontal={true}
+                snapToInterval={width}
+                showsHorizontalScrollIndicator={false}
+              >
+                {imageModels.current.map((model) => (
+                  <PostImage
+                    key={`img.${postModel.id}.${model.content_id}`}
+                    contentModel={model}
+                    curImgIdx={curId_OneRelative}
+                    width={width}
                   />
                 ))}
-              </View>
-            )}
-          </>
-        )}
+              </ScrollView>
+              {/* Dot indices */}
+              {imageModels.current.length > 1 && (
+                <View style={styles.dotsContainer}>
+                  {imageModels.current.map((_, idx) => (
+                    <View
+                      key={`dot.${postModel.id}.${idx}`}
+                      style={[
+                        styles.dot,
+                        calcStyle.dot,
+                        curId_OneRelative === idx + 1
+                          ? calcStyle.selectedDot
+                          : undefined,
+                      ]}
+                    />
+                  ))}
+                </View>
+              )}
+            </>
+          )}
+        </View>
+      )}
 
-        {/* Workout */}
-        {postModel.post_type == "workout" && (
-          <PostWorkout
-            contentModel={{
-              content_id: 1,
-              post_id: postModel.id,
-              username: postModel.username,
-              post_type: postModel.post_type,
-            }}
-            width={width}
-          />
-        )}
-      </View>
+      {/* Workout */}
+      {postModel.post_type === "workout" && (
+        <View style={{ width: width }}>
+          {postModel.post_type == "workout" && (
+            <PostWorkout
+              contentModel={{
+                content_id: 1,
+                post_id: postModel.id,
+                username: postModel.username,
+                post_type: postModel.post_type,
+              }}
+              width={width}
+            />
+          )}
+        </View>
+      )}
 
       <View style={[styles.bottomContainer, calcStyle.bottomContainer]}>
         {/* Like/chat Icons */}
