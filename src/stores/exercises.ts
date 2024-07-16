@@ -4,7 +4,7 @@ import { Id } from "./workout";
 export type Exercise = {
   id: Id;
   exerciseId?: Id;
-  // name: string;
+  name: string;
   timerDuration?: number;
   setIds: Id[];
 };
@@ -20,6 +20,7 @@ type Action = {
   setTimerDuration: (id: Id, duration: number) => void;
   addSet: (id: Id, setId: Id) => void;
   popSet: (id: Id) => Id | undefined;
+  setName: (id: Id, name: string) => void;
 };
 
 const useExerciseStore = create<State & Action>((set, get) => ({
@@ -90,6 +91,14 @@ const useExerciseStore = create<State & Action>((set, get) => ({
       const exercises = { ...s.exercises };
       delete exercises[id];
       return { exercises: exercises };
+    });
+  },
+
+  setName: (id: Id, name: string) => {
+    set((s) => {
+      return {
+        exercises: { ...s.exercises, [id]: { ...s.exercises[id], name: name } },
+      };
     });
   },
 }));

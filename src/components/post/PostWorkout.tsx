@@ -5,7 +5,11 @@ import ContentModel, {
 import useSettingsStore from "@/stores/settings";
 import { ColorScheme } from "@/util/colors";
 import { useEffect, useMemo, useState } from "react";
-import { View, StyleSheet, Text } from "react-native";
+import { View, StyleSheet, Text, TouchableOpacity } from "react-native";
+import { Feather } from "@expo/vector-icons";
+import useWorkoutStore from "@/stores/workout";
+import useExerciseStore from "@/stores/exercises";
+import useSetStore from "@/stores/sets";
 
 export type Props = {
   contentModel: ContentModel;
@@ -19,13 +23,44 @@ export default function PostImage({
   aspectRatio = 1,
 }: Props) {
   const scheme = useSettingsStore((state) => state.colorScheme);
-  // const calcStyle = useMemo(
-  //   () => calcStyles(width, aspectRatio, scheme),
-  //   [scheme],
-  // );
   const [workout, setWorkout] = useState<WorkoutSummary | undefined>(undefined);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [saved, setSaved] = useState<boolean>(false);
   const calcStyle = useMemo(() => calcStyles(width, scheme), [width, scheme]);
+  const createWorkout = useWorkoutStore((s) => s.createWorkout);
+  const addLoaded = useWorkoutStore((s) => s.addLoadedIfNotExists);
+  const setWorkoutName = useWorkoutStore((s) => s.setName);
+  const addExercise = useWorkoutStore((s) => s.addExercise);
+  const createExercise = useExerciseStore((s) => s.createExercise);
+  const setExerciseName = useExerciseStore((s) => s.setName);
+  const addSet = useExerciseStore((s) => s.addSet);
+  const createSet = useSetStore((s) => s.createSet);
+  const setPrev = useSetStore((s) => s.setPrev);
+  // const setExerciseName = useExerciseStore(s => s.);
+
+  const saveNewWorkout = () => {
+    if (!workout) return;
+    setSaved(!saved);
+    let workoutId = createWorkout();
+    setWorkoutName(workout.workout_name, workoutId);
+
+    // exercises
+    for (let i = 0; i < workout.exercises.length; i++) {
+      let exerciseId = createExercise();
+      setExerciseName(exerciseId, workout.exercises[i].exercise_name);
+      addExercise(workoutId, exerciseId);
+
+      // sets
+      for (let j = 0; j < workout.exercises[i].num_sets; j++) {
+        let setId = createSet();
+        addSet(exerciseId, setId);
+        // prev reps
+        setPrev(undefined, workout.exercises[i].num_reps, setId);
+      }
+    }
+
+    addLoaded(workoutId);
+  };
 
   useEffect(() => {
     if (workout != null) return;
@@ -64,9 +99,20 @@ export default function PostImage({
                 </Text>
               </View>
             ))}
-            <View style={[styles.roundItem, calcStyle.timer]}>
-              <Text style={[calcStyle.timerText]}>120</Text>
-            </View>
+            <TouchableOpacity
+              style={[styles.roundItem, calcStyle.save]}
+              activeOpacity={0.7}
+              onPress={saveNewWorkout}
+            >
+              <Feather
+                name={`${saved ? "check" : "save"}`}
+                size={15}
+                color={scheme.tertiary}
+              />
+              <Text style={[calcStyle.saveText]}>
+                {saved ? "Saved" : "Save"}
+              </Text>
+            </TouchableOpacity>
           </View>
         </>
       )}
@@ -89,11 +135,11 @@ const calcStyles = (width: number, scheme: ColorScheme) =>
     exerciseText: {
       color: scheme.primary,
     },
-    timer: {
-      backgroundColor: scheme.tertiary,
+    save: {
+      backgroundColor: scheme.hiSecondary,
     },
-    timerText: {
-      color: scheme.primary,
+    saveText: {
+      color: scheme.tertiary,
     },
   });
 
@@ -107,6 +153,8 @@ const styles = StyleSheet.create({
   roundItem: {
     display: "flex",
     flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
     gap: 8,
     maxWidth: 200,
     borderRadius: 20,

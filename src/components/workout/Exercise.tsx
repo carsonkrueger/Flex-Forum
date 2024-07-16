@@ -38,7 +38,7 @@ export default function Exercise({ id, workoutId }: Props) {
               {exercise.exerciseId
                 ? exercise.exerciseId
                 : isLocked
-                  ? " "
+                  ? exercise.name
                   : "Select Exercise"}
             </Text>
           </TouchableOpacity>
@@ -46,7 +46,7 @@ export default function Exercise({ id, workoutId }: Props) {
             <TouchableOpacity onPress={onEllipsisClick}>
               <Ionicons
                 name="ellipsis-horizontal-sharp"
-                size={23}
+                size={20}
                 color={scheme.quaternary}
               />
             </TouchableOpacity>
