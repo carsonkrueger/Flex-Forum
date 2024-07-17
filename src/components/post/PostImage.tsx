@@ -1,7 +1,8 @@
 import ContentModel, { downloadContent } from "@/models/content-model";
 import useSettingsStore from "@/stores/settings";
 import { ColorScheme } from "@/util/colors";
-import { useEffect, useMemo, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { View, StyleSheet, Image } from "react-native";
 
 export type Props = {
@@ -18,29 +19,31 @@ export default function PostImage({
   aspectRatio = 1,
 }: Props) {
   const scheme = useSettingsStore((state) => state.colorScheme);
+  const [imgSrc, setImgSrc] = useState<string | null>(null);
+  const isLoading = useRef(false);
   const calcStyle = useMemo(
     () => calcStyles(width, aspectRatio, scheme),
     [scheme],
   );
-  const [imgSrc, setImgSrc] = useState<string | undefined>(undefined);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  const fetchImage = async () => {
+    return await downloadContent<Blob>(contentModel, "blob");
+  };
+
+  const query = useQuery({
+    queryKey: [`img.${contentModel.post_id}.${contentModel.content_id}`],
+    queryFn: fetchImage,
+  });
 
   useEffect(() => {
-    if (
-      isLoading ||
-      imgSrc !== undefined ||
-      contentModel.content_id > curImgIdx + 1
-    )
-      return;
-    setIsLoading(true);
-    downloadContent<Blob>(contentModel).then((data) => {
-      let fr = new FileReader();
-      fr.readAsDataURL(data);
-      fr.onloadend = () => {
-        setImgSrc(fr.result as string);
-      };
-    });
-  }, [curImgIdx]);
+    if (imgSrc != null || !query.data) return;
+
+    let fr = new FileReader();
+    fr.onloadend = () => {
+      setImgSrc(fr.result as string);
+    };
+    fr.readAsDataURL(query.data);
+  }, [query.data]);
 
   return (
     <>

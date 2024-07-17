@@ -10,6 +10,7 @@ import { Feather } from "@expo/vector-icons";
 import useWorkoutStore from "@/stores/workout";
 import useExerciseStore from "@/stores/exercises";
 import useSetStore from "@/stores/sets";
+import { useQuery } from "@tanstack/react-query";
 
 export type Props = {
   contentModel: ContentModel;
@@ -23,7 +24,6 @@ export default function PostImage({
   aspectRatio = 1,
 }: Props) {
   const scheme = useSettingsStore((state) => state.colorScheme);
-  const [workout, setWorkout] = useState<WorkoutSummary | undefined>(undefined);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [saved, setSaved] = useState<boolean>(false);
   const calcStyle = useMemo(() => calcStyles(width, scheme), [width, scheme]);
@@ -39,40 +39,41 @@ export default function PostImage({
   // const setExerciseName = useExerciseStore(s => s.);
 
   const saveNewWorkout = () => {
-    if (!workout) return;
+    if (!query.data) return;
     setSaved(!saved);
     let workoutId = createWorkout();
-    setWorkoutName(workout.workout_name, workoutId);
+    setWorkoutName(query.data.workout_name, workoutId);
 
     // exercises
-    for (let i = 0; i < workout.exercises.length; i++) {
+    for (let i = 0; i < query.data.exercises.length; i++) {
       let exerciseId = createExercise();
-      setExerciseName(exerciseId, workout.exercises[i].exercise_name);
+      setExerciseName(exerciseId, query.data.exercises[i].exercise_name);
       addExercise(workoutId, exerciseId);
 
       // sets
-      for (let j = 0; j < workout.exercises[i].num_sets; j++) {
+      for (let j = 0; j < query.data.exercises[i].num_sets; j++) {
         let setId = createSet();
         addSet(exerciseId, setId);
         // prev reps
-        setPrev(undefined, workout.exercises[i].num_reps, setId);
+        setPrev(undefined, query.data.exercises[i].num_reps, setId);
       }
     }
 
     addLoaded(workoutId);
   };
 
-  useEffect(() => {
-    if (workout != null) return;
+  const fetchWorkout = async () => {
+    return await downloadContent<WorkoutSummary>(contentModel, "json");
+  };
 
-    downloadContent<WorkoutSummary>(contentModel, "json").then((data) => {
-      setWorkout(data);
-    });
-  }, []);
+  const query = useQuery({
+    queryKey: [`workout.${contentModel.post_id}.${contentModel.content_id}`],
+    queryFn: fetchWorkout,
+  });
 
   return (
     <View>
-      {workout && (
+      {query.data && (
         <>
           <View style={[styles.body, calcStyle.body]}>
             {/* Workout Name */}
@@ -83,10 +84,10 @@ export default function PostImage({
                 calcStyle.workoutName,
               ]}
             >
-              {workout.workout_name}
+              {query.data.workout_name}
             </Text>
             {/* Exercises */}
-            {workout.exercises.map((e, idx) => (
+            {query.data.exercises.map((e, idx) => (
               <View
                 key={`ex.${contentModel.post_id}.${idx}`}
                 style={[styles.roundItem, calcStyle.exercise]}

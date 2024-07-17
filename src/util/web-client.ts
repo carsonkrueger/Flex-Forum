@@ -12,11 +12,6 @@ const client = wrapper(
 
 export const printCookieJar = () => {
   console.log(client.defaults.headers);
-  // console.log(
-  //   jar?.getCookies(base_url, (err, cookies) => {
-  //     console.log(`cookies: ${cookies}`);
-  //   }),
-  // );
 };
 
 export default client;
