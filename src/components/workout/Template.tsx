@@ -1,3 +1,4 @@
+import useExerciseStore from "@/stores/exercises";
 import useSettingsStore from "@/stores/settings";
 import useWorkoutStore from "@/stores/workout";
 import { ColorScheme } from "@/util/colors";
@@ -10,6 +11,8 @@ export type Props = {
   id: number;
 };
 
+const maxExercisesShown = 6 as const;
+
 export default function Page(props: Props) {
   const router = useRouter();
   const scheme = useSettingsStore((state) => state.colorScheme);
@@ -21,6 +24,7 @@ export default function Page(props: Props) {
     s.inProgress.includes(props.id),
   );
   const isLoaded = useWorkoutStore((s) => s.loaded.includes(props.id));
+  const getExercise = useExerciseStore((s) => s.getExercise);
 
   const onPress = () => {
     if (!alreadyInProgress) {
@@ -42,6 +46,27 @@ export default function Page(props: Props) {
         <Text style={[styles.templateHeader, calcStyle.text]}>
           {workout.name}
         </Text>
+        {workout.lastPerformed && (
+          <View>
+            <Text style={[styles.subText, calcStyle.subText]}>
+              Last Performed:
+            </Text>
+            <Text style={[styles.subText, calcStyle.subText]}>
+              {workout.lastPerformed?.toString()}
+            </Text>
+          </View>
+        )}
+      </View>
+      <View style={styles.rightTemplate}>
+        {workout.exerciseIds.map((id, idx) =>
+          idx < maxExercisesShown ? (
+            <Text style={[styles.subText, calcStyle.subText]}>
+              {getExercise(id).setIds.length} x {getExercise(id).name}
+            </Text>
+          ) : idx < maxExercisesShown + 1 ? (
+            <Text style={[calcStyle.ellipses]}>...</Text>
+          ) : null,
+        )}
       </View>
     </TouchableOpacity>
   );
@@ -56,12 +81,18 @@ const calcStyles = (scheme: ColorScheme) =>
       color: scheme.tertiary,
     },
     subText: {
-      color: scheme.secondary,
+      color: scheme.hiSecondary,
+    },
+    ellipses: {
+      color: scheme.hiSecondary,
+      textAlign: "center",
     },
   });
 
 const styles = StyleSheet.create({
   container: {
+    flexDirection: "row",
+    justifyContent: "space-between",
     borderWidth: 1.5,
     borderRadius: 7,
     padding: 7,
@@ -75,13 +106,15 @@ const styles = StyleSheet.create({
     lineHeight: 18,
   },
   leftTemplate: {
-    flex: 1,
     flexDirection: "column",
     justifyContent: "space-between",
   },
   rightTemplate: {
-    flex: 1,
+    maxWidth: 105,
+    minWidth: 90,
     flexDirection: "column",
   },
-  subText: {},
+  subText: {
+    fontSize: 10,
+  },
 });

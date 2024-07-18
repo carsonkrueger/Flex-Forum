@@ -1,11 +1,11 @@
 import useSettingsStore from "@/stores/settings";
-import { Slot, router } from "expo-router";
+import { Slot, Stack, router, usePathname, useRouter } from "expo-router";
 import { useMemo } from "react";
 import { View, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 // import useAuth from "@/hooks/useAuth";
 import NavItem from "@/components/nav/NavItem";
-import { routes } from "@/util/routes";
+import { Route, routes } from "@/util/routes";
 import { Ionicons } from "@expo/vector-icons";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import useUserStore from "@/stores/user";
@@ -20,26 +20,41 @@ export default function Layout() {
   );
   const iconColor = scheme.tertiary;
   const setUserId = useUserStore((s) => s.setUsername);
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const navigateTo = (route: string) => {
+    // if (pathname === route) return;
+    if (pathname === routes.home && route !== routes.home) router.push(route);
+    else router.navigate(route);
+  };
 
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar backgroundColor={scheme.primary} />
-      <Slot initialRouteName={routes.home} />
+      {/* <Slot initialRouteName={routes.home} /> */}
+      <Stack
+        screenOptions={{ headerShown: false, animation: "fade_from_bottom" }}
+      >
+        <Stack.Screen name="home" />
+        <Stack.Screen name="workout/[id]" />
+        <Stack.Screen name="workout/templates" />
+      </Stack>
       <View style={[styles.navContainer, calcStyle.navContainer]}>
         <NavItem
           icon={<Ionicons name="home" size={30} color={iconColor} />}
-          onPress={() => router.navigate(routes.home)}
+          onPress={() => navigateTo(routes.home)}
         />
 
         <NavItem
           icon={<Ionicons name="search" size={30} color={iconColor} />}
-          onPress={() => router.navigate(routes.home)}
+          onPress={() => navigateTo(routes.home)}
         />
 
         <View style={styles.navCenterContainer}>
           <NavItem
             style={[styles.navCenter, calcStyle.navCenter]}
-            onPress={() => router.navigate(routes.templates)}
+            onPress={() => navigateTo(routes.templates)}
             icon={
               <MaterialCommunityIcons
                 name="weight-lifter"
@@ -53,14 +68,14 @@ export default function Layout() {
 
         <NavItem
           icon={<Ionicons name="settings-sharp" size={30} color={iconColor} />}
-          onPress={() => router.navigate(routes.home)}
+          onPress={() => navigateTo(routes.home)}
         />
 
         <NavItem
           icon={<Ionicons name="person" size={30} color={iconColor} />}
           onPress={() => {
             setUserId(undefined);
-            router.navigate(routes.login);
+            navigateTo(routes.login);
           }}
         />
       </View>
