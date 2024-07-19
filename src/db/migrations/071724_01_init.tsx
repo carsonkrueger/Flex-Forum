@@ -1,7 +1,9 @@
 import * as SQLite from "expo-sqlite";
 import db from "../db";
 
-export default async function migrate() {
+export default async function migrate(version: number) {
+  if (version != 0) return;
+  if (true) return;
   await db.execAsync(
     `
     CREATE TABLE IF NOT EXISTS ExercisePresets(
@@ -19,13 +21,15 @@ export default async function migrate() {
     CREATE TABLE IF NOT EXISTS Exercises (
       id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
       sessionId INTEGER FOREIGN KEY REFERENCES WorkoutsSessions(id) NOT NULL,
-      exercisePresetId INTEGER FOREIGN KEY REFERENCES ExercisePresets(id) NOT NULL
+      exercisePresetId INTEGER FOREIGN KEY REFERENCES ExercisePresets(id) NOT NULL,
+      index INTEGER NOT NULL
     );
 
     CREATE TABLE IF NOT EXISTS Sets (
       id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
       sessionId INTEGER FORIEGN KEY REFERENCES WorkoutSessions(id) NOT NULL,
       exerciseId INTEGER FOREIGN KEY REFERENCES Exercises(id) NOT NULL,
+      index INTEGER NOT NULL,
       weight INTEGER NOT NULL,
       reps INTEGER NOT NULL
     );

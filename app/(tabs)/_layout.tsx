@@ -10,6 +10,9 @@ import { Ionicons } from "@expo/vector-icons";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import useUserStore from "@/stores/user";
 import { StatusBar } from "expo-status-bar";
+import { SQLiteProvider } from "expo-sqlite";
+import { DATABASE_NAME } from "@/db/db";
+import { migrateAll } from "@/db/base";
 
 export default function Layout() {
   // useAuth();
@@ -31,54 +34,58 @@ export default function Layout() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar backgroundColor={scheme.primary} />
-      {/* <Slot initialRouteName={routes.home} /> */}
-      <Stack
-        screenOptions={{ headerShown: false, animation: "fade_from_bottom" }}
-      >
-        <Stack.Screen name="home" />
-        <Stack.Screen name="workout/[id]" />
-        <Stack.Screen name="workout/templates" />
-      </Stack>
-      <View style={[styles.navContainer, calcStyle.navContainer]}>
-        <NavItem
-          icon={<Ionicons name="home" size={30} color={iconColor} />}
-          onPress={() => navigateTo(routes.home)}
-        />
-
-        <NavItem
-          icon={<Ionicons name="search" size={30} color={iconColor} />}
-          onPress={() => navigateTo(routes.home)}
-        />
-
-        <View style={styles.navCenterContainer}>
+      <SQLiteProvider databaseName={DATABASE_NAME} onInit={migrateAll}>
+        <StatusBar backgroundColor={scheme.primary} />
+        {/* <Slot initialRouteName={routes.home} /> */}
+        <Stack
+          screenOptions={{ headerShown: false, animation: "fade_from_bottom" }}
+        >
+          <Stack.Screen name="home" />
+          <Stack.Screen name="workout/[id]" />
+          <Stack.Screen name="workout/templates" />
+        </Stack>
+        <View style={[styles.navContainer, calcStyle.navContainer]}>
           <NavItem
-            style={[styles.navCenter, calcStyle.navCenter]}
-            onPress={() => navigateTo(routes.templates)}
+            icon={<Ionicons name="home" size={30} color={iconColor} />}
+            onPress={() => navigateTo(routes.home)}
+          />
+
+          <NavItem
+            icon={<Ionicons name="search" size={30} color={iconColor} />}
+            onPress={() => navigateTo(routes.home)}
+          />
+
+          <View style={styles.navCenterContainer}>
+            <NavItem
+              style={[styles.navCenter, calcStyle.navCenter]}
+              onPress={() => navigateTo(routes.templates)}
+              icon={
+                <MaterialCommunityIcons
+                  name="weight-lifter"
+                  size={30}
+                  color={scheme.primary}
+                />
+              }
+              activeOpacity={1}
+            />
+          </View>
+
+          <NavItem
             icon={
-              <MaterialCommunityIcons
-                name="weight-lifter"
-                size={30}
-                color={scheme.primary}
-              />
+              <Ionicons name="settings-sharp" size={30} color={iconColor} />
             }
-            activeOpacity={1}
+            onPress={() => navigateTo(routes.home)}
+          />
+
+          <NavItem
+            icon={<Ionicons name="person" size={30} color={iconColor} />}
+            onPress={() => {
+              setUserId(undefined);
+              navigateTo(routes.login);
+            }}
           />
         </View>
-
-        <NavItem
-          icon={<Ionicons name="settings-sharp" size={30} color={iconColor} />}
-          onPress={() => navigateTo(routes.home)}
-        />
-
-        <NavItem
-          icon={<Ionicons name="person" size={30} color={iconColor} />}
-          onPress={() => {
-            setUserId(undefined);
-            navigateTo(routes.login);
-          }}
-        />
-      </View>
+      </SQLiteProvider>
     </SafeAreaView>
   );
 }
