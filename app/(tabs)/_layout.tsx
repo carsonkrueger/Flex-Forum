@@ -12,7 +12,7 @@ import useUserStore from "@/stores/user";
 import { StatusBar } from "expo-status-bar";
 import { SQLiteProvider } from "expo-sqlite";
 import { DATABASE_NAME } from "@/db/db";
-import { migrateAll } from "@/db/base";
+import { migrateAll } from "@/db/migrate";
 
 export default function Layout() {
   // useAuth();

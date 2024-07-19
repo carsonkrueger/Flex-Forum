@@ -4,6 +4,7 @@ import useWorkoutStore from "@/stores/workout";
 import { ColorScheme } from "@/util/colors";
 import { routes } from "@/util/routes";
 import { useRouter } from "expo-router";
+import { useSQLiteContext } from "expo-sqlite";
 import { useMemo } from "react";
 import { View, StyleSheet, TouchableOpacity, Text } from "react-native";
 
@@ -14,6 +15,7 @@ export type Props = {
 const maxExercisesShown = 6 as const;
 
 export default function Page(props: Props) {
+  const db = useSQLiteContext();
   const router = useRouter();
   const scheme = useSettingsStore((state) => state.colorScheme);
   const calcStyle = useMemo(() => calcStyles(scheme), [scheme]);
@@ -57,14 +59,20 @@ export default function Page(props: Props) {
           </View>
         )}
       </View>
+      {/* Exercise Names */}
       <View style={styles.rightTemplate}>
         {workout.exerciseIds.map((id, idx) =>
           idx < maxExercisesShown ? (
-            <Text style={[styles.subText, calcStyle.subText]}>
+            <Text
+              key={`ex.${props.id}.${id}`}
+              style={[styles.subText, calcStyle.subText]}
+            >
               {getExercise(id).setIds.length} x {getExercise(id).name}
             </Text>
           ) : idx < maxExercisesShown + 1 ? (
-            <Text style={[calcStyle.ellipses]}>...</Text>
+            <Text key={`ellipses.${props.id}`} style={[calcStyle.ellipses]}>
+              ...
+            </Text>
           ) : null,
         )}
       </View>

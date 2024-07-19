@@ -1,37 +1,40 @@
-import * as SQLite from "expo-sqlite";
-import db from "../db";
+import { SQLiteDatabase } from "expo-sqlite";
+import { setDBVersion } from "../base";
 
-export default async function migrate(version: number) {
+export default async function migrate(db: SQLiteDatabase, version: number) {
   if (version != 0) return;
-  if (true) return;
   await db.execAsync(
     `
-    CREATE TABLE IF NOT EXISTS ExercisePresets(
+    CREATE TABLE IF NOT EXISTS ExercisePresets (
       id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-      name VARCHAR(100) NOT NULL,
-      description VARCHAR(1000) NOT NULL
+      name TEXT NOT NULL,
+      description TEXT NOT NULL
     );
 
     CREATE TABLE IF NOT EXISTS WorkoutSessions (
       id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-      name VARCHAR(100) NOT NULL,
+      name TEXT NOT NULL,
       performed DATETIME DEFAULT datetime('now')
     );
 
     CREATE TABLE IF NOT EXISTS Exercises (
       id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-      sessionId INTEGER FOREIGN KEY REFERENCES WorkoutsSessions(id) NOT NULL,
-      exercisePresetId INTEGER FOREIGN KEY REFERENCES ExercisePresets(id) NOT NULL,
-      index INTEGER NOT NULL
+      sessionId INTEGER NOT NULL,
+      exercisePresetId INTEGER NOT NULL,
+      idx INTEGER NOT NULL,
+      FOREIGN KEY (sessionId) REFERENCES WorkoutsSessions(id),
+      FOREIGN KEY (exercisePresetId) REFERENCES ExercisePresets(id)
     );
 
     CREATE TABLE IF NOT EXISTS Sets (
       id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-      sessionId INTEGER FORIEGN KEY REFERENCES WorkoutSessions(id) NOT NULL,
-      exerciseId INTEGER FOREIGN KEY REFERENCES Exercises(id) NOT NULL,
-      index INTEGER NOT NULL,
+      sessionId INTEGER NOT NULL,
+      exerciseId INTEGER NOT NULL,
+      idx INTEGER NOT NULL,
       weight INTEGER NOT NULL,
-      reps INTEGER NOT NULL
+      reps INTEGER NOT NULL,
+      FOREIGN KEY (sessionId) REFERENCES WorkoutSessions(id),
+      FOREIGN KEY (exerciseId) REFERENCES Exercises(id)
     );
 
     CREATE UNIQUE INDEX IF NOT EXISTS WorkoutSessionIdIndex ON WorkoutSessions(id);
@@ -45,4 +48,8 @@ export default async function migrate(version: number) {
     CREATE UNIQUE INDEX IF NOT EXISTS SetsIdIndex ON Sets(id);
     `,
   );
+
+  await setDBVersion(db, ++version);
+
+  return version;
 }
