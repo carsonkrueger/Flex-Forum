@@ -1,3 +1,4 @@
+import { WorkoutRow } from "@/db/models/workout-model";
 import { create } from "zustand";
 
 export type Id = number;
@@ -20,7 +21,9 @@ type State = {
 
 type Action = {
   setWorkout: (w: Workout) => void;
+  getWorkout: (id: Id) => Workout;
   createWorkout: () => Id;
+  loadFromRow: (row: WorkoutRow) => Id;
   setName: (name: Workout["name"], id: Workout["id"]) => void;
   addExercise: (id: Id, exerciseId: Id) => void;
   removeExercise: (id: Id, exerciseId: Id) => void;
@@ -32,6 +35,7 @@ type Action = {
   removeInProgress: (id: Id) => void;
   addLoadedIfNotExists: (id: Id) => void;
   removeLoaded: (id: Id) => void;
+  setPerformed: (date: Date, id: Id) => void;
 };
 
 const useWorkoutStore = create<State & Action>((set, get) => ({
@@ -44,6 +48,8 @@ const useWorkoutStore = create<State & Action>((set, get) => ({
   setWorkout: (w: Workout) =>
     set((s) => ({ workouts: { ...s.workouts[w.id], [w.id]: w } })),
 
+  getWorkout: (id: Id) => get().workouts[id],
+
   createWorkout: () => {
     let id = get().nextId;
     let w: Workout = {
@@ -53,6 +59,14 @@ const useWorkoutStore = create<State & Action>((set, get) => ({
       name: "New Workout",
     };
     set((s) => ({ workouts: { ...s.workouts, [id]: w }, nextId: id + 1 }));
+    return id;
+  },
+
+  loadFromRow: (row: WorkoutRow) => {
+    let id = get().createWorkout();
+    get().setName(row.name, id);
+    get().setPerformed(row.performed, id);
+    get().addLoadedIfNotExists(id);
     return id;
   },
 
@@ -149,6 +163,14 @@ const useWorkoutStore = create<State & Action>((set, get) => ({
 
   removeLoaded: (id: Id) =>
     set((s) => ({ loaded: s.loaded.filter((i) => i !== id) })),
+
+  setPerformed: (date: Date, id: Id) =>
+    set((s) => ({
+      workouts: {
+        ...s.workouts,
+        [id]: { ...s.workouts[id], lastPerformed: date },
+      },
+    })),
 }));
 
 export default useWorkoutStore;

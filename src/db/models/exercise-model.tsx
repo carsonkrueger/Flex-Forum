@@ -1,0 +1,33 @@
+import { Exercise } from "@/stores/exercises";
+import { SQLiteDatabase } from "expo-sqlite";
+
+export type ExerciseRow = {
+  id: number;
+  sessionId: number;
+  exercisePresetId: number;
+  idx: number;
+  timer?: number;
+};
+
+export async function saveExercise(
+  db: SQLiteDatabase,
+  exercise: Exercise,
+  sessionId: number,
+  idx: number,
+): Promise<number> {
+  let res = await db.runAsync(
+    "INSERT INTO Exercises(sessionId, exercisePresetId, idx, timer) VALUES (?, ?, ?, ?);",
+    [sessionId, exercise.exerciseId ?? 0, idx, exercise.timerDuration ?? null],
+  );
+  return res.lastInsertRowId;
+}
+
+export async function getExerciseRows(
+  db: SQLiteDatabase,
+  sessionId: number,
+): Promise<ExerciseRow[]> {
+  return await db.getAllAsync<ExerciseRow>(
+    "SELECT * FROM Exercises WHERE sessionId = ? ORDER BY idx ASC;",
+    [sessionId],
+  );
+}

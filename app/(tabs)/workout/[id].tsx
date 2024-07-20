@@ -28,8 +28,13 @@ import { SizeVariant } from "@/util/variants";
 import { Ionicons } from "@expo/vector-icons";
 import Modal from "@/components/modal";
 import { routes } from "@/util/routes";
+import { saveWorkoutSession } from "@/db/models/workout-model";
+import { saveExercise } from "@/db/models/exercise-model";
+import { saveSet } from "@/db/models/set-model";
+import { useSQLiteContext } from "expo-sqlite";
 
 export default function Page() {
+  const db = useSQLiteContext();
   const id = (useLocalSearchParams<{ id: string }>().id ?? -1) as number;
   const router = useRouter();
   const scheme = useSettingsStore((state) => state.colorScheme);
@@ -45,6 +50,7 @@ export default function Page() {
   const moveUp = useWorkoutStore((s) => s.moveUp);
   const moveDown = useWorkoutStore((s) => s.moveDown);
   const getExercise = useExerciseStore((s) => s.getExercise);
+  const getSet = useSetStore((s) => s.getSet);
   const addSet = useExerciseStore((s) => s.addSet);
   const popSet = useExerciseStore((s) => s.popSet);
   const createSet = useSetStore((s) => s.createSet);
@@ -129,7 +135,16 @@ export default function Page() {
     moveDown(id, sheetId);
   }
 
-  function onFinishWorkout(): void {
+  async function onFinishWorkout(): Promise<void> {
+    let sessionId = await saveWorkoutSession(db, workout);
+    for (let i = 0; i < workout.exerciseIds.length; ++i) {
+      let exercise = getExercise(workout.exerciseIds[i]);
+      let exerciseId = await saveExercise(db, exercise, sessionId, i);
+      for (let j = 0; j < exercise.setIds.length; ++j) {
+        let set = getSet(exercise.setIds[j]);
+        await saveSet(db, set, exerciseId, j);
+      }
+    }
     removeInProgress(id);
     addLoadedIfNotExists(id);
     router.navigate(routes.templates);

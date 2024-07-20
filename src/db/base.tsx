@@ -12,3 +12,12 @@ export async function getDBVersion(db: SQLiteDatabase) {
 export async function setDBVersion(db: SQLiteDatabase, version: number) {
   await db.runAsync(`PRAGMA user_version = ${version};`);
 }
+
+export async function dropAllTables(db: SQLiteDatabase) {
+  await db.execAsync(`
+    DROP TABLE IF EXISTS Sets;
+    DROP TABLE IF EXISTS Exercises;
+    DROP TABLE IF EXISTS WorkoutSessions;
+    DROP TABLE IF EXISTS ExercisePresets;
+    `);
+}

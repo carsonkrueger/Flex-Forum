@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { Id } from "./workout";
+import { ExerciseRow } from "@/db/models/exercise-model";
 
 export type Exercise = {
   id: Id;
@@ -15,9 +16,10 @@ type Action = {
   setExercise: (e: Exercise) => void;
   getExercise: (id: Id) => Exercise;
   createExercise: () => Id;
+  createFromRow: (row: ExerciseRow) => Id;
   deleteExercise: (id: Id) => void;
   setExerciseId: (id: Id, exerciseId: Id) => void;
-  setTimerDuration: (id: Id, duration: number) => void;
+  setTimerDuration: (id: Id, duration?: number) => void;
   addSet: (id: Id, setId: Id) => void;
   popSet: (id: Id) => Id | undefined;
   setName: (id: Id, name: string) => void;
@@ -40,7 +42,7 @@ const useExerciseStore = create<State & Action>((set, get) => ({
       },
     })),
 
-  setTimerDuration: (id: Id, duration: number) =>
+  setTimerDuration: (id: Id, duration?: number) =>
     set((s) => ({
       exercises: {
         ...s.exercises,
@@ -84,6 +86,13 @@ const useExerciseStore = create<State & Action>((set, get) => ({
       },
     }));
     return prevId;
+  },
+
+  createFromRow: (row: ExerciseRow) => {
+    let id = get().createExercise();
+    get().setExerciseId(id, row.exercisePresetId);
+    get().setTimerDuration(id, row.timer);
+    return id;
   },
 
   deleteExercise: (id: Id) => {

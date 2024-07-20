@@ -1,3 +1,4 @@
+import { SetRow } from "@/db/models/set-model";
 import { Id } from "./workout";
 import { create } from "zustand";
 
@@ -13,7 +14,9 @@ export type Set = {
 type State = { nextId: Id; sets: { [id: Id]: Set } };
 
 type Action = {
+  getSet: (id: Id) => Set;
   createSet: () => Id;
+  createFromSetRow: (row: SetRow) => Id;
   deleteSet: (id: Id) => void;
   setWeight: (weight: Set["weight"], id: Set["id"]) => void;
   setReps: (reps: Set["reps"], id: Set["id"]) => void;
@@ -25,6 +28,8 @@ const useSetStore = create<State & Action>((set, get) => ({
   nextId: 0,
   sets: {},
 
+  getSet: (id: Id) => get().sets[id],
+
   createSet: () => {
     let prevId = get().nextId;
     set((s) => ({
@@ -32,6 +37,12 @@ const useSetStore = create<State & Action>((set, get) => ({
       sets: { ...s.sets, [s.nextId]: { id: s.nextId, finished: false } },
     }));
     return prevId;
+  },
+
+  createFromSetRow: (row: SetRow) => {
+    let id = get().createSet();
+    get().setPrev(row.weight, row.reps, id);
+    return id;
   },
 
   deleteSet: (id: Id) =>
