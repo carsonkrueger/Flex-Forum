@@ -13,9 +13,9 @@ import { routes } from "@/util/routes";
 import { useRouter } from "expo-router";
 import { useSQLiteContext } from "expo-sqlite";
 import { useEffect, useMemo, useRef } from "react";
-import { Text, View, StyleSheet } from "react-native";
+import { Text, View, StyleSheet, ScrollView } from "react-native";
 
-const WORKOUT_QUERY_LIMIT = 5 as const;
+const WORKOUT_QUERY_LIMIT = 100 as const;
 
 export default function Page() {
   const router = useRouter();
@@ -33,7 +33,8 @@ export default function Page() {
   const addInProgress = useWorkoutStore((s) => s.addInProgress);
   const inProgress = useWorkoutStore((s) => s.inProgress);
   const loaded = useWorkoutStore((s) => s.loaded);
-  const offset = useRef(0);
+  const offset = useWorkoutStore((s) => s.templateOffset);
+  const setOffset = useWorkoutStore((s) => s.setTemplateOffset);
 
   const createNewWorkout = () => {
     let wid = createWorkout();
@@ -45,16 +46,20 @@ export default function Page() {
     router.push({ pathname: routes.workout(wid) });
   };
 
-  useEffect(() => {
-    getWorkoutSessionRows(db, WORKOUT_QUERY_LIMIT, offset.current).then(
+  const fetchWorkouts = () => {
+    getWorkoutSessionRows(db, WORKOUT_QUERY_LIMIT, offset).then(
       async (workoutRows) => {
         console.log(workoutRows);
         for (let i = 0; i < workoutRows.length; ++i) {
           let workoutId = loadFromWorkoutRow(workoutRows[i]);
           let exerciseRows = await getExerciseRows(db, workoutRows[i].id);
+          console.log("exercises:");
+          console.log(exerciseRows);
           for (let j = 0; j < exerciseRows.length; ++j) {
             let exerciseId = createFromExerciseRow(exerciseRows[j]);
             let setRows = await getSetRows(db, exerciseRows[j].id);
+            console.log("rows:");
+            console.log(setRows);
             addExercise(workoutId, exerciseId);
             for (let k = 0; k < setRows.length; ++k) {
               let setId = createFromSetRow(setRows[k]);
@@ -64,11 +69,18 @@ export default function Page() {
         }
       },
     );
-    offset.current += WORKOUT_QUERY_LIMIT;
+    setOffset(offset + WORKOUT_QUERY_LIMIT);
+  };
+
+  useEffect(() => {
+    if (offset === 0) fetchWorkouts();
   }, []);
 
   return (
-    <View style={[styles.container, calcStyle.container]}>
+    <ScrollView
+      contentContainerStyle={{ alignItems: "center" }}
+      style={[styles.container, calcStyle.container]}
+    >
       <Text style={[styles.headerText, calcStyle.headerText]}>Workouts</Text>
 
       {inProgress.length > 0 && (
@@ -100,7 +112,7 @@ export default function Page() {
       {loaded.map((id) => (
         <Template key={`workout.${id}`} id={id} />
       ))}
-    </View>
+    </ScrollView>
   );
 }
 
@@ -108,8 +120,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    alignItems: "center",
-    gap: 8,
+    paddingBottom: 100,
   },
   headerText: {
     fontFamily: "PermanentMarker",

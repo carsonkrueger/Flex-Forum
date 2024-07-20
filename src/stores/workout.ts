@@ -14,6 +14,7 @@ export type Workout = {
 type State = {
   nextId: Id;
   sheetId?: Id;
+  templateOffset: number;
   inProgress: Id[];
   loaded: Id[];
   workouts: { [id: Id]: Workout };
@@ -36,10 +37,12 @@ type Action = {
   addLoadedIfNotExists: (id: Id) => void;
   removeLoaded: (id: Id) => void;
   setPerformed: (date: Date, id: Id) => void;
+  setTemplateOffset: (offset: number) => void;
 };
 
 const useWorkoutStore = create<State & Action>((set, get) => ({
   nextId: 0,
+  templateOffset: 0,
   sheetId: undefined,
   workouts: {},
   inProgress: [],
@@ -171,6 +174,9 @@ const useWorkoutStore = create<State & Action>((set, get) => ({
         [id]: { ...s.workouts[id], lastPerformed: date },
       },
     })),
+
+  setTemplateOffset: (offset: number) =>
+    set((s) => ({ templateOffset: offset })),
 }));
 
 export default useWorkoutStore;

@@ -29,7 +29,10 @@ export default function Layout() {
   const navigateTo = (route: string) => {
     // if (pathname === route) return;
     if (pathname === routes.home && route !== routes.home) router.push(route);
-    else router.navigate(route);
+    else if (route === routes.user) {
+      router.dismissAll();
+      router.replace(routes.login);
+    } else router.navigate(route);
   };
 
   return (
@@ -81,7 +84,7 @@ export default function Layout() {
             icon={<Ionicons name="person" size={30} color={iconColor} />}
             onPress={() => {
               setUserId(undefined);
-              navigateTo(routes.login);
+              navigateTo(routes.user);
             }}
           />
         </View>

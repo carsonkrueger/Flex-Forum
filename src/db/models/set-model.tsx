@@ -16,7 +16,7 @@ export async function saveSet(
   idx: number,
 ): Promise<number> {
   let res = await db.runAsync(
-    "INSERT INTO Sets(exerciseId, idx, weight, reps) VALUES (?, ?, ?, ?, ?);",
+    "INSERT INTO Sets(exerciseId, idx, weight, reps) VALUES (?, ?, ?, ?);",
     [exerciseId, idx, set.weight ?? 0, set.reps ?? 0],
   );
   return res.lastInsertRowId;
@@ -27,7 +27,7 @@ export async function getSetRows(
   exerciseId: number,
 ): Promise<SetRow[]> {
   return await db.getAllAsync<SetRow>(
-    "SELECT * FROM Sets WHERE exerciseId = ? ORDER BY idx ASC;",
+    "SELECT (id, exerciseId, idx, weight, reps) FROM Sets WHERE exerciseId = ? ORDER BY idx ASC;",
     [exerciseId],
   );
 }

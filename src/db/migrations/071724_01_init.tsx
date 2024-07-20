@@ -42,10 +42,10 @@ export default async function migrate(db: SQLiteDatabase, version: number) {
     CREATE UNIQUE INDEX IF NOT EXISTS ExercisePresetsIdIndex ON ExercisePresets(id);
 
     CREATE UNIQUE INDEX IF NOT EXISTS ExercisesIdIndex ON Exercises(id);
-    CREATE UNIQUE INDEX IF NOT EXISTS ExercisesSessionIdIndex ON Exercises(sessionId);
+    CREATE INDEX IF NOT EXISTS ExercisesSessionIdIndex ON Exercises(sessionId);
 
     CREATE UNIQUE INDEX IF NOT EXISTS SetsIdIndex ON Sets(id);
-    CREATE UNIQUE INDEX IF NOT EXISTS SetsExerciseIdIndex ON Sets(exerciseId);
+    CREATE INDEX IF NOT EXISTS SetsExerciseIdIndex ON Sets(exerciseId);
     `,
   );
 

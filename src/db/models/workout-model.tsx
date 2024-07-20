@@ -13,7 +13,7 @@ export async function getWorkoutSessionRows(
   offset: number = 0,
 ): Promise<WorkoutRow[]> {
   return await db.getAllAsync<WorkoutRow>(
-    "SELECT * FROM WorkoutSessions ORDER BY performed DESC LIMIT ? OFFSET ? ORDER BY performed DESC;",
+    "SELECT * FROM WorkoutSessions ORDER BY performed DESC LIMIT ? OFFSET ?;",
     [limit, offset],
   );
 }
