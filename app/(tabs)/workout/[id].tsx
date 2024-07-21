@@ -7,7 +7,7 @@ import useWorkoutStore from "@/stores/workout";
 import { ColorScheme } from "@/util/colors";
 import { FlashList } from "@shopify/flash-list";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   StyleSheet,
   TextInput,
@@ -21,6 +21,7 @@ import {
   BottomSheetModal,
   BottomSheetModalProvider,
   BottomSheetView,
+  BottomSheetFlatList,
 } from "@gorhom/bottom-sheet";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import CircularButton from "@/forms/CircularButton";
@@ -32,6 +33,10 @@ import { saveWorkoutSession } from "@/db/models/workout-model";
 import { saveExercise } from "@/db/models/exercise-model";
 import { saveSet } from "@/db/models/set-model";
 import { useSQLiteContext } from "expo-sqlite";
+import {
+  ExercisePresetModel,
+  getAllExercisePresets,
+} from "@/models/exercise-preset-model";
 
 export default function Page() {
   const db = useSQLiteContext();
@@ -50,6 +55,7 @@ export default function Page() {
   const moveUp = useWorkoutStore((s) => s.moveUp);
   const moveDown = useWorkoutStore((s) => s.moveDown);
   const getExercise = useExerciseStore((s) => s.getExercise);
+  const resetSet = useSetStore((s) => s.resetSet);
   const getSet = useSetStore((s) => s.getSet);
   const addSet = useExerciseStore((s) => s.addSet);
   const popSet = useExerciseStore((s) => s.popSet);
@@ -59,10 +65,17 @@ export default function Page() {
     () => calcStyles(scheme, isLocked),
     [scheme, isLocked],
   );
-  const setSheetId = useWorkoutStore((s) => s.setSheetId);
-  const sheetId = useWorkoutStore((s) => s.sheetId);
-  const sheetRef = useRef<BottomSheetModal>(null);
+  const setExerciseSheetId = useWorkoutStore((s) => s.setExerciseSheetId);
+  const exerciseSheetId = useWorkoutStore((s) => s.exerciseSheetId);
+  const exerciseSheetRef = useRef<BottomSheetModal>(null);
+  const setSelectSheetId = useWorkoutStore((s) => s.setSelectSheetId);
+  const selectSheetId = useWorkoutStore((s) => s.selectSheetId);
+  const selectSheetRef = useRef<BottomSheetModal>(null);
   const setName = useWorkoutStore((s) => s.setName);
+  const setExerciseName = useExerciseStore((s) => s.setName);
+  const [exercisePresets, setExercisePresets] = useState<ExercisePresetModel[]>(
+    [],
+  );
 
   function onCreateExercise(): void {
     let exerciseId = createExercise();
@@ -75,64 +88,77 @@ export default function Page() {
     setName(text, id);
   }
 
+  function onExercisePresetClick(preset: ExercisePresetModel) {
+    console.log(preset);
+    if (!selectSheetId) return;
+    setExerciseName(selectSheetId, preset.name);
+  }
+
   function onToggleLocked(): void {
-    if (sheetId !== undefined) {
-      setSheetId(undefined);
+    if (exerciseSheetId !== undefined) {
+      setExerciseSheetId(undefined);
     }
     toggleLocked(id);
   }
 
-  function onSheetChange(index: number): void {
+  function onExerciseSheetChange(index: number): void {
     // if index is -1 then it is closed
     if (index === -1) {
-      setSheetId(undefined);
+      setExerciseSheetId(undefined);
+    }
+  }
+
+  function onSelectSheetChange(index: number): void {
+    // if index is -1 then it is closed
+    if (index === -1) {
+      setSelectSheetId(undefined);
     }
   }
 
   function onAddSet(): void {
-    if (sheetId !== undefined) {
-      addSet(sheetId, createSet());
+    if (exerciseSheetId !== undefined) {
+      addSet(exerciseSheetId, createSet());
     }
   }
 
   function onRemoveSet(): void {
-    if (sheetId !== undefined) {
-      let setId = popSet(sheetId);
+    if (exerciseSheetId !== undefined) {
+      let setId = popSet(exerciseSheetId);
       if (setId !== undefined) {
         deleteSet(setId);
       }
-      let setsLen = getExercise(sheetId).setIds.length;
+      let setsLen = getExercise(exerciseSheetId).setIds.length;
       if (setsLen === 0) {
-        addSet(sheetId, createSet());
+        addSet(exerciseSheetId, createSet());
       }
     }
   }
 
   function onDeleteExercise() {
-    if (sheetId === undefined) {
+    if (exerciseSheetId === undefined) {
       return;
     }
-    removeExercise(id, sheetId);
-    deleteExercise(sheetId);
-    setSheetId(undefined);
+    removeExercise(id, exerciseSheetId);
+    deleteExercise(exerciseSheetId);
+    setExerciseSheetId(undefined);
   }
 
-  function closeSheet() {
-    setSheetId(undefined);
+  function closeExerciseSheet() {
+    setExerciseSheetId(undefined);
   }
 
   function onMoveUp() {
-    if (sheetId === undefined) {
+    if (exerciseSheetId === undefined) {
       return;
     }
-    moveUp(id, sheetId);
+    moveUp(id, exerciseSheetId);
   }
 
   function onMoveDown() {
-    if (sheetId === undefined) {
+    if (exerciseSheetId === undefined) {
       return;
     }
-    moveDown(id, sheetId);
+    moveDown(id, exerciseSheetId);
   }
 
   async function onFinishWorkout(): Promise<void> {
@@ -143,6 +169,7 @@ export default function Page() {
       for (let j = 0; j < exercise.setIds.length; ++j) {
         let set = getSet(exercise.setIds[j]);
         await saveSet(db, set, exerciseId, j);
+        resetSet(set.id);
       }
     }
     removeInProgress(id);
@@ -151,15 +178,25 @@ export default function Page() {
   }
 
   useEffect(() => {
-    if (sheetId !== undefined && !isLocked) {
-      sheetRef.current?.present();
+    if (exerciseSheetId !== undefined && !isLocked) {
+      exerciseSheetRef.current?.present();
     } else {
-      sheetRef.current?.close();
+      exerciseSheetRef.current?.close();
     }
-  }, [sheetId]);
+  }, [exerciseSheetId]);
 
   useEffect(() => {
-    setSheetId(undefined);
+    if (selectSheetId !== undefined && !isLocked) {
+      selectSheetRef.current?.present();
+    } else {
+      selectSheetRef.current?.close();
+    }
+  }, [selectSheetId]);
+
+  useEffect(() => {
+    setExerciseSheetId(undefined);
+    setSelectSheetId(undefined);
+    getAllExercisePresets().then(({ data }) => setExercisePresets(data));
   }, []);
 
   return (
@@ -224,17 +261,43 @@ export default function Page() {
         </View>
         {/* Modal */}
         <Modal
-          hidden={sheetId === undefined}
+          hidden={exerciseSheetId === undefined}
           zIndex={0}
           opacity={0}
-          onPress={closeSheet}
+          onPress={closeExerciseSheet}
         />
+
+        <BottomSheetModal
+          ref={selectSheetRef}
+          snapPoints={["100%"]}
+          onChange={onSelectSheetChange}
+          backgroundStyle={[
+            styles.selectBottomSheet,
+            calcStyle.bottomSheetContainer,
+          ]}
+          handleIndicatorStyle={{ backgroundColor: scheme.loPrimary }}
+        >
+          <BottomSheetFlatList
+            data={exercisePresets}
+            renderItem={({ item }) => (
+              <TouchableOpacity
+                activeOpacity={0.6}
+                onPress={() => onExercisePresetClick(item)}
+              >
+                <Text style={[styles.exercisePreset, calcStyle.exercisePreset]}>
+                  {item.name}
+                </Text>
+              </TouchableOpacity>
+            )}
+          />
+        </BottomSheetModal>
+
         {/* Modal bottom sheet */}
         <BottomSheetModal
-          ref={sheetRef}
+          ref={exerciseSheetRef}
           snapPoints={["48%"]}
-          onChange={onSheetChange}
-          backgroundStyle={[styles.bottomSheet, calcStyle.bottomSheetContainer]}
+          onChange={onExerciseSheetChange}
+          backgroundStyle={[calcStyle.bottomSheetContainer]}
           handleIndicatorStyle={{ backgroundColor: scheme.loPrimary }}
         >
           <BottomSheetView style={styles.bottomSheetView}>
@@ -347,7 +410,13 @@ const styles = StyleSheet.create({
   listFooter: {
     gap: 20,
   },
-  bottomSheet: {},
+  selectBottomSheet: {
+    borderRadius: 0,
+  },
+  selectBottomSheetView: {
+    width: "100%",
+    height: "100%",
+  },
   bottomSheetView: {
     justifyContent: "center",
     alignItems: "center",
@@ -362,6 +431,14 @@ const styles = StyleSheet.create({
   },
   sheetText: {
     fontSize: 15,
+  },
+  exercisePreset: {
+    borderRadius: 10,
+    fontSize: 18,
+    paddingVertical: 6,
+    paddingHorizontal: 20,
+    marginVertical: 2,
+    marginHorizontal: 20,
   },
 });
 
@@ -378,9 +455,13 @@ const calcStyles = (scheme: ColorScheme, isLocked: boolean) =>
       color: isLocked ? scheme.primary : scheme.tertiary,
     },
     bottomSheetContainer: {
-      backgroundColor: scheme.hiPrimary,
+      backgroundColor: scheme.primary,
     },
     sheetText: {
       color: scheme.tertiary,
+    },
+    exercisePreset: {
+      color: scheme.tertiary,
+      backgroundColor: scheme.hiPrimary,
     },
   });

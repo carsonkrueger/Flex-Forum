@@ -13,7 +13,8 @@ export type Workout = {
 
 type State = {
   nextId: Id;
-  sheetId?: Id;
+  exerciseSheetId?: Id;
+  selectSheetId?: Id;
   templateOffset: number;
   inProgress: Id[];
   loaded: Id[];
@@ -29,7 +30,8 @@ type Action = {
   addExercise: (id: Id, exerciseId: Id) => void;
   removeExercise: (id: Id, exerciseId: Id) => void;
   toggleLocked: (id: Id) => void;
-  setSheetId: (id?: Id) => void;
+  setExerciseSheetId: (id?: Id) => void;
+  setSelectSheetId: (id?: Id) => void;
   moveUp: (id: Id, exerciseId: Id) => void;
   moveDown: (id: Id, exerciseId: Id) => void;
   addInProgress: (id: Id) => void;
@@ -43,7 +45,8 @@ type Action = {
 const useWorkoutStore = create<State & Action>((set, get) => ({
   nextId: 0,
   templateOffset: 0,
-  sheetId: undefined,
+  exerciseSheetId: undefined,
+  selectSheetId: undefined,
   workouts: {},
   inProgress: [],
   loaded: [],
@@ -110,7 +113,8 @@ const useWorkoutStore = create<State & Action>((set, get) => ({
       },
     })),
 
-  setSheetId: (id?: Id) => set((s) => ({ sheetId: id })),
+  setExerciseSheetId: (id?: Id) => set((s) => ({ exerciseSheetId: id })),
+  setSelectSheetId: (id?: Id) => set((s) => ({ selectSheetId: id })),
 
   moveUp: (id: Id, exerciseId: Id) => {
     let ids = [...get().workouts[id].exerciseIds];

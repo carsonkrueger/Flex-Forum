@@ -22,6 +22,7 @@ type Action = {
   setReps: (reps: Set["reps"], id: Set["id"]) => void;
   setPrev: (w: Set["prevWeight"], r: Set["prevReps"], id: Set["id"]) => void;
   toggleFinished: (id: Id) => void;
+  resetSet: (id: Id) => void;
 };
 
 const useSetStore = create<State & Action>((set, get) => ({
@@ -72,6 +73,23 @@ const useSetStore = create<State & Action>((set, get) => ({
         [id]: { ...s.sets[id], finished: !s.sets[id].finished },
       },
     })),
+
+  resetSet: (id: Id) => {
+    let theSet = get().getSet(id);
+    set((s) => ({
+      sets: {
+        ...s.sets,
+        [id]: {
+          id: theSet.id,
+          reps: undefined,
+          weight: undefined,
+          prevReps: theSet.reps,
+          prevWeight: theSet.weight,
+          finished: false,
+        },
+      },
+    }));
+  },
 }));
 
 export default useSetStore;

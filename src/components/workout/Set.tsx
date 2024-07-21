@@ -41,7 +41,7 @@ export default function Set({ id, idx }: Props) {
     [set.weight, set.reps],
   );
   const prevVolume = useMemo(
-    () => calcVolume(set.weight, set.reps),
+    () => calcVolume(set.prevWeight, set.prevReps),
     [set.prevWeight, set.prevReps],
   );
 
@@ -50,7 +50,7 @@ export default function Set({ id, idx }: Props) {
       setReps(set.prevReps, id);
     }
     if (set.weight === undefined) {
-      setReps(set.prevWeight, id);
+      setWeight(set.prevWeight, id);
     }
     toggleFinished(id);
   };
@@ -74,12 +74,12 @@ export default function Set({ id, idx }: Props) {
         </Text>
       </View>
 
-      {/* prev */}
+      {/* prev volume */}
       <View style={styles.prevContainer}>
         <Text style={calcStyle.text}>{prevVolume}</Text>
       </View>
 
-      {/* prev */}
+      {/* cur volume */}
       <View style={styles.prevContainer}>
         <Text style={calcStyle.text}>{curVolume}</Text>
       </View>
@@ -96,7 +96,7 @@ export default function Set({ id, idx }: Props) {
             calcStyle.text,
           ]}
           placeholder={set.prevWeight?.toString()}
-          placeholderTextColor={scheme.loTertiary}
+          placeholderTextColor={scheme.primary}
           keyboardType="numeric"
           maxLength={3}
           onChangeText={onChangeTextWeight}
@@ -116,7 +116,7 @@ export default function Set({ id, idx }: Props) {
             calcStyle.text,
           ]}
           placeholder={set.prevReps?.toString()}
-          placeholderTextColor={scheme.loTertiary}
+          placeholderTextColor={scheme.primary}
           keyboardType="numeric"
           maxLength={3}
           onChangeText={onChangeTextReps}

@@ -16,7 +16,8 @@ export type Props = {
 export default function Exercise({ id, workoutId }: Props) {
   const scheme = useSettingsStore((state) => state.colorScheme);
   const isLocked = useWorkoutStore((s) => s.workouts[workoutId].isLocked);
-  const setSheetIndex = useWorkoutStore((s) => s.setSheetId);
+  const setExerciseSheetIndex = useWorkoutStore((s) => s.setExerciseSheetId);
+  const setSelectSheetIndex = useWorkoutStore((s) => s.setSelectSheetId);
   const calcStyle = useMemo(
     () => calcStyles(scheme, isLocked),
     [scheme, isLocked],
@@ -24,7 +25,11 @@ export default function Exercise({ id, workoutId }: Props) {
   const exercise = useExerciseStore((s) => s.exercises[id]);
 
   const onEllipsisClick = () => {
-    setSheetIndex(exercise.id);
+    setExerciseSheetIndex(exercise.id);
+  };
+
+  const onSelectExerciseClick = () => {
+    setSelectSheetIndex(exercise.id);
   };
 
   return (
@@ -33,13 +38,9 @@ export default function Exercise({ id, workoutId }: Props) {
       <View style={[styles.headerContainer, calcStyle.headerContainer]}>
         {/* Top header */}
         <View style={styles.topHeaderContainer}>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={onSelectExerciseClick}>
             <Text style={[styles.headerText, calcStyle.headerText]}>
-              {exercise.exerciseId
-                ? exercise.exerciseId
-                : isLocked
-                  ? exercise.name
-                  : "Select Exercise"}
+              {exercise.name ? exercise.name : "Select Exercise"}
             </Text>
           </TouchableOpacity>
           {!isLocked && (
