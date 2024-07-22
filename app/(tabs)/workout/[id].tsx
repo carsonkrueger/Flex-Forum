@@ -89,9 +89,9 @@ export default function Page() {
   }
 
   function onExercisePresetClick(preset: ExercisePresetModel) {
-    console.log(preset);
-    if (!selectSheetId) return;
+    if (selectSheetId === undefined) return;
     setExerciseName(selectSheetId, preset.name);
+    setSelectSheetId(undefined);
   }
 
   function onToggleLocked(): void {
@@ -279,6 +279,8 @@ export default function Page() {
         >
           <BottomSheetFlatList
             data={exercisePresets}
+            stickyHeaderIndices={[0]}
+            ListHeaderComponent={<Text>header</Text>}
             renderItem={({ item }) => (
               <TouchableOpacity
                 activeOpacity={0.6}
