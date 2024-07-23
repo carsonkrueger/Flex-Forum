@@ -14,6 +14,8 @@ import {
   Text,
   TouchableOpacity,
   View,
+  TextInputTextInputEventData,
+  NativeSyntheticEvent,
 } from "react-native";
 import { Octicons } from "@expo/vector-icons";
 
@@ -73,9 +75,10 @@ export default function Page() {
   const selectSheetRef = useRef<BottomSheetModal>(null);
   const setName = useWorkoutStore((s) => s.setName);
   const setExerciseName = useExerciseStore((s) => s.setName);
-  const [exercisePresets, setExercisePresets] = useState<ExercisePresetModel[]>(
-    [],
-  );
+  const [filteredExercisedPresets, setFilteredExercisedPresets] = useState<
+    ExercisePresetModel[]
+  >([]);
+  const exercisePresets = useRef<ExercisePresetModel[]>([]);
 
   function onCreateExercise(): void {
     let exerciseId = createExercise();
@@ -161,7 +164,7 @@ export default function Page() {
     moveDown(id, exerciseSheetId);
   }
 
-  async function onFinishWorkout(): Promise<void> {
+  async function onFinishWorkout() {
     let sessionId = await saveWorkoutSession(db, workout);
     for (let i = 0; i < workout.exerciseIds.length; ++i) {
       let exercise = getExercise(workout.exerciseIds[i]);
@@ -175,6 +178,14 @@ export default function Page() {
     removeInProgress(id);
     addLoadedIfNotExists(id);
     router.navigate(routes.templates);
+  }
+
+  function onSearchPreset(
+    input: NativeSyntheticEvent<TextInputTextInputEventData>,
+  ) {
+    const re = new RegExp(`.*${input.nativeEvent.text}.*`, "i");
+    let list = exercisePresets.current.filter((item) => re.test(item.name));
+    setFilteredExercisedPresets(list);
   }
 
   useEffect(() => {
@@ -194,9 +205,13 @@ export default function Page() {
   }, [selectSheetId]);
 
   useEffect(() => {
+    console.log("get exercises");
     setExerciseSheetId(undefined);
     setSelectSheetId(undefined);
-    getAllExercisePresets().then(({ data }) => setExercisePresets(data));
+    getAllExercisePresets().then(({ data }) => {
+      exercisePresets.current = data;
+      setFilteredExercisedPresets(data);
+    });
   }, []);
 
   return (
@@ -277,10 +292,20 @@ export default function Page() {
           ]}
           handleIndicatorStyle={{ backgroundColor: scheme.loPrimary }}
         >
+          {/* Exercise Presets */}
           <BottomSheetFlatList
-            data={exercisePresets}
+            data={filteredExercisedPresets}
             stickyHeaderIndices={[0]}
-            ListHeaderComponent={<Text>header</Text>}
+            ListHeaderComponent={
+              <View style={[styles.searchContainer, calcStyle.searchContainer]}>
+                <Ionicons name="search" size={30} color={scheme.loPrimary} />
+                <TextInput
+                  style={[styles.searchInput, calcStyle.searchInput]}
+                  onTextInput={onSearchPreset}
+                  multiline={true}
+                />
+              </View>
+            }
             renderItem={({ item }) => (
               <TouchableOpacity
                 activeOpacity={0.6}
@@ -291,6 +316,8 @@ export default function Page() {
                 </Text>
               </TouchableOpacity>
             )}
+            ListFooterComponent={<View />}
+            ListFooterComponentStyle={{ paddingBottom: 90 }}
           />
         </BottomSheetModal>
 
@@ -442,6 +469,19 @@ const styles = StyleSheet.create({
     marginVertical: 2,
     marginHorizontal: 20,
   },
+  searchContainer: {
+    flexDirection: "row",
+    marginHorizontal: 20,
+    gap: 4,
+    alignItems: "center",
+    borderWidth: 2,
+    borderRadius: 10,
+    flex: 1,
+    padding: 3,
+  },
+  searchInput: {
+    flex: 1,
+  },
 });
 
 const calcStyles = (scheme: ColorScheme, isLocked: boolean) =>
@@ -465,5 +505,12 @@ const calcStyles = (scheme: ColorScheme, isLocked: boolean) =>
     exercisePreset: {
       color: scheme.tertiary,
       backgroundColor: scheme.hiPrimary,
+    },
+    searchContainer: {
+      backgroundColor: scheme.primary,
+      borderColor: scheme.loPrimary,
+    },
+    searchInput: {
+      color: scheme.tertiary,
     },
   });

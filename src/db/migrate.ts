@@ -5,7 +5,7 @@ import { dropAllTables, getDBVersion, setDBVersion } from "./base";
 const migrations = [migrate1];
 
 export async function migrateAll(db: SQLiteDatabase) {
-  await dropAllTables(db);
+  // await dropAllTables(db);
   let version = await getDBVersion(db);
   console.log(`DB version: ${version}`);
   if (version === undefined)
