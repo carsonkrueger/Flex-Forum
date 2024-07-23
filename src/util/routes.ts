@@ -2,6 +2,7 @@ export const routes = {
   login: "/",
   signup: "/signup",
   home: "/home",
+  settings: "/settings",
   user: "/user/:username",
   templates: "/workout/templates",
   workout: (id: number) => `/workout/${id}`,

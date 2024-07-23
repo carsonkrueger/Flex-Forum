@@ -1,4 +1,4 @@
-import { ColorScheme, DarkColorScheme } from "@/util/colors";
+import { ColorScheme, MainColorScheme } from "@/util/colors";
 import { create } from "zustand";
 
 type State = {
@@ -6,12 +6,12 @@ type State = {
 };
 
 type Action = {
-  setIsDarkMode: (scheme: State["colorScheme"]) => void;
+  setColorScheme: (scheme: State["colorScheme"]) => void;
 };
 
 const useSettingsStore = create<State & Action>((set) => ({
-  colorScheme: DarkColorScheme,
-  setIsDarkMode: (scheme) => set(() => ({ colorScheme: scheme })),
+  colorScheme: MainColorScheme,
+  setColorScheme: (scheme) => set(() => ({ colorScheme: scheme })),
 }));
 
 export default useSettingsStore;

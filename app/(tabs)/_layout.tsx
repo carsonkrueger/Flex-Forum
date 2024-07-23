@@ -46,6 +46,7 @@ export default function Layout() {
           <Stack.Screen name="home" />
           <Stack.Screen name="workout/[id]" />
           <Stack.Screen name="workout/templates" />
+          <Stack.Screen name="settings" />
         </Stack>
         <View style={[styles.navContainer, calcStyle.navContainer]}>
           <NavItem
@@ -77,7 +78,7 @@ export default function Layout() {
             icon={
               <Ionicons name="settings-sharp" size={30} color={iconColor} />
             }
-            onPress={() => navigateTo(routes.home)}
+            onPress={() => navigateTo(routes.settings)}
           />
 
           <NavItem

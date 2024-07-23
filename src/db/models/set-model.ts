@@ -27,7 +27,7 @@ export async function getSetRows(
   exerciseId: number,
 ): Promise<SetRow[]> {
   return await db.getAllAsync<SetRow>(
-    "SELECT (id, exerciseId, idx, weight, reps) FROM Sets WHERE exerciseId = ? ORDER BY idx ASC;",
+    "SELECT id, exerciseId, idx, weight, reps FROM Sets WHERE exerciseId = ? ORDER BY idx ASC;",
     [exerciseId],
   );
 }

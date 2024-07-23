@@ -21,3 +21,12 @@ export async function dropAllTables(db: SQLiteDatabase) {
     DROP TABLE IF EXISTS ExercisePresets;
     `);
 }
+
+export async function listAllTableNames(
+  db: SQLiteDatabase,
+): Promise<{ name: string }[]> {
+  return await db.getAllAsync(
+    "SELECT (name) from sqlite_master WHERE type='table';",
+    [],
+  );
+}

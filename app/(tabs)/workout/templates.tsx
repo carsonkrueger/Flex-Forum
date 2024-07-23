@@ -49,17 +49,14 @@ export default function Page() {
   const fetchWorkouts = () => {
     getWorkoutSessionRows(db, WORKOUT_QUERY_LIMIT, offset).then(
       async (workoutRows) => {
-        console.log(workoutRows);
         for (let i = 0; i < workoutRows.length; ++i) {
+          console.log(workoutRows);
           let workoutId = loadFromWorkoutRow(workoutRows[i]);
           let exerciseRows = await getExerciseRows(db, workoutRows[i].id);
-          console.log("exercises:");
           console.log(exerciseRows);
           for (let j = 0; j < exerciseRows.length; ++j) {
             let exerciseId = createFromExerciseRow(exerciseRows[j]);
             let setRows = await getSetRows(db, exerciseRows[j].id);
-            console.log("rows:");
-            console.log(setRows);
             addExercise(workoutId, exerciseId);
             for (let k = 0; k < setRows.length; ++k) {
               let setId = createFromSetRow(setRows[k]);
