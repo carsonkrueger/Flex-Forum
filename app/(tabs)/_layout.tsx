@@ -1,6 +1,6 @@
 import useSettingsStore from "@/stores/settings";
 import { Slot, Stack, router, usePathname, useRouter } from "expo-router";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { View, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 // import useAuth from "@/hooks/useAuth";
@@ -13,6 +13,7 @@ import { StatusBar } from "expo-status-bar";
 import { SQLiteProvider } from "expo-sqlite";
 import { DATABASE_NAME } from "@/db/db";
 import { migrateAll } from "@/db/migrate";
+import useExercisePresetStore from "@/stores/exercise-presets";
 
 export default function Layout() {
   // useAuth();
@@ -21,6 +22,7 @@ export default function Layout() {
     () => calcStyles(scheme.secondary, scheme.quaternary),
     [scheme],
   );
+  const updatePresets = useExercisePresetStore((s) => s.updatePresets);
   const iconColor = scheme.tertiary;
   const setUserId = useUserStore((s) => s.setUsername);
   const router = useRouter();
@@ -34,6 +36,10 @@ export default function Layout() {
       router.replace(routes.login);
     } else router.navigate(route);
   };
+
+  useEffect(() => {
+    updatePresets();
+  }, []);
 
   return (
     <SafeAreaView style={styles.container}>

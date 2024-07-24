@@ -15,11 +15,11 @@ export type Props = {
 const maxExercisesShown = 6 as const;
 
 export default function Page(props: Props) {
-  const db = useSQLiteContext();
   const router = useRouter();
   const scheme = useSettingsStore((state) => state.colorScheme);
   const calcStyle = useMemo(() => calcStyles(scheme), [scheme]);
   const workout = useWorkoutStore((s) => s.workouts[props.id]);
+  const setTemplateSheetId = useWorkoutStore((s) => s.setTemplateSheetId);
   const addInProgress = useWorkoutStore((s) => s.addInProgress);
   const removeLoaded = useWorkoutStore((s) => s.removeLoaded);
   const alreadyInProgress = useWorkoutStore((s) =>
@@ -38,11 +38,16 @@ export default function Page(props: Props) {
     router.push({ pathname: routes.workout(props.id) });
   };
 
+  const onLongPress = () => {
+    setTemplateSheetId(workout.id);
+  };
+
   return (
     <TouchableOpacity
       style={[styles.container, calcStyle.container]}
       activeOpacity={0.5}
       onPress={onPress}
+      onLongPress={onLongPress}
     >
       <View style={styles.leftTemplate}>
         <Text style={[styles.templateHeader, calcStyle.text]}>

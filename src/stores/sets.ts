@@ -1,4 +1,4 @@
-import { SetRow } from "@/db/models/set-model";
+import { SetRow } from "@/db/row-models/set-model";
 import { Id } from "./workout";
 import { create } from "zustand";
 

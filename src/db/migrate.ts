@@ -11,7 +11,7 @@ const migrations = [migrate1];
 
 export async function migrateAll(db: SQLiteDatabase) {
   // await dropAllTables(db);
-  console.log(await listAllTableNames(db));
+  // console.log(await listAllTableNames(db));
   let version = await getDBVersion(db);
   console.log(`DB version: ${version}`);
   if (version === undefined)

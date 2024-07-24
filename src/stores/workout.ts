@@ -1,4 +1,4 @@
-import { WorkoutRow } from "@/db/models/workout-model";
+import { WorkoutRow } from "@/db/row-models/workout-model";
 import { create } from "zustand";
 
 export type Id = number;
@@ -15,6 +15,7 @@ type State = {
   nextId: Id;
   exerciseSheetId?: Id;
   selectSheetId?: Id;
+  templateSheetId?: Id;
   templateOffset: number;
   inProgress: Id[];
   loaded: Id[];
@@ -32,6 +33,7 @@ type Action = {
   toggleLocked: (id: Id) => void;
   setExerciseSheetId: (id?: Id) => void;
   setSelectSheetId: (id?: Id) => void;
+  setTemplateSheetId: (id?: Id) => void;
   moveUp: (id: Id, exerciseId: Id) => void;
   moveDown: (id: Id, exerciseId: Id) => void;
   addInProgress: (id: Id) => void;
@@ -47,6 +49,7 @@ const useWorkoutStore = create<State & Action>((set, get) => ({
   templateOffset: 0,
   exerciseSheetId: undefined,
   selectSheetId: undefined,
+  templateSheetId: undefined,
   workouts: {},
   inProgress: [],
   loaded: [],
@@ -115,6 +118,7 @@ const useWorkoutStore = create<State & Action>((set, get) => ({
 
   setExerciseSheetId: (id?: Id) => set((s) => ({ exerciseSheetId: id })),
   setSelectSheetId: (id?: Id) => set((s) => ({ selectSheetId: id })),
+  setTemplateSheetId: (id?: Id) => set((s) => ({ templateSheetId: id })),
 
   moveUp: (id: Id, exerciseId: Id) => {
     let ids = [...get().workouts[id].exerciseIds];

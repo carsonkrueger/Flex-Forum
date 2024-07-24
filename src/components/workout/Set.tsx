@@ -2,7 +2,7 @@ import useSetStore from "@/stores/sets";
 import useSettingsStore from "@/stores/settings";
 import { Id } from "@/stores/workout";
 import { ColorScheme } from "@/util/colors";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import {
   Text,
   View,

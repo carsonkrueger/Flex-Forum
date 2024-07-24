@@ -7,6 +7,9 @@ import { Text, View, StyleSheet, TouchableOpacity } from "react-native";
 import Set from "./Set";
 import flexWidths from "@/util/setFlexWidths";
 import { Ionicons } from "@expo/vector-icons";
+import useExercisePresetStore, {
+  ExercisePreset,
+} from "@/stores/exercise-presets";
 
 export type Props = {
   id: Id;
@@ -23,6 +26,10 @@ export default function Exercise({ id, workoutId }: Props) {
     [scheme, isLocked],
   );
   const exercise = useExerciseStore((s) => s.exercises[id]);
+  const preset: ExercisePreset | undefined =
+    exercise.exerciseId !== undefined
+      ? useExercisePresetStore((s) => s.presets[exercise.exerciseId!])
+      : undefined;
 
   const onEllipsisClick = () => {
     setExerciseSheetIndex(exercise.id);
@@ -40,7 +47,7 @@ export default function Exercise({ id, workoutId }: Props) {
         <View style={styles.topHeaderContainer}>
           <TouchableOpacity onPress={onSelectExerciseClick} disabled={isLocked}>
             <Text style={[styles.headerText, calcStyle.headerText]}>
-              {exercise.name ? exercise.name : "Select Exercise"}
+              {preset?.name ?? "Select Exercise"}
             </Text>
           </TouchableOpacity>
           {!isLocked && (

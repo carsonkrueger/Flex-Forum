@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { Id } from "./workout";
-import { ExerciseRow } from "@/db/models/exercise-model";
+import { ExerciseRow } from "@/db/row-models/exercise-model";
 
 export type Exercise = {
   id: Id;

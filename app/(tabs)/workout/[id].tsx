@@ -31,14 +31,13 @@ import { SizeVariant } from "@/util/variants";
 import { Ionicons } from "@expo/vector-icons";
 import Modal from "@/components/modal";
 import { routes } from "@/util/routes";
-import { saveWorkoutSession } from "@/db/models/workout-model";
-import { saveExercise } from "@/db/models/exercise-model";
-import { saveSet } from "@/db/models/set-model";
+import { saveWorkoutSession } from "@/db/row-models/workout-model";
+import { saveExercise } from "@/db/row-models/exercise-model";
+import { saveSet } from "@/db/row-models/set-model";
 import { useSQLiteContext } from "expo-sqlite";
-import {
-  ExercisePresetModel,
-  getAllExercisePresets,
-} from "@/models/exercise-preset-model";
+import useExercisePresetStore, {
+  ExercisePreset,
+} from "@/stores/exercise-presets";
 
 export default function Page() {
   const db = useSQLiteContext();
@@ -74,11 +73,10 @@ export default function Page() {
   const selectSheetId = useWorkoutStore((s) => s.selectSheetId);
   const selectSheetRef = useRef<BottomSheetModal>(null);
   const setName = useWorkoutStore((s) => s.setName);
-  const setExerciseName = useExerciseStore((s) => s.setName);
-  const [filteredExercisedPresets, setFilteredExercisedPresets] = useState<
-    ExercisePresetModel[]
-  >([]);
-  const exercisePresets = useRef<ExercisePresetModel[]>([]);
+  const setExerciseId = useExerciseStore((s) => s.setExerciseId);
+  const presets = useExercisePresetStore((s) => s.presets);
+  const [filteredExercisedPresets, setFilteredExercisedPresets] =
+    useState<ExercisePreset[]>(presets);
 
   function onCreateExercise(): void {
     let exerciseId = createExercise();
@@ -91,9 +89,10 @@ export default function Page() {
     setName(text, id);
   }
 
-  function onExercisePresetClick(preset: ExercisePresetModel) {
+  function onExercisePresetClick(preset: ExercisePreset) {
     if (selectSheetId === undefined) return;
-    setExerciseName(selectSheetId, preset.name);
+    //setExerciseName(selectSheetId, preset.name);
+    setExerciseId(selectSheetId, preset.id);
     setSelectSheetId(undefined);
   }
 
@@ -184,7 +183,7 @@ export default function Page() {
     input: NativeSyntheticEvent<TextInputTextInputEventData>,
   ) {
     const re = new RegExp(`.*${input.nativeEvent.text}.*`, "i");
-    let list = exercisePresets.current.filter((item) => re.test(item.name));
+    let list = presets.filter((item) => re.test(item.name));
     setFilteredExercisedPresets(list);
   }
 
@@ -205,13 +204,8 @@ export default function Page() {
   }, [selectSheetId]);
 
   useEffect(() => {
-    console.log("get exercises");
     setExerciseSheetId(undefined);
     setSelectSheetId(undefined);
-    getAllExercisePresets().then(({ data }) => {
-      exercisePresets.current = data;
-      setFilteredExercisedPresets(data);
-    });
   }, []);
 
   return (
