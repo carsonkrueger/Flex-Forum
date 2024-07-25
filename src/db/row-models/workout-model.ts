@@ -1,8 +1,9 @@
 import { Workout } from "@/stores/workout";
 import { SQLiteDatabase } from "expo-sqlite";
 
-export type WorkoutRow = {
+export type WorkoutSessionRow = {
   id: number;
+  templateId: number;
   name: string;
   performed: Date;
 };
@@ -11,8 +12,8 @@ export async function getWorkoutSessionRows(
   db: SQLiteDatabase,
   limit: number = 5,
   offset: number = 0,
-): Promise<WorkoutRow[]> {
-  return await db.getAllAsync<WorkoutRow>(
+): Promise<WorkoutSessionRow[]> {
+  return await db.getAllAsync<WorkoutSessionRow>(
     "SELECT * FROM WorkoutSessions ORDER BY performed DESC LIMIT ? OFFSET ?;",
     [limit, offset],
   );

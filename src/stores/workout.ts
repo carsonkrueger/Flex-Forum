@@ -1,4 +1,4 @@
-import { WorkoutRow } from "@/db/row-models/workout-model";
+import { WorkoutSessionRow } from "@/db/row-models/workout-model";
 import { create } from "zustand";
 
 export type Id = number;
@@ -26,7 +26,7 @@ type Action = {
   setWorkout: (w: Workout) => void;
   getWorkout: (id: Id) => Workout;
   createWorkout: () => Id;
-  loadFromRow: (row: WorkoutRow) => Id;
+  loadFromRow: (row: WorkoutSessionRow) => Id;
   setName: (name: Workout["name"], id: Workout["id"]) => void;
   addExercise: (id: Id, exerciseId: Id) => void;
   removeExercise: (id: Id, exerciseId: Id) => void;
@@ -71,7 +71,7 @@ const useWorkoutStore = create<State & Action>((set, get) => ({
     return id;
   },
 
-  loadFromRow: (row: WorkoutRow) => {
+  loadFromRow: (row: WorkoutSessionRow) => {
     let id = get().createWorkout();
     get().setName(row.name, id);
     get().setPerformed(row.performed, id);

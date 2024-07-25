@@ -7,8 +7,6 @@ export default async function migrate(db: SQLiteDatabase, version: number) {
     `
     CREATE TABLE IF NOT EXISTS WorkoutTemplates (
       id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-      name TEXT NOT NULL,
-      performed DATETIME DEFAULT CURRENT_TIMESTAMP,
     );
 
     CREATE TABLE IF NOT EXISTS ExercisePresets (
