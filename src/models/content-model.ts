@@ -10,15 +10,20 @@ export default interface ContentModel {
 }
 
 export interface ExerciseSummary {
-  exercise_name: string;
+  preset_id: number;
   num_sets: number;
   num_reps: number;
-  timer: number;
+  timer?: number;
 }
 
 export interface WorkoutSummary {
   workout_name: string;
   exercises: ExerciseSummary[];
+}
+
+export interface WorkoutPost {
+  workout: WorkoutSummary;
+  description?: string;
 }
 
 export const downloadContent = <T>(
@@ -31,3 +36,6 @@ export const downloadContent = <T>(
       { responseType: responseType, timeout: 3000 },
     )
     .then((res) => res.data);
+
+export const uploadWorkout = (workout: WorkoutPost) =>
+  client.post(`/content/workouts`, workout);

@@ -8,9 +8,10 @@ import { useEffect, useMemo, useState } from "react";
 import { View, StyleSheet, Text, TouchableOpacity } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import useWorkoutStore from "@/stores/workout";
-import useExerciseStore from "@/stores/exercises";
+import useExerciseStore, { Exercise } from "@/stores/exercises";
 import useSetStore from "@/stores/sets";
 import { useQuery } from "@tanstack/react-query";
+import useExercisePresetStore from "@/stores/exercise-presets";
 
 export type Props = {
   contentModel: ContentModel;
@@ -24,19 +25,18 @@ export default function PostImage({
   aspectRatio = 1,
 }: Props) {
   const scheme = useSettingsStore((state) => state.colorScheme);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [saved, setSaved] = useState<boolean>(false);
   const calcStyle = useMemo(() => calcStyles(width, scheme), [width, scheme]);
   const createWorkout = useWorkoutStore((s) => s.createWorkout);
   const addLoaded = useWorkoutStore((s) => s.addLoadedIfNotExists);
   const setWorkoutName = useWorkoutStore((s) => s.setName);
+  const getPreset = useExercisePresetStore((s) => s.getPreset);
   const addExercise = useWorkoutStore((s) => s.addExercise);
   const createExercise = useExerciseStore((s) => s.createExercise);
   const setExerciseName = useExerciseStore((s) => s.setName);
   const addSet = useExerciseStore((s) => s.addSet);
   const createSet = useSetStore((s) => s.createSet);
   const setPrev = useSetStore((s) => s.setPrev);
-  // const setExerciseName = useExerciseStore(s => s.);
 
   const saveNewWorkout = () => {
     if (!query.data) return;
@@ -47,7 +47,8 @@ export default function PostImage({
     // exercises
     for (let i = 0; i < query.data.exercises.length; i++) {
       let exerciseId = createExercise();
-      setExerciseName(exerciseId, query.data.exercises[i].exercise_name);
+      const preset = getPreset(query.data.exercises[i].preset_id);
+      setExerciseName(exerciseId, preset?.name ?? "");
       addExercise(workoutId, exerciseId);
 
       // sets
@@ -93,7 +94,7 @@ export default function PostImage({
                 style={[styles.roundItem, calcStyle.exercise]}
               >
                 <Text style={[styles.exerciseText, calcStyle.exerciseText]}>
-                  {e.exercise_name}
+                  {getPreset(e.preset_id)?.name ?? ""}
                 </Text>
                 <Text style={[styles.exerciseText, calcStyle.exerciseText]}>
                   {e.num_sets}x{e.num_reps}

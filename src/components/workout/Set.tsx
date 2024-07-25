@@ -56,12 +56,12 @@ export default function Set({ id, idx }: Props) {
   };
 
   const onChangeTextWeight = (t: string) => {
-    let weight = t as unknown as number;
+    let weight = parseInt(t);
     setWeight(weight, id);
   };
 
   const onChangeTextReps = (t: string) => {
-    let reps = t as unknown as number;
+    let reps = parseInt(t);
     setReps(reps, id);
   };
 

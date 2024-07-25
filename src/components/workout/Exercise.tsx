@@ -26,10 +26,11 @@ export default function Exercise({ id, workoutId }: Props) {
     [scheme, isLocked],
   );
   const exercise = useExerciseStore((s) => s.exercises[id]);
-  const preset: ExercisePreset | undefined =
-    exercise.exerciseId !== undefined
-      ? useExercisePresetStore((s) => s.presets[exercise.exerciseId!])
-      : undefined;
+  // const preset: ExercisePreset | undefined =
+  //   exercise.exerciseId !== undefined
+  //     ? useExercisePresetStore((s) => s.presets[exercise.exerciseId!])
+  //     : undefined;
+  const getPreset = useExercisePresetStore((s) => s.getPreset);
 
   const onEllipsisClick = () => {
     setExerciseSheetIndex(exercise.id);
@@ -47,7 +48,7 @@ export default function Exercise({ id, workoutId }: Props) {
         <View style={styles.topHeaderContainer}>
           <TouchableOpacity onPress={onSelectExerciseClick} disabled={isLocked}>
             <Text style={[styles.headerText, calcStyle.headerText]}>
-              {preset?.name ?? "Select Exercise"}
+              {getPreset(exercise.exerciseId ?? 0)?.name ?? "Select Exercise"}
             </Text>
           </TouchableOpacity>
           {!isLocked && (

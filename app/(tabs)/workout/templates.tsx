@@ -21,6 +21,12 @@ import {
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import Modal from "@/components/modal";
 import CircularButton from "@/forms/CircularButton";
+import {
+  WorkoutSummary,
+  ExerciseSummary,
+  uploadWorkout,
+  WorkoutPost,
+} from "@/models/content-model";
 
 const WORKOUT_QUERY_LIMIT = 100 as const;
 
@@ -41,6 +47,9 @@ export default function Page() {
   const inProgress = useWorkoutStore((s) => s.inProgress);
   const loaded = useWorkoutStore((s) => s.loaded);
   const offset = useWorkoutStore((s) => s.templateOffset);
+  const getWorkout = useWorkoutStore((s) => s.getWorkout);
+  const getExercise = useExerciseStore((s) => s.getExercise);
+  const getSet = useSetStore((s) => s.getSet);
   const templateSheetId = useWorkoutStore((s) => s.templateSheetId);
   const setTemplateSheetId = useWorkoutStore((s) => s.setTemplateSheetId);
   const setOffset = useWorkoutStore((s) => s.setTemplateOffset);
@@ -53,7 +62,7 @@ export default function Page() {
     let sid = createSet();
     addSet(eid, sid);
     addInProgress(wid);
-    router.push({ pathname: routes.workout(wid) });
+    router.push({ pathname: routes.workout(wid), params: { newWorkout: 1 } });
   };
 
   const fetchWorkouts = () => {
@@ -85,6 +94,32 @@ export default function Page() {
 
   const onModalClick = () => {
     setTemplateSheetId(undefined);
+  };
+
+  const shareWorkout = async () => {
+    if (templateSheetId === undefined) return;
+    let wSummary: WorkoutSummary = { workout_name: "", exercises: [] };
+    const workout = getWorkout(templateSheetId);
+    wSummary.workout_name = workout.name;
+    for (let i = 0; i < workout.exerciseIds.length; ++i) {
+      let eSummary: ExerciseSummary = {
+        preset_id: 0,
+        num_sets: 1,
+        num_reps: 1,
+        timer: undefined,
+      };
+      const exercise = getExercise(workout.exerciseIds[i]);
+      eSummary.preset_id = exercise.exerciseId ?? 0;
+      eSummary.num_sets = exercise.setIds.length;
+      eSummary.timer = exercise.timerDuration;
+      if (exercise.setIds.length > 0) {
+        const firstSet = getSet(exercise.setIds[0]);
+        eSummary.num_reps = firstSet.reps ?? 1;
+      }
+      wSummary.exercises.push(eSummary);
+    }
+    const post: WorkoutPost = { workout: wSummary, description: "" };
+    await uploadWorkout(post);
   };
 
   useEffect(() => {
@@ -169,6 +204,7 @@ export default function Page() {
                   text: "Share to Profile",
                   variant: ButtonVariant.Filled,
                 }}
+                touchableProps={{ onPress: shareWorkout }}
               />
             </BottomSheetView>
           </BottomSheetModal>

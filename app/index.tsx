@@ -8,6 +8,7 @@ import { StyleSheet, View, Text } from "react-native";
 import { useForm } from "react-hook-form";
 import LoginModel, { login } from "@/models/login-model";
 import { routes } from "@/util/routes";
+import useExercisePresetStore from "@/stores/exercise-presets";
 
 export default function Page() {
   const router = useRouter();
@@ -15,6 +16,7 @@ export default function Page() {
   const setUsername = useUserStore((state) => state.setUsername);
   const username = useUserStore((state) => state.username);
   const errMsgColor = scheme.loQuaternary;
+  const updatePresets = useExercisePresetStore((s) => s.updatePresets);
 
   const calcStyle = useMemo(
     () =>
@@ -53,6 +55,7 @@ export default function Page() {
     if (username !== undefined) {
       router.replace(routes.home);
     }
+    updatePresets();
   }, []);
 
   return (

@@ -491,17 +491,17 @@ const calcStyles = (scheme: ColorScheme, isLocked: boolean) =>
       color: isLocked ? scheme.primary : scheme.tertiary,
     },
     bottomSheetContainer: {
-      backgroundColor: scheme.primary,
+      backgroundColor: scheme.hiPrimary,
     },
     sheetText: {
       color: scheme.tertiary,
     },
     exercisePreset: {
       color: scheme.tertiary,
-      backgroundColor: scheme.hiPrimary,
+      // backgroundColor: scheme.hiPrimary,
     },
     searchContainer: {
-      backgroundColor: scheme.primary,
+      backgroundColor: scheme.hiPrimary,
       borderColor: scheme.loPrimary,
     },
     searchInput: {

@@ -22,7 +22,6 @@ export default function Layout() {
     () => calcStyles(scheme.secondary, scheme.quaternary),
     [scheme],
   );
-  const updatePresets = useExercisePresetStore((s) => s.updatePresets);
   const iconColor = scheme.tertiary;
   const setUserId = useUserStore((s) => s.setUsername);
   const router = useRouter();
@@ -31,15 +30,8 @@ export default function Layout() {
   const navigateTo = (route: string) => {
     // if (pathname === route) return;
     if (pathname === routes.home && route !== routes.home) router.push(route);
-    else if (route === routes.user) {
-      router.dismissAll();
-      router.replace(routes.login);
-    } else router.navigate(route);
+    else router.navigate(route);
   };
-
-  useEffect(() => {
-    updatePresets();
-  }, []);
 
   return (
     <SafeAreaView style={styles.container}>

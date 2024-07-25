@@ -5,6 +5,12 @@ export default async function migrate(db: SQLiteDatabase, version: number) {
   if (version != 0) return false;
   await db.execAsync(
     `
+    CREATE TABLE IF NOT EXISTS WorkoutTemplates (
+      id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+      name TEXT NOT NULL,
+      performed DATETIME DEFAULT CURRENT_TIMESTAMP,
+    );
+
     CREATE TABLE IF NOT EXISTS ExercisePresets (
       id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
       name TEXT NOT NULL,
@@ -13,8 +19,10 @@ export default async function migrate(db: SQLiteDatabase, version: number) {
 
     CREATE TABLE IF NOT EXISTS WorkoutSessions (
       id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+      templateId INTEGER NOT NULL,
       name TEXT NOT NULL,
-      performed DATETIME DEFAULT CURRENT_TIMESTAMP
+      performed DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (templateId) REFERENCES WorkoutTemplates(id),
     );
 
     CREATE TABLE IF NOT EXISTS Exercises (
@@ -23,7 +31,7 @@ export default async function migrate(db: SQLiteDatabase, version: number) {
       exercisePresetId INTEGER NOT NULL,
       idx INTEGER NOT NULL,
       timer INTEGER DEFAULT NULL,
-      FOREIGN KEY (sessionId) REFERENCES WorkoutsSessions(id),
+      FOREIGN KEY (sessionId) REFERENCES WorkoutSessions(id),
       FOREIGN KEY (exercisePresetId) REFERENCES ExercisePresets(id)
     );
 
@@ -36,15 +44,12 @@ export default async function migrate(db: SQLiteDatabase, version: number) {
       FOREIGN KEY (exerciseId) REFERENCES Exercises(id)
     );
 
-    CREATE UNIQUE INDEX IF NOT EXISTS WorkoutSessionIdIndex ON WorkoutSessions(id);
+    CREATE UNIQUE INDEX IF NOT EXISTS WorkoutTemplateIdIndex ON WorkoutSessions(templateId);
+
     CREATE UNIQUE INDEX IF NOT EXISTS WorkoutSessionPerformedIndex ON WorkoutSessions(performed);
 
-    CREATE UNIQUE INDEX IF NOT EXISTS ExercisePresetsIdIndex ON ExercisePresets(id);
-
-    CREATE UNIQUE INDEX IF NOT EXISTS ExercisesIdIndex ON Exercises(id);
     CREATE INDEX IF NOT EXISTS ExercisesSessionIdIndex ON Exercises(sessionId);
 
-    CREATE UNIQUE INDEX IF NOT EXISTS SetsIdIndex ON Sets(id);
     CREATE INDEX IF NOT EXISTS SetsExerciseIdIndex ON Sets(exerciseId);
     `,
   );

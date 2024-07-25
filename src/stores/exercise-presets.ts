@@ -15,6 +15,7 @@ type State = {
 
 type Action = {
   setPresets: (presets: ExercisePreset[]) => void;
+  getPreset: (id: Id) => ExercisePreset | undefined;
 };
 
 const useExercisePresetStore = create<State & Action>((set, get) => ({
@@ -27,6 +28,8 @@ const useExercisePresetStore = create<State & Action>((set, get) => ({
   },
 
   setPresets: (presets: ExercisePreset[]) => set((s) => ({ presets: presets })),
+
+  getPreset: (id: Id) => get().presets[id],
 }));
 
 export default useExercisePresetStore;
