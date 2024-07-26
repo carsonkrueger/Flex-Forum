@@ -38,6 +38,7 @@ import { useSQLiteContext } from "expo-sqlite";
 import useExercisePresetStore, {
   ExercisePreset,
 } from "@/stores/exercise-presets";
+import { createNewTemplate } from "@/db/row-models/workout-template-model";
 
 export default function Page() {
   const db = useSQLiteContext();
@@ -48,8 +49,10 @@ export default function Page() {
   const toggleLocked = useWorkoutStore((s) => s.toggleLocked);
   const workout = useWorkoutStore((s) => s.workouts[id]);
   const removeInProgress = useWorkoutStore((s) => s.removeInProgress);
+  const setTemplateId = useWorkoutStore((s) => s.setTemplateId);
   const addLoadedIfNotExists = useWorkoutStore((s) => s.addLoadedIfNotExists);
   const addExercise = useWorkoutStore((s) => s.addExercise);
+  const setPerformed = useWorkoutStore((s) => s.setPerformed);
   const removeExercise = useWorkoutStore((s) => s.removeExercise);
   const createExercise = useExerciseStore((s) => s.createExercise);
   const deleteExercise = useExerciseStore((s) => s.deleteExercise);
@@ -164,7 +167,18 @@ export default function Page() {
   }
 
   async function onFinishWorkout() {
+    if (workout.templateId === undefined) {
+      const templateId = await createNewTemplate(db);
+      setTemplateId(workout.id, templateId);
+      workout.templateId = templateId;
+      console.log(workout);
+    } else {
+      console.log("Not new template");
+    }
+    setPerformed(new Date(), workout.id);
+
     let sessionId = await saveWorkoutSession(db, workout);
+    // console.log()
     for (let i = 0; i < workout.exerciseIds.length; ++i) {
       let exercise = getExercise(workout.exerciseIds[i]);
       let exerciseId = await saveExercise(db, exercise, sessionId, i);

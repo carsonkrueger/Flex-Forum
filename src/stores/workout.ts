@@ -1,10 +1,12 @@
 import { WorkoutSessionRow } from "@/db/row-models/workout-model";
+import { createNewTemplate } from "@/db/row-models/workout-template-model";
 import { create } from "zustand";
 
 export type Id = number;
 
 export type Workout = {
   id: Id;
+  templateId?: Id;
   name: string;
   isLocked: boolean;
   lastPerformed?: Date;
@@ -25,7 +27,8 @@ type State = {
 type Action = {
   setWorkout: (w: Workout) => void;
   getWorkout: (id: Id) => Workout;
-  createWorkout: () => Id;
+  setTemplateId: (id: Id, templateId: Id) => void;
+  createWorkout: (templateId?: Id) => Id;
   loadFromRow: (row: WorkoutSessionRow) => Id;
   setName: (name: Workout["name"], id: Workout["id"]) => void;
   addExercise: (id: Id, exerciseId: Id) => void;
@@ -46,6 +49,7 @@ type Action = {
 
 const useWorkoutStore = create<State & Action>((set, get) => ({
   nextId: 0,
+  nextTemplateId: 0,
   templateOffset: 0,
   exerciseSheetId: undefined,
   selectSheetId: undefined,
@@ -59,10 +63,19 @@ const useWorkoutStore = create<State & Action>((set, get) => ({
 
   getWorkout: (id: Id) => get().workouts[id],
 
-  createWorkout: () => {
+  setTemplateId: (id: Id, templateId: Id) =>
+    set((s) => ({
+      workouts: {
+        ...s.workouts,
+        [id]: { ...s.workouts[id], templateId: templateId },
+      },
+    })),
+
+  createWorkout: (templateId?: Id) => {
     let id = get().nextId;
     let w: Workout = {
       id: id,
+      templateId: templateId,
       exerciseIds: [],
       isLocked: false,
       name: "New Workout",
@@ -72,7 +85,7 @@ const useWorkoutStore = create<State & Action>((set, get) => ({
   },
 
   loadFromRow: (row: WorkoutSessionRow) => {
-    let id = get().createWorkout();
+    let id = get().createWorkout(row.templateId);
     get().setName(row.name, id);
     get().setPerformed(row.performed, id);
     get().addLoadedIfNotExists(id);

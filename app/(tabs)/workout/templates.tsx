@@ -2,7 +2,10 @@ import Template from "@/components/workout/Template";
 import Submit, { ButtonVariant } from "@/forms/Submit";
 import { getExerciseRows } from "@/db/row-models/exercise-model";
 import { getSetRows } from "@/db/row-models/set-model";
-import { getWorkoutSessionRows } from "@/db/row-models/workout-model";
+import {
+  getAllTemplates,
+  getWorkoutSessionRows,
+} from "@/db/row-models/workout-model";
 import useExerciseStore from "@/stores/exercises";
 import useSetStore from "@/stores/sets";
 import useSettingsStore from "@/stores/settings";
@@ -20,13 +23,13 @@ import {
 } from "@gorhom/bottom-sheet";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import Modal from "@/components/modal";
-import CircularButton from "@/forms/CircularButton";
 import {
   WorkoutSummary,
   ExerciseSummary,
   uploadWorkout,
   WorkoutPost,
 } from "@/models/content-model";
+import { createNewTemplate } from "@/db/row-models/workout-template-model";
 
 const WORKOUT_QUERY_LIMIT = 100 as const;
 
@@ -55,34 +58,32 @@ export default function Page() {
   const setOffset = useWorkoutStore((s) => s.setTemplateOffset);
   const sheetRef = useRef<BottomSheetModal>(null);
 
-  const createNewWorkout = () => {
-    let wid = createWorkout();
-    let eid = createExercise();
+  const createNewWorkout = async () => {
+    const wid = createWorkout(undefined);
+    const eid = createExercise();
     addExercise(wid, eid);
-    let sid = createSet();
+    const sid = createSet();
     addSet(eid, sid);
     addInProgress(wid);
-    router.push({ pathname: routes.workout(wid), params: { newWorkout: 1 } });
+    router.push({ pathname: routes.workout(wid) });
   };
 
   const fetchWorkouts = () => {
-    getWorkoutSessionRows(db, WORKOUT_QUERY_LIMIT, offset).then(
-      async (workoutRows) => {
-        for (let i = 0; i < workoutRows.length; ++i) {
-          let workoutId = loadFromWorkoutRow(workoutRows[i]);
-          let exerciseRows = await getExerciseRows(db, workoutRows[i].id);
-          for (let j = 0; j < exerciseRows.length; ++j) {
-            let exerciseId = createFromExerciseRow(exerciseRows[j]);
-            let setRows = await getSetRows(db, exerciseRows[j].id);
-            addExercise(workoutId, exerciseId);
-            for (let k = 0; k < setRows.length; ++k) {
-              let setId = createFromSetRow(setRows[k]);
-              addSet(exerciseId, setId);
-            }
+    getAllTemplates(db).then(async (workoutRows) => {
+      for (let i = 0; i < workoutRows.length; ++i) {
+        let workoutId = loadFromWorkoutRow(workoutRows[i]);
+        let exerciseRows = await getExerciseRows(db, workoutRows[i].id);
+        for (let j = 0; j < exerciseRows.length; ++j) {
+          let exerciseId = createFromExerciseRow(exerciseRows[j]);
+          let setRows = await getSetRows(db, exerciseRows[j].id);
+          addExercise(workoutId, exerciseId);
+          for (let k = 0; k < setRows.length; ++k) {
+            let setId = createFromSetRow(setRows[k]);
+            addSet(exerciseId, setId);
           }
         }
-      },
-    );
+      }
+    });
     setOffset(offset + WORKOUT_QUERY_LIMIT);
   };
 
@@ -133,6 +134,7 @@ export default function Page() {
   useEffect(() => {
     setTemplateSheetId(undefined);
     if (offset === 0) fetchWorkouts();
+    getAllTemplates(db);
   }, []);
 
   return (

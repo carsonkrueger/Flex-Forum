@@ -19,6 +19,7 @@ export async function dropAllTables(db: SQLiteDatabase) {
     DROP TABLE IF EXISTS Exercises;
     DROP TABLE IF EXISTS WorkoutSessions;
     DROP TABLE IF EXISTS ExercisePresets;
+    DROP TABLE IF EXISTS WorkoutTemplates;
     `);
 }
 

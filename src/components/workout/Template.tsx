@@ -35,7 +35,9 @@ export default function Page(props: Props) {
     if (isLoaded) {
       removeLoaded(props.id);
     }
-    router.push({ pathname: routes.workout(props.id) });
+    router.push({
+      pathname: routes.workout(props.id),
+    });
   };
 
   const onLongPress = () => {
@@ -59,7 +61,7 @@ export default function Page(props: Props) {
               Last Performed:
             </Text>
             <Text style={[styles.subText, calcStyle.subText]}>
-              {workout.lastPerformed?.toString()}
+              {workout.lastPerformed?.toLocaleString()}
             </Text>
           </View>
         )}

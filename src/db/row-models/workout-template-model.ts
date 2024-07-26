@@ -1,13 +1,14 @@
 import { SQLiteDatabase } from "expo-sqlite";
+import { WorkoutSessionRow } from "./workout-model";
 
 export type WorkoutTemplate = {
   id: number;
 };
 
-export async function getAllTemplates(db: SQLiteDatabase) {
-  let res = await db.getAllAsync(
-    "SELECT * FROM WorkoutTemplates JOIN ON WorkoutSessions USING (templateId)",
+export async function createNewTemplate(db: SQLiteDatabase): Promise<number> {
+  let res = await db.runAsync(
+    "INSERT INTO WorkoutTemplates DEFAULT VALUES;",
     [],
   );
-  console.log(res);
+  return res.lastInsertRowId;
 }

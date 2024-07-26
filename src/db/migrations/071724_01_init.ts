@@ -6,7 +6,7 @@ export default async function migrate(db: SQLiteDatabase, version: number) {
   await db.execAsync(
     `
     CREATE TABLE IF NOT EXISTS WorkoutTemplates (
-      id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+      id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL
     );
 
     CREATE TABLE IF NOT EXISTS ExercisePresets (
@@ -20,7 +20,7 @@ export default async function migrate(db: SQLiteDatabase, version: number) {
       templateId INTEGER NOT NULL,
       name TEXT NOT NULL,
       performed DATETIME DEFAULT CURRENT_TIMESTAMP,
-      FOREIGN KEY (templateId) REFERENCES WorkoutTemplates(id),
+      FOREIGN KEY (templateId) REFERENCES WorkoutTemplates(id)
     );
 
     CREATE TABLE IF NOT EXISTS Exercises (
@@ -42,7 +42,7 @@ export default async function migrate(db: SQLiteDatabase, version: number) {
       FOREIGN KEY (exerciseId) REFERENCES Exercises(id)
     );
 
-    CREATE UNIQUE INDEX IF NOT EXISTS WorkoutTemplateIdIndex ON WorkoutSessions(templateId);
+    CREATE INDEX IF NOT EXISTS WorkoutTemplateIdIndex ON WorkoutSessions(templateId);
 
     CREATE UNIQUE INDEX IF NOT EXISTS WorkoutSessionPerformedIndex ON WorkoutSessions(performed);
 
