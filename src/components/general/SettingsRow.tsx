@@ -3,6 +3,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   GestureResponderEvent,
+  View,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { ColorScheme } from "@/util/colors";
@@ -46,13 +47,17 @@ export default function SettingsRow({
       onPress={onPress}
       activeOpacity={onPress === undefined ? 1 : 0.6}
     >
-      {icon !== undefined && icon}
-      {text !== undefined && (
-        <Text style={[styles.text, calcStyle.text]}>{text}</Text>
+      {(text !== undefined || icon !== undefined) && (
+        <View style={styles.textContainer}>
+          {icon !== undefined && icon}
+          {text !== undefined && (
+            <Text style={[styles.text, calcStyle.text]}>{text}</Text>
+          )}
+        </View>
       )}
       {children !== undefined && children}
       {useChevron && (
-        <Ionicons size={30} name="chevron-forward" color={scheme.loPrimary} />
+        <Ionicons size={30} name="chevron-forward" color={scheme.quaternary} />
       )}
     </TouchableOpacity>
   );
@@ -67,6 +72,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 10,
   },
+  textContainer: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: 8,
+  },
   text: {
     fontSize: 14,
     // fontFamily: "PermanentMarker",
@@ -80,6 +90,6 @@ const calcStyles = (scheme: ColorScheme, justify: JustifyType) =>
       justifyContent: justify,
     },
     text: {
-      color: scheme.loPrimary,
+      color: scheme.loTertiary,
     },
   });

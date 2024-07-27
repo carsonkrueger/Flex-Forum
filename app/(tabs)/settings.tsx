@@ -3,6 +3,7 @@ import SettingsRow from "@/components/general/SettingsRow";
 import ColorSchemeIcon from "@/components/icons/ColorSchemeIcon";
 import useSettingsStore from "@/stores/settings";
 import useUserStore from "@/stores/user";
+import { Feather } from "@expo/vector-icons";
 import {
   ColorScheme,
   DarkBlueColorScheme,
@@ -38,7 +39,11 @@ export default function Page() {
         </>
       </Group>
       <Group headerText="Account">
-        <SettingsRow text="Logout" onPress={logOut} />
+        <SettingsRow
+          text="Logout"
+          onPress={logOut}
+          icon={<Feather name="log-out" size={25} color={scheme.quaternary} />}
+        />
       </Group>
     </View>
   );
