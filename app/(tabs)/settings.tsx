@@ -1,4 +1,5 @@
 import Group from "@/components/general/Group";
+import SettingsRow from "@/components/general/SettingsRow";
 import ColorSchemeIcon from "@/components/icons/ColorSchemeIcon";
 import useSettingsStore from "@/stores/settings";
 import useUserStore from "@/stores/user";
@@ -26,15 +27,19 @@ export default function Page() {
 
   return (
     <View style={[styles.container, calcStyle.container]}>
-      <Group headerText="Color Scheme" row={true}>
+      <Group headerText="Preferences">
         <>
-          <ColorSchemeIcon scheme={MainColorScheme} />
-          <ColorSchemeIcon scheme={DarkBlueColorScheme} />
+          <SettingsRow useChevron={false} justifyContent={"flex-start"}>
+            <>
+              <ColorSchemeIcon scheme={MainColorScheme} />
+              <ColorSchemeIcon scheme={DarkBlueColorScheme} />
+            </>
+          </SettingsRow>
         </>
       </Group>
-      <TouchableOpacity onPress={logOut}>
-        <Text>Log Out</Text>
-      </TouchableOpacity>
+      <Group headerText="Account">
+        <SettingsRow text="Logout" onPress={logOut} />
+      </Group>
     </View>
   );
 }
@@ -43,7 +48,7 @@ const styles = StyleSheet.create({
   container: {
     padding: 15,
     flex: 1,
-    gap: 10,
+    gap: 15,
   },
   headerText: {
     fontFamily: "PermanentMarker",

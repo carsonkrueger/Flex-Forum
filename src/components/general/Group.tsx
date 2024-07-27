@@ -32,6 +32,8 @@ const styles = StyleSheet.create({
   container: {
     padding: 5,
     gap: 8,
+    borderRadius: 20,
+    elevation: 10,
   },
   children: {
     gap: 10,
@@ -39,6 +41,7 @@ const styles = StyleSheet.create({
   headerText: {
     fontSize: 22,
     textAlign: "center",
+    // paddingHorizontal: 15,
     fontFamily: "PermanentMarker",
   },
 });
@@ -46,7 +49,7 @@ const styles = StyleSheet.create({
 const calcStyles = (scheme: ColorScheme, row: boolean) =>
   StyleSheet.create({
     container: {
-      backgroundColor: scheme.primary,
+      backgroundColor: scheme.hiPrimary,
     },
     children: {
       flexDirection: row ? "row" : "column",
