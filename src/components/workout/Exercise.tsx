@@ -124,7 +124,9 @@ export default function Exercise({ id, workoutId }: Props) {
 }
 
 const styles = StyleSheet.create({
-  container: {},
+  container: {
+    paddingVertical: 10,
+  },
   headerContainer: {
     paddingVertical: 5,
   },

@@ -478,11 +478,13 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   sheetText: {
+    fontFamily: "Oswald",
     fontSize: 15,
   },
   exercisePreset: {
-    borderRadius: 10,
+    fontFamily: "Oswald",
     fontSize: 18,
+    borderRadius: 10,
     paddingVertical: 6,
     paddingHorizontal: 20,
     marginVertical: 2,
@@ -499,6 +501,8 @@ const styles = StyleSheet.create({
     padding: 3,
   },
   searchInput: {
+    fontFamily: "Oswald",
+    fontSize: 17,
     flex: 1,
   },
 });
