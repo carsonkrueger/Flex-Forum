@@ -110,7 +110,7 @@ export default function Page() {
         timer: undefined,
       };
       const exercise = getExercise(workout.exerciseIds[i]);
-      eSummary.preset_id = exercise.exerciseId ?? 0;
+      eSummary.preset_id = exercise.presetId ?? 0;
       eSummary.num_sets = exercise.setIds.length;
       eSummary.timer = exercise.timerDuration;
       if (exercise.setIds.length > 0) {

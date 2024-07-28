@@ -1,3 +1,4 @@
+import useExercisePresetStore from "@/stores/exercise-presets";
 import useExerciseStore from "@/stores/exercises";
 import useSettingsStore from "@/stores/settings";
 import useWorkoutStore from "@/stores/workout";
@@ -27,6 +28,7 @@ export default function Page(props: Props) {
   );
   const isLoaded = useWorkoutStore((s) => s.loaded.includes(props.id));
   const getExercise = useExerciseStore((s) => s.getExercise);
+  const getPreset = useExercisePresetStore((s) => s.getPreset);
 
   const onPress = () => {
     if (!alreadyInProgress) {
@@ -74,7 +76,10 @@ export default function Page(props: Props) {
               key={`ex.${props.id}.${id}`}
               style={[styles.subText, calcStyle.subText]}
             >
-              {getExercise(id).setIds.length} x {getExercise(id).name}
+              {getExercise(id).setIds.length} x{" "}
+              {getExercise(id).presetId !== undefined
+                ? getPreset(getExercise(id).presetId!)?.name
+                : "none"}
             </Text>
           ) : idx < maxExercisesShown + 1 ? (
             <Text key={`ellipses.${props.id}`} style={[calcStyle.ellipses]}>

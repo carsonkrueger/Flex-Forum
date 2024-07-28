@@ -4,7 +4,7 @@ import { ExerciseRow } from "@/db/row-models/exercise-model";
 
 export type Exercise = {
   id: Id;
-  exerciseId?: Id;
+  presetId?: Id;
   name: string;
   timerDuration?: number;
   setIds: Id[];
@@ -38,7 +38,7 @@ const useExerciseStore = create<State & Action>((set, get) => ({
     set((s) => ({
       exercises: {
         ...s.exercises,
-        [id]: { ...s.exercises[id], exerciseId: exerciseId },
+        [id]: { ...s.exercises[id], presetId: exerciseId },
       },
     })),
 

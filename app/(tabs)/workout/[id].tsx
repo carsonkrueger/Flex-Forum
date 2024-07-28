@@ -166,14 +166,25 @@ export default function Page() {
     moveDown(id, exerciseSheetId);
   }
 
+  function validExercisePresetIds(): boolean {
+    for (let i = 0; i < workout.exerciseIds.length; ++i) {
+      const isUndefined =
+        getExercise(workout.exerciseIds[i]).presetId === undefined;
+      if (isUndefined) return false;
+    }
+    return true;
+  }
+
   async function onFinishWorkout() {
+    if (validExercisePresetIds() === false) {
+      console.error("Missing exercise preset ids. (choose a workout name)");
+      return;
+    }
+
     if (workout.templateId === undefined) {
       const templateId = await createNewTemplate(db);
       setTemplateId(workout.id, templateId);
       workout.templateId = templateId;
-      console.log(workout);
-    } else {
-      console.log("Not new template");
     }
     setPerformed(new Date(), workout.id);
 

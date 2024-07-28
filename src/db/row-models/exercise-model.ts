@@ -17,7 +17,7 @@ export async function saveExercise(
 ): Promise<number> {
   let res = await db.runAsync(
     "INSERT INTO Exercises(sessionId, exercisePresetId, idx, timer) VALUES (?, ?, ?, ?);",
-    [sessionId, exercise.exerciseId ?? 0, idx, exercise.timerDuration ?? null],
+    [sessionId, exercise.presetId ?? 0, idx, exercise.timerDuration ?? null],
   );
   return res.lastInsertRowId;
 }
