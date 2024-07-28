@@ -184,7 +184,9 @@ const styles = StyleSheet.create({
     padding: 8,
     gap: 8,
   },
-  headerText: {},
+  headerText: {
+    fontFamily: "Oswald",
+  },
   profileIcon: {
     borderWidth: 1,
     borderRadius: 100,
@@ -203,6 +205,7 @@ const styles = StyleSheet.create({
   },
   description: {
     width: "100%",
+    fontFamily: "Oswald",
     fontSize: 13,
     overflow: "hidden",
     // maxHeight: 65,
@@ -227,6 +230,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   numLikes: {
+    fontFamily: "Oswald",
     fontSize: 9,
   },
 });

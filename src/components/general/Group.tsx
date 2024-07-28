@@ -32,7 +32,7 @@ const styles = StyleSheet.create({
   container: {
     padding: 5,
     gap: 8,
-    borderRadius: 20,
+    borderRadius: 15,
     elevation: 8,
   },
   children: {
@@ -41,8 +41,7 @@ const styles = StyleSheet.create({
   headerText: {
     fontSize: 22,
     textAlign: "center",
-    // paddingHorizontal: 15,
-    fontFamily: "PermanentMarker",
+    fontFamily: "Oswald",
   },
 });
 

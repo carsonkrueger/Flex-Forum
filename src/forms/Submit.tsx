@@ -53,6 +53,7 @@ const styles = StyleSheet.create({
   },
   textBase: {
     fontSize: 15,
+    fontFamily: "Oswald",
   },
 });
 

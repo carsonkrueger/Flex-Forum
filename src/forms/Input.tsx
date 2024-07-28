@@ -73,6 +73,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     paddingHorizontal: 12,
     fontSize: 15,
+    fontFamily: "Oswald",
     height: "100%",
     width: "100%",
   },

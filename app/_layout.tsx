@@ -12,6 +12,7 @@ const queryClient = new QueryClient();
 export default function Layout() {
   const [fontsLoaded] = useFonts({
     PermanentMarker: require("../assets/fonts/PermanentMarker-Regular.ttf"),
+    Oswald: require("../assets/fonts/Oswald-VariableFont_wght.ttf"),
   });
   const scheme = useSettingsStore((state) => state.colorScheme);
 

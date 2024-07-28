@@ -10,6 +10,7 @@ import { Ionicons } from "@expo/vector-icons";
 import useExercisePresetStore, {
   ExercisePreset,
 } from "@/stores/exercise-presets";
+import Submit, { ButtonVariant } from "@/forms/Submit";
 
 export type Props = {
   id: Id;
@@ -138,14 +139,16 @@ const styles = StyleSheet.create({
     justifyContent: "space-around",
   },
   headerText: {
-    fontFamily: "PermanentMarker",
-    fontSize: 20,
-    borderRadius: 6,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    minWidth: 140,
+    // fontFamily: "PermanentMarker",
+    fontFamily: "Oswald",
+    fontSize: 17,
+    borderRadius: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    // minWidth: 140,
   },
   columnHeaderText: {
+    fontFamily: "Oswald",
     fontSize: 12,
     textAlign: "center",
     alignSelf: "center",
@@ -163,8 +166,10 @@ const calcStyles = (scheme: ColorScheme, isLocked: boolean) =>
     container: {},
     headerContainer: {},
     headerText: {
-      color: isLocked ? scheme.tertiary : scheme.tertiary,
-      backgroundColor: isLocked ? scheme.primary : scheme.secondary,
+      // color: isLocked ? scheme.tertiary : scheme.tertiary,
+      // backgroundColor: isLocked ? scheme.primary : scheme.secondary,
+      color: isLocked ? scheme.tertiary : scheme.primary,
+      backgroundColor: isLocked ? scheme.primary : scheme.quaternary,
     },
     columnHeaderText: {
       color: scheme.tertiary,

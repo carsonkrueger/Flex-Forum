@@ -78,8 +78,8 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   text: {
-    fontSize: 14,
-    // fontFamily: "PermanentMarker",
+    fontSize: 15,
+    fontFamily: "Oswald",
   },
 });
 

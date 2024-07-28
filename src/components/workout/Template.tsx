@@ -122,7 +122,7 @@ const styles = StyleSheet.create({
     maxWidth: 450,
   },
   templateHeader: {
-    fontFamily: "PermanentMarker",
+    fontFamily: "Oswald",
     fontSize: 17,
     lineHeight: 18,
   },
@@ -137,5 +137,6 @@ const styles = StyleSheet.create({
   },
   subText: {
     fontSize: 10,
+    fontFamily: "Oswald",
   },
 });

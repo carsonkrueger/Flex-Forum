@@ -111,7 +111,7 @@ export default function PostImage({
                 size={15}
                 color={scheme.tertiary}
               />
-              <Text style={[calcStyle.saveText]}>
+              <Text style={[styles.saveText, calcStyle.saveText]}>
                 {saved ? "Saved" : "Save"}
               </Text>
             </TouchableOpacity>
@@ -153,6 +153,7 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   roundItem: {
+    fontFamily: "Oswald",
     display: "flex",
     flexDirection: "row",
     justifyContent: "center",
@@ -163,5 +164,10 @@ const styles = StyleSheet.create({
     padding: 8,
     paddingHorizontal: 14,
   },
-  exerciseText: {},
+  exerciseText: {
+    fontFamily: "Oswald",
+  },
+  saveText: {
+    fontFamily: "Oswald",
+  },
 });

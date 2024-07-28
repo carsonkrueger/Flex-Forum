@@ -55,9 +55,6 @@ const styles = StyleSheet.create({
     flex: 1,
     gap: 15,
   },
-  headerText: {
-    fontFamily: "PermanentMarker",
-  },
 });
 
 const calcStyles = (scheme: ColorScheme) =>

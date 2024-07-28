@@ -2,10 +2,7 @@ import Template from "@/components/workout/Template";
 import Submit, { ButtonVariant } from "@/forms/Submit";
 import { getExerciseRows } from "@/db/row-models/exercise-model";
 import { getSetRows } from "@/db/row-models/set-model";
-import {
-  getAllTemplates,
-  getWorkoutSessionRows,
-} from "@/db/row-models/workout-model";
+import { getAllTemplates } from "@/db/row-models/workout-model";
 import useExerciseStore from "@/stores/exercises";
 import useSetStore from "@/stores/sets";
 import useSettingsStore from "@/stores/settings";
@@ -226,6 +223,7 @@ const styles = StyleSheet.create({
     fontSize: 25,
   },
   subHeaderText: {
+    fontFamily: "Oswald",
     fontSize: 15,
     width: "100%",
   },
@@ -244,7 +242,7 @@ const calcStyles = (scheme: ColorScheme) =>
       color: scheme.tertiary,
     },
     subHeaderText: {
-      color: scheme.secondary,
+      color: scheme.hiSecondary,
     },
     bottomSheetContainer: {
       backgroundColor: scheme.hiPrimary,
