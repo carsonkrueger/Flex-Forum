@@ -6,10 +6,7 @@ import { Text, View, StyleSheet, TouchableOpacity } from "react-native";
 import Set from "./Set";
 import flexWidths from "@/util/setFlexWidths";
 import { Ionicons } from "@expo/vector-icons";
-import useExercisePresetStore, {
-  ExercisePreset,
-} from "@/stores/exercise-presets";
-import Submit, { ButtonVariant } from "@/forms/Submit";
+import useExercisePresetStore from "@/stores/exercise-presets";
 
 export type Props = {
   id: Id;
@@ -26,10 +23,6 @@ export default function Exercise({ id, workoutId }: Props) {
     [scheme, isLocked],
   );
   const exercise = useWorkoutStore((s) => s.exercises[id]);
-  // const preset: ExercisePreset | undefined =
-  //   exercise.exerciseId !== undefined
-  //     ? useExercisePresetStore((s) => s.presets[exercise.exerciseId!])
-  //     : undefined;
   const getPreset = useExercisePresetStore((s) => s.getPreset);
 
   const onEllipsisClick = () => {

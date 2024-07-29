@@ -1,4 +1,4 @@
-export const routes = {
+export const ROUTES = {
   login: "/",
   signup: "/signup",
   home: "/home",
@@ -6,8 +6,7 @@ export const routes = {
   user: "/user/:username",
   templates: "/workout/templates",
   workout: (id: number) => `/workout/${id}`,
-  // workout: "/workout/:id",
   exercises: "/workout/exercises",
 } as const;
 
-export type Route = (typeof routes)[keyof typeof routes];
+export type Route = (typeof ROUTES)[keyof typeof ROUTES];

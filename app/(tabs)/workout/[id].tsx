@@ -14,6 +14,7 @@ import {
   View,
   TextInputTextInputEventData,
   NativeSyntheticEvent,
+  BackHandler,
 } from "react-native";
 import { Octicons } from "@expo/vector-icons";
 
@@ -28,7 +29,7 @@ import CircularButton from "@/forms/CircularButton";
 import { SizeVariant } from "@/util/variants";
 import { Ionicons } from "@expo/vector-icons";
 import Modal from "@/components/modal";
-import { routes } from "@/util/routes";
+import { ROUTES } from "@/util/routes";
 import { saveWorkoutSession } from "@/db/row-models/workout-model";
 import { saveExercise } from "@/db/row-models/exercise-model";
 import { saveSet } from "@/db/row-models/set-model";
@@ -78,6 +79,7 @@ export default function Page() {
   const presets = useExercisePresetStore((s) => s.presets);
   const [filteredExercisedPresets, setFilteredExercisedPresets] =
     useState<ExercisePreset[]>(presets);
+  const [showModal, setShowModal] = useState<boolean>(false);
 
   function onCreateExercise(): void {
     let exerciseId = createExercise();
@@ -199,7 +201,11 @@ export default function Page() {
     }
     removeInProgress(id);
     addLoadedIfNotExists(id);
-    router.navigate(routes.templates);
+    router.navigate(ROUTES.templates);
+  }
+
+  function onCancelWorkout() {
+    setShowModal(true);
   }
 
   function onSearchPreset(
@@ -229,6 +235,23 @@ export default function Page() {
   useEffect(() => {
     setExerciseSheetId(undefined);
     setSelectSheetId(undefined);
+
+    const backHander = BackHandler.addEventListener("hardwareBackPress", () => {
+      if (
+        exerciseSheetId !== undefined ||
+        selectSheetId !== undefined ||
+        showModal
+      ) {
+        setExerciseSheetId(undefined);
+        setSelectSheetId(undefined);
+        setShowModal(false);
+      } else {
+        onCancelWorkout();
+      }
+      return true;
+    });
+
+    return () => backHander.remove();
   }, []);
 
   return (
@@ -278,7 +301,7 @@ export default function Page() {
                   }}
                 />
                 <Submit
-                  touchableProps={{ onPress: onFinishWorkout }}
+                  touchableProps={{ onPress: onCancelWorkout }}
                   btnProps={{
                     text: "CANCEL WORKOUT",
                     variant: ButtonVariant.Filled,
@@ -291,11 +314,39 @@ export default function Page() {
             ListFooterComponentStyle={styles.addExercise}
           />
         </View>
-        {/* Modal */}
+        {/* Cancel workout modal */}
+        <Modal
+          hidden={!showModal}
+          zIndex={10}
+          opacity={1}
+          bgColor={"rgba(0, 0, 0, 0.2)"}
+          onPress={() => setShowModal(false)}
+        >
+          <View style={[styles.cancelContainer, calcStyle.cancelContainer]}>
+            <Text style={[styles.cancelHeaderText, calcStyle.cancelText]}>
+              Cancel Workout?
+            </Text>
+            <Text style={[styles.cancelText, calcStyle.cancelText]}>
+              All progress will be lost.
+            </Text>
+            <View style={styles.yesNoContainer}>
+              <TouchableOpacity style={[styles.yesAndNowContainer]}>
+                <Text style={[styles.yesNoText, calcStyle.noText]}>No</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.yesAndNowContainer, calcStyle.yesContainer]}
+              >
+                <Text style={[styles.yesNoText, calcStyle.yesText]}>Yes</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
+
+        {/* Modal for bottom sheets */}
         <Modal
           hidden={exerciseSheetId === undefined}
           zIndex={0}
-          opacity={0}
+          opacity={0.2}
           onPress={closeExerciseSheet}
         />
 
@@ -456,6 +507,39 @@ const styles = StyleSheet.create({
   listFooter: {
     gap: 20,
   },
+  cancelContainer: {
+    borderRadius: 15,
+    padding: 15,
+    width: "95%",
+    height: "60%",
+    maxWidth: 300,
+    maxHeight: 200,
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+  },
+  cancelHeaderText: {
+    fontFamily: "Oswald",
+    fontSize: 25,
+  },
+  cancelText: {
+    fontFamily: "Oswald",
+    fontSize: 16,
+    paddingBottom: 15,
+  },
+  yesNoContainer: {
+    flexDirection: "row",
+    gap: 15,
+  },
+  yesNoText: {
+    fontFamily: "Oswald",
+    fontSize: 16,
+  },
+  yesAndNowContainer: {
+    paddingVertical: 6,
+    paddingHorizontal: 15,
+    borderRadius: 15,
+  },
   selectBottomSheet: {
     borderRadius: 0,
   },
@@ -516,6 +600,21 @@ const calcStyles = (scheme: ColorScheme, isLocked: boolean) =>
     headerText: {
       backgroundColor: isLocked ? scheme.quaternary : scheme.loQuaternary,
       color: isLocked ? scheme.primary : scheme.tertiary,
+    },
+    cancelContainer: {
+      backgroundColor: scheme.secondary,
+    },
+    cancelText: {
+      color: scheme.tertiary,
+    },
+    yesText: {
+      color: scheme.primary,
+    },
+    noText: {
+      color: scheme.loPrimary,
+    },
+    yesContainer: {
+      backgroundColor: scheme.quaternary,
     },
     bottomSheetContainer: {
       backgroundColor: scheme.hiPrimary,

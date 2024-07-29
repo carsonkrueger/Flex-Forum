@@ -6,7 +6,7 @@ import { getAllTemplates } from "@/db/row-models/workout-model";
 import useSettingsStore from "@/stores/settings";
 import useWorkoutStore from "@/stores/workout";
 import { ColorScheme } from "@/util/colors";
-import { routes } from "@/util/routes";
+import { ROUTES } from "@/util/routes";
 import { useRouter } from "expo-router";
 import { useSQLiteContext } from "expo-sqlite";
 import { useEffect, useMemo, useRef } from "react";
@@ -68,7 +68,7 @@ export default function Page() {
     const sid = createSet();
     addSet(eid, sid);
     addInProgress(wid);
-    router.push({ pathname: routes.workout(wid) });
+    router.push({ pathname: ROUTES.workout(wid) });
   };
 
   const fetchWorkouts = () => {

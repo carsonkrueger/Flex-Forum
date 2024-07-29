@@ -1,11 +1,11 @@
 import useSettingsStore from "@/stores/settings";
-import { Slot, Stack, router, usePathname, useRouter } from "expo-router";
+import { Stack, router, usePathname, useRouter } from "expo-router";
 import { useEffect, useMemo } from "react";
 import { View, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 // import useAuth from "@/hooks/useAuth";
 import NavItem from "@/components/nav/NavItem";
-import { Route, routes } from "@/util/routes";
+import { ROUTES } from "@/util/routes";
 import { Ionicons } from "@expo/vector-icons";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import useUserStore from "@/stores/user";
@@ -13,7 +13,8 @@ import { StatusBar } from "expo-status-bar";
 import { SQLiteProvider } from "expo-sqlite";
 import { DATABASE_NAME } from "@/db/db";
 import { migrateAll } from "@/db/migrate";
-import useExercisePresetStore from "@/stores/exercise-presets";
+
+const WORKOUT_REG_EXP = /\/workout\/\d+/;
 
 export default function Layout() {
   // useAuth();
@@ -28,8 +29,11 @@ export default function Layout() {
   const pathname = usePathname();
 
   const navigateTo = (route: string) => {
-    // if (pathname === route) return;
-    if (pathname === routes.home && route !== routes.home) router.push(route);
+    if (WORKOUT_REG_EXP.test(pathname)) {
+      router.back();
+      router.navigate(route);
+    } else if (pathname === ROUTES.home && route !== ROUTES.home)
+      router.push(route);
     else router.navigate(route);
   };
 
@@ -49,18 +53,18 @@ export default function Layout() {
         <View style={[styles.navContainer, calcStyle.navContainer]}>
           <NavItem
             icon={<Ionicons name="home" size={30} color={iconColor} />}
-            onPress={() => navigateTo(routes.home)}
+            onPress={() => navigateTo(ROUTES.home)}
           />
 
           <NavItem
             icon={<Ionicons name="search" size={30} color={iconColor} />}
-            onPress={() => navigateTo(routes.home)}
+            onPress={() => navigateTo(ROUTES.home)}
           />
 
           <View style={styles.navCenterContainer}>
             <NavItem
               style={[styles.navCenter, calcStyle.navCenter]}
-              onPress={() => navigateTo(routes.templates)}
+              onPress={() => navigateTo(ROUTES.templates)}
               icon={
                 <MaterialCommunityIcons
                   name="weight-lifter"
@@ -76,14 +80,14 @@ export default function Layout() {
             icon={
               <Ionicons name="settings-sharp" size={30} color={iconColor} />
             }
-            onPress={() => navigateTo(routes.settings)}
+            onPress={() => navigateTo(ROUTES.settings)}
           />
 
           <NavItem
             icon={<Ionicons name="person" size={30} color={iconColor} />}
             onPress={() => {
               setUserId(undefined);
-              navigateTo(routes.user);
+              navigateTo(ROUTES.user);
             }}
           />
         </View>

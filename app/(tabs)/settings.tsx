@@ -9,7 +9,7 @@ import {
   DarkBlueColorScheme,
   MainColorScheme,
 } from "@/util/colors";
-import { routes } from "@/util/routes";
+import { ROUTES } from "@/util/routes";
 import { useRouter } from "expo-router";
 import { useMemo, useRef } from "react";
 import { Text, View, StyleSheet, TouchableOpacity } from "react-native";
@@ -23,7 +23,7 @@ export default function Page() {
   const logOut = () => {
     resetUser();
     router.dismissAll();
-    router.replace(routes.login);
+    router.replace(ROUTES.login);
   };
 
   return (

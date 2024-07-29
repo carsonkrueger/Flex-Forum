@@ -7,7 +7,7 @@ import { useEffect, useMemo, useState } from "react";
 import { StyleSheet, View, Text } from "react-native";
 import { useForm } from "react-hook-form";
 import LoginModel, { login } from "@/models/login-model";
-import { routes } from "@/util/routes";
+import { ROUTES } from "@/util/routes";
 import useExercisePresetStore from "@/stores/exercise-presets";
 
 export default function Page() {
@@ -42,7 +42,7 @@ export default function Page() {
     try {
       await login(data);
       setUsername(data.username);
-      router.replace(routes.home);
+      router.replace(ROUTES.home);
     } catch (e) {
       console.error("err", e);
     }
@@ -53,7 +53,7 @@ export default function Page() {
 
   useEffect(() => {
     if (username !== undefined) {
-      router.replace(routes.home);
+      router.replace(ROUTES.home);
     }
     updatePresets();
   }, []);
@@ -148,7 +148,7 @@ export default function Page() {
           text: "Sign up",
         }}
         touchableProps={{
-          onPress: () => router.push(routes.signup),
+          onPress: () => router.push(ROUTES.signup),
           disabled: isAnyLoading(),
         }}
       />

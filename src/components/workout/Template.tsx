@@ -2,7 +2,7 @@ import useExercisePresetStore from "@/stores/exercise-presets";
 import useSettingsStore from "@/stores/settings";
 import useWorkoutStore from "@/stores/workout";
 import { ColorScheme } from "@/util/colors";
-import { routes } from "@/util/routes";
+import { ROUTES } from "@/util/routes";
 import { useRouter } from "expo-router";
 import { useSQLiteContext } from "expo-sqlite";
 import { useMemo } from "react";
@@ -37,7 +37,7 @@ export default function Page(props: Props) {
       removeLoaded(props.id);
     }
     router.push({
-      pathname: routes.workout(props.id),
+      pathname: ROUTES.workout(props.id),
     });
   };
 
