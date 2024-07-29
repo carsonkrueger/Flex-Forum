@@ -8,8 +8,6 @@ import { useEffect, useMemo, useState } from "react";
 import { View, StyleSheet, Text, TouchableOpacity } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import useWorkoutStore from "@/stores/workout";
-import useExerciseStore, { Exercise } from "@/stores/exercises";
-import useSetStore from "@/stores/sets";
 import { useQuery } from "@tanstack/react-query";
 import useExercisePresetStore from "@/stores/exercise-presets";
 
@@ -32,11 +30,11 @@ export default function PostImage({
   const setWorkoutName = useWorkoutStore((s) => s.setName);
   const getPreset = useExercisePresetStore((s) => s.getPreset);
   const addExercise = useWorkoutStore((s) => s.addExercise);
-  const createExercise = useExerciseStore((s) => s.createExercise);
-  const setExerciseName = useExerciseStore((s) => s.setName);
-  const addSet = useExerciseStore((s) => s.addSet);
-  const createSet = useSetStore((s) => s.createSet);
-  const setPrev = useSetStore((s) => s.setPrev);
+  const createExercise = useWorkoutStore((s) => s.createExercise);
+  //const setExerciseName = useWorkoutStore((s) => s.setName);
+  const addSet = useWorkoutStore((s) => s.addSet);
+  const createSet = useWorkoutStore((s) => s.createSet);
+  const setPrev = useWorkoutStore((s) => s.setPrev);
 
   const saveNewWorkout = () => {
     if (!query.data) return;
@@ -48,7 +46,7 @@ export default function PostImage({
     for (let i = 0; i < query.data.exercises.length; i++) {
       let exerciseId = createExercise();
       const preset = getPreset(query.data.exercises[i].preset_id);
-      setExerciseName(exerciseId, preset?.name ?? "");
+      //setExerciseName(exerciseId, preset?.name ?? "");
       addExercise(workoutId, exerciseId);
 
       // sets
