@@ -48,9 +48,8 @@ const useSetStore = create<State & Action>((set, get) => ({
 
   deleteSet: (id: Id) =>
     set((s) => {
-      const newSets = { ...s.sets };
-      delete newSets[id];
-      return { sets: newSets };
+      const { [id]: _, ...objs } = s.sets;
+      return { sets: objs };
     }),
 
   setWeight: (weight: Set["weight"], id: Set["id"]) =>

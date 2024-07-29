@@ -136,7 +136,7 @@ const styles = StyleSheet.create({
     flexDirection: "column",
   },
   subText: {
-    fontSize: 10,
+    fontSize: 12,
     fontFamily: "Oswald",
   },
 });

@@ -42,7 +42,7 @@ import { createNewTemplate } from "@/db/row-models/workout-template-model";
 
 export default function Page() {
   const db = useSQLiteContext();
-  const id = (useLocalSearchParams<{ id: string }>().id ?? -1) as number;
+  const id = parseInt(useLocalSearchParams<{ id: string }>().id ?? "1");
   const router = useRouter();
   const scheme = useSettingsStore((state) => state.colorScheme);
   const isLocked = useWorkoutStore((s) => s.workouts[id].isLocked);

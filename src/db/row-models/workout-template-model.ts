@@ -3,6 +3,7 @@ import { WorkoutSessionRow } from "./workout-model";
 
 export type WorkoutTemplate = {
   id: number;
+  disabled: boolean;
 };
 
 export async function createNewTemplate(db: SQLiteDatabase): Promise<number> {
@@ -11,4 +12,15 @@ export async function createNewTemplate(db: SQLiteDatabase): Promise<number> {
     [],
   );
   return res.lastInsertRowId;
+}
+
+export async function disableTemplate(
+  db: SQLiteDatabase,
+  id: number,
+): Promise<void> {
+  let res = await db.runAsync(
+    "UPDATE WorkoutTemplates SET disabled = true WHERE id = ?;",
+    [id],
+  );
+  console.log(res.changes);
 }

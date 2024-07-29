@@ -11,16 +11,26 @@ export type WorkoutSessionRow = {
 export async function getAllTemplates(
   db: SQLiteDatabase,
 ): Promise<WorkoutSessionRow[]> {
+  //SELECT ws.id, ws.templateId, ws.name, performed
+  // FROM WorkoutSessions ws
+  // JOIN (
+  //   SELECT id
+  //   FROM WorkoutTemplates
+  //   WHERE disabled = false
+  // ) ls
+  // ON ws.templateId = ls.id;
   return await db.getAllAsync(
     `
-    SELECT ws.*
+    SELECT ws.id, ws.templateId, ws.name, ws.performed
     FROM WorkoutSessions ws
-    JOIN (
-        SELECT templateId, MAX(performed) AS latest_performed
-        FROM WorkoutSessions
-        GROUP BY templateId
-    ) ls
-    ON ws.templateId = ls.templateId AND ws.performed = ls.latest_performed;
+    JOIN WorkoutTemplates wt
+    ON ws.templateId = wt.id
+    WHERE wt.disabled = false
+    AND ws.performed = (
+      SELECT MAX(ws2.performed)
+      FROM WorkoutSessions ws2
+      WHERE ws2.templateId = ws.templateId
+    );
     `,
     [],
   );

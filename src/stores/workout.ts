@@ -29,6 +29,7 @@ type Action = {
   getWorkout: (id: Id) => Workout;
   setTemplateId: (id: Id, templateId: Id) => void;
   createWorkout: (templateId?: Id) => Id;
+  deleteWorkout: (id: Id) => void;
   loadFromRow: (row: WorkoutSessionRow) => Id;
   setName: (name: Workout["name"], id: Workout["id"]) => void;
   addExercise: (id: Id, exerciseId: Id) => void;
@@ -39,6 +40,7 @@ type Action = {
   setTemplateSheetId: (id?: Id) => void;
   moveUp: (id: Id, exerciseId: Id) => void;
   moveDown: (id: Id, exerciseId: Id) => void;
+  isInProgress: (id: Id) => boolean;
   addInProgress: (id: Id) => void;
   removeInProgress: (id: Id) => void;
   addLoadedIfNotExists: (id: Id) => void;
@@ -84,6 +86,12 @@ const useWorkoutStore = create<State & Action>((set, get) => ({
     return id;
   },
 
+  deleteWorkout: (id: Id) =>
+    set((s) => {
+      const { [id]: _, ...objs } = s.workouts;
+      return { workouts: objs };
+    }),
+
   loadFromRow: (row: WorkoutSessionRow) => {
     let id = get().createWorkout(row.templateId);
     get().setName(row.name, id);
@@ -96,6 +104,8 @@ const useWorkoutStore = create<State & Action>((set, get) => ({
     set((s) => ({
       workouts: { ...s.workouts, [id]: { ...s.workouts[id], name: name } },
     })),
+
+  isInProgress: (id: Id) => get().inProgress.includes(id),
 
   addExercise: (id: Id, exerciseId: Id) =>
     set((s) => ({

@@ -6,7 +6,8 @@ export default async function migrate(db: SQLiteDatabase, version: number) {
   await db.execAsync(
     `
     CREATE TABLE IF NOT EXISTS WorkoutTemplates (
-      id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL
+      id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+      disabled BOOLEAN NOT NULL DEFAULT FALSE
     );
 
     CREATE TABLE IF NOT EXISTS ExercisePresets (

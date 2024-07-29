@@ -26,7 +26,10 @@ import {
   uploadWorkout,
   WorkoutPost,
 } from "@/models/content-model";
-import { createNewTemplate } from "@/db/row-models/workout-template-model";
+import {
+  createNewTemplate,
+  disableTemplate,
+} from "@/db/row-models/workout-template-model";
 
 const WORKOUT_QUERY_LIMIT = 100 as const;
 
@@ -54,6 +57,11 @@ export default function Page() {
   const setTemplateSheetId = useWorkoutStore((s) => s.setTemplateSheetId);
   const setOffset = useWorkoutStore((s) => s.setTemplateOffset);
   const sheetRef = useRef<BottomSheetModal>(null);
+  const deleteWorkout = useWorkoutStore((s) => s.deleteWorkout);
+  const deleteExercise = useExerciseStore((s) => s.deleteExercise);
+  const deleteSet = useSetStore((s) => s.deleteSet);
+  const isInProgress = useWorkoutStore((s) => s.isInProgress);
+  const removeLoaded = useWorkoutStore((s) => s.removeLoaded);
 
   const createNewWorkout = async () => {
     const wid = createWorkout(undefined);
@@ -94,7 +102,7 @@ export default function Page() {
     setTemplateSheetId(undefined);
   };
 
-  const shareWorkout = async () => {
+  const onShareWorkout = async () => {
     if (templateSheetId === undefined) return;
     let wSummary: WorkoutSummary = { workout_name: "", exercises: [] };
     const workout = getWorkout(templateSheetId);
@@ -118,6 +126,29 @@ export default function Page() {
     }
     const post: WorkoutPost = { workout: wSummary, description: "" };
     await uploadWorkout(post);
+  };
+
+  const onDeleteWorkout = () => {
+    if (templateSheetId === undefined) return;
+    let workout = getWorkout(templateSheetId);
+    // only loaded workouts can be delete, not in progress workouts
+    if (isInProgress(workout.id)) return;
+    setTemplateSheetId(undefined);
+    removeLoaded(workout.id);
+    console.log(loaded);
+
+    if (workout.templateId !== undefined) {
+      disableTemplate(db, workout.templateId!);
+    } else console.error(workout);
+    deleteWorkout(workout.id);
+    for (let i = 0; i < workout.exerciseIds.length; ++i) {
+      let exercise = getExercise(workout.exerciseIds[i]);
+      deleteExercise(exercise.id);
+      for (let j = 0; j < exercise.setIds.length; ++j) {
+        let set = getSet(exercise.setIds[j]);
+        deleteSet(set.id);
+      }
+    }
   };
 
   useEffect(() => {
@@ -203,8 +234,20 @@ export default function Page() {
                   text: "Share to Profile",
                   variant: ButtonVariant.Filled,
                 }}
-                touchableProps={{ onPress: shareWorkout }}
+                touchableProps={{ onPress: onShareWorkout }}
               />
+              {templateSheetId !== undefined &&
+                !isInProgress(templateSheetId) && (
+                  <Submit
+                    btnProps={{
+                      primaryColor: scheme.hiPrimary,
+                      secondaryColor: scheme.quaternary,
+                      text: "Delete Workout",
+                      variant: ButtonVariant.Filled,
+                    }}
+                    touchableProps={{ onPress: onDeleteWorkout }}
+                  />
+                )}
             </BottomSheetView>
           </BottomSheetModal>
         </ScrollView>
@@ -230,6 +273,8 @@ const styles = StyleSheet.create({
   sheetContainer: {
     justifyContent: "center",
     alignItems: "center",
+    paddingVertical: 10,
+    gap: 10,
   },
 });
 
