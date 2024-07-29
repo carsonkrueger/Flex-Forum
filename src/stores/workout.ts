@@ -1,5 +1,6 @@
+import { ExerciseRow } from "@/db/row-models/exercise-model";
+import { SetRow } from "@/db/row-models/set-model";
 import { WorkoutSessionRow } from "@/db/row-models/workout-model";
-import { createNewTemplate } from "@/db/row-models/workout-template-model";
 import { create } from "zustand";
 
 export type Id = number;
@@ -13,6 +14,23 @@ export type Workout = {
   exerciseIds: Id[];
 };
 
+export type Exercise = {
+  id: Id;
+  presetId?: Id;
+  name: string;
+  timerDuration?: number;
+  setIds: Id[];
+};
+
+export type Set = {
+  id: Id;
+  weight?: number;
+  reps?: number;
+  prevWeight?: number;
+  prevReps?: number;
+  finished: boolean;
+};
+
 type State = {
   nextId: Id;
   exerciseSheetId?: Id;
@@ -22,6 +40,10 @@ type State = {
   inProgress: Id[];
   loaded: Id[];
   workouts: { [id: Id]: Workout };
+  //exercises
+  exercises: { [id: Id]: Exercise };
+  // sets
+  sets: { [id: Id]: Set };
 };
 
 type Action = {
@@ -47,6 +69,27 @@ type Action = {
   removeLoaded: (id: Id) => void;
   setPerformed: (date: Date, id: Id) => void;
   setTemplateOffset: (offset: number) => void;
+  // exercises
+  setExercise: (e: Exercise) => void;
+  getExercise: (id: Id) => Exercise;
+  createExercise: () => Id;
+  createFromRow: (row: ExerciseRow) => Id;
+  deleteExercise: (id: Id) => void;
+  setExerciseId: (id: Id, exerciseId: Id) => void;
+  setTimerDuration: (id: Id, duration?: number) => void;
+  addSet: (id: Id, setId: Id) => void;
+  popSet: (id: Id) => Id | undefined;
+  setExerciseName: (id: Id, name: string) => void;
+  // sets
+  getSet: (id: Id) => Set;
+  createSet: () => Id;
+  createFromSetRow: (row: SetRow) => Id;
+  deleteSet: (id: Id) => void;
+  setWeight: (weight: Set["weight"], id: Set["id"]) => void;
+  setReps: (reps: Set["reps"], id: Set["id"]) => void;
+  setPrev: (w: Set["prevWeight"], r: Set["prevReps"], id: Set["id"]) => void;
+  toggleFinished: (id: Id) => void;
+  resetSet: (id: Id) => void;
 };
 
 const useWorkoutStore = create<State & Action>((set, get) => ({
@@ -208,6 +251,155 @@ const useWorkoutStore = create<State & Action>((set, get) => ({
 
   setTemplateOffset: (offset: number) =>
     set((s) => ({ templateOffset: offset })),
+
+  // exercises
+  exercises: {},
+
+  setExercise: (ex: Exercise) =>
+    set((s) => ({ exercises: { ...s.exercises, [ex.id]: ex } })),
+
+  getExercise: (id: Id) => get().exercises[id],
+
+  setExerciseId: (id: Id, exerciseId: Id) =>
+    set((s) => ({
+      exercises: {
+        ...s.exercises,
+        [id]: { ...s.exercises[id], presetId: exerciseId },
+      },
+    })),
+
+  setTimerDuration: (id: Id, duration?: number) =>
+    set((s) => ({
+      exercises: {
+        ...s.exercises,
+        [id]: { ...s.exercises[id], timerDuration: duration },
+      },
+    })),
+
+  addSet: (id: Id, setId: Id) =>
+    set((s) => ({
+      exercises: {
+        ...s.exercises,
+        [id]: {
+          ...s.exercises[id],
+          setIds: [...s.exercises[id].setIds, setId],
+        },
+      },
+    })),
+
+  popSet: (id: Id) => {
+    let len = get().exercises[id].setIds.length;
+    let lastSetId = len > 0 ? get().exercises[id].setIds[len - 1] : undefined;
+    set((s) => ({
+      exercises: {
+        ...s.exercises,
+        [id]: {
+          ...s.exercises[id],
+          setIds: s.exercises[id].setIds.slice(0, -1),
+        },
+      },
+    }));
+    return lastSetId;
+  },
+
+  createExercise: () => {
+    let prevId = get().nextId;
+    set((s) => ({
+      nextId: s.nextId + 1,
+      exercises: {
+        ...s.exercises,
+        [s.nextId]: { id: s.nextId, name: "", setIds: [] },
+      },
+    }));
+    return prevId;
+  },
+
+  createFromRow: (row: ExerciseRow) => {
+    let id = get().createExercise();
+    get().setExerciseId(id, row.exercisePresetId);
+    get().setTimerDuration(id, row.timer);
+    return id;
+  },
+
+  deleteExercise: (id: Id) => {
+    set((s) => {
+      const exercises = { ...s.exercises };
+      delete exercises[id];
+      return { exercises: exercises };
+    });
+  },
+
+  setExerciseName: (id: Id, name: string) => {
+    set((s) => {
+      return {
+        exercises: { ...s.exercises, [id]: { ...s.exercises[id], name: name } },
+      };
+    });
+  },
+
+  // sets
+  sets: {},
+
+  getSet: (id: Id) => get().sets[id],
+
+  createSet: () => {
+    let prevId = get().nextId;
+    set((s) => ({
+      nextId: s.nextId + 1,
+      sets: { ...s.sets, [s.nextId]: { id: s.nextId, finished: false } },
+    }));
+    return prevId;
+  },
+
+  createFromSetRow: (row: SetRow) => {
+    let id = get().createSet();
+    get().setPrev(row.weight, row.reps, id);
+    return id;
+  },
+
+  deleteSet: (id: Id) =>
+    set((s) => {
+      const { [id]: _, ...objs } = s.sets;
+      return { sets: objs };
+    }),
+
+  setWeight: (weight: Set["weight"], id: Set["id"]) =>
+    set((s) => ({
+      sets: { ...s.sets, [id]: { ...s.sets[id], weight: weight } },
+    })),
+
+  setReps: (reps: Set["reps"], id: Set["id"]) =>
+    set((s) => ({ sets: { ...s.sets, [id]: { ...s.sets[id], reps: reps } } })),
+
+  setPrev: (w: Set["prevWeight"], r: Set["prevReps"], id: Set["id"]) =>
+    set((s) => ({
+      sets: { ...s.sets, [id]: { ...s.sets[id], prevWeight: w, prevReps: r } },
+    })),
+
+  toggleFinished: (id: Id) =>
+    set((s) => ({
+      sets: {
+        ...s.sets,
+        [id]: { ...s.sets[id], finished: !s.sets[id].finished },
+      },
+    })),
+
+  resetSet: (id: Id) => {
+    let theSet = get().getSet(id);
+    set((s) => ({
+      sets: {
+        ...s.sets,
+        [id]: {
+          id: theSet.id,
+          reps: undefined,
+          weight: undefined,
+          prevReps: theSet.reps,
+          prevWeight: theSet.weight,
+          finished: false,
+        },
+      },
+    }));
+  },
 }));
 
 export default useWorkoutStore;

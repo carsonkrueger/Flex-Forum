@@ -1,4 +1,3 @@
-import useExerciseStore from "@/stores/exercises";
 import useSettingsStore from "@/stores/settings";
 import useWorkoutStore, { Id } from "@/stores/workout";
 import { ColorScheme } from "@/util/colors";
@@ -26,7 +25,7 @@ export default function Exercise({ id, workoutId }: Props) {
     () => calcStyles(scheme, isLocked),
     [scheme, isLocked],
   );
-  const exercise = useExerciseStore((s) => s.exercises[id]);
+  const exercise = useWorkoutStore((s) => s.exercises[id]);
   // const preset: ExercisePreset | undefined =
   //   exercise.exerciseId !== undefined
   //     ? useExercisePresetStore((s) => s.presets[exercise.exerciseId!])

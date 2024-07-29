@@ -1,5 +1,4 @@
 import useExercisePresetStore from "@/stores/exercise-presets";
-import useExerciseStore from "@/stores/exercises";
 import useSettingsStore from "@/stores/settings";
 import useWorkoutStore from "@/stores/workout";
 import { ColorScheme } from "@/util/colors";
@@ -27,7 +26,7 @@ export default function Page(props: Props) {
     s.inProgress.includes(props.id),
   );
   const isLoaded = useWorkoutStore((s) => s.loaded.includes(props.id));
-  const getExercise = useExerciseStore((s) => s.getExercise);
+  const getExercise = useWorkoutStore((s) => s.getExercise);
   const getPreset = useExercisePresetStore((s) => s.getPreset);
 
   const onPress = () => {

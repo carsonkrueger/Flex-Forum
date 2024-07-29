@@ -1,6 +1,5 @@
-import useSetStore from "@/stores/sets";
 import useSettingsStore from "@/stores/settings";
-import { Id } from "@/stores/workout";
+import useWorkoutStore, { Id } from "@/stores/workout";
 import { ColorScheme } from "@/util/colors";
 import { useMemo } from "react";
 import {
@@ -20,10 +19,10 @@ export type Props = {
 
 export default function Set({ id, idx }: Props) {
   const scheme = useSettingsStore((state) => state.colorScheme);
-  const set = useSetStore((s) => s.sets[id]);
-  const setWeight = useSetStore((s) => s.setWeight);
-  const setReps = useSetStore((s) => s.setReps);
-  const toggleFinished = useSetStore((s) => s.toggleFinished);
+  const set = useWorkoutStore((s) => s.sets[id]);
+  const setWeight = useWorkoutStore((s) => s.setWeight);
+  const setReps = useWorkoutStore((s) => s.setReps);
+  const toggleFinished = useWorkoutStore((s) => s.toggleFinished);
   const calcStyle = useMemo(
     () => calcStyles(scheme, set.finished),
     [scheme, set.finished],

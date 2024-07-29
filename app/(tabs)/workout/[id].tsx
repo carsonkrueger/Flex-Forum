@@ -1,7 +1,5 @@
 import Exercise from "@/components/workout/Exercise";
 import Submit, { ButtonVariant } from "@/forms/Submit";
-import useExerciseStore from "@/stores/exercises";
-import useSetStore from "@/stores/sets";
 import useSettingsStore from "@/stores/settings";
 import useWorkoutStore from "@/stores/workout";
 import { ColorScheme } from "@/util/colors";
@@ -54,17 +52,17 @@ export default function Page() {
   const addExercise = useWorkoutStore((s) => s.addExercise);
   const setPerformed = useWorkoutStore((s) => s.setPerformed);
   const removeExercise = useWorkoutStore((s) => s.removeExercise);
-  const createExercise = useExerciseStore((s) => s.createExercise);
-  const deleteExercise = useExerciseStore((s) => s.deleteExercise);
+  const createExercise = useWorkoutStore((s) => s.createExercise);
+  const deleteExercise = useWorkoutStore((s) => s.deleteExercise);
   const moveUp = useWorkoutStore((s) => s.moveUp);
   const moveDown = useWorkoutStore((s) => s.moveDown);
-  const getExercise = useExerciseStore((s) => s.getExercise);
-  const resetSet = useSetStore((s) => s.resetSet);
-  const getSet = useSetStore((s) => s.getSet);
-  const addSet = useExerciseStore((s) => s.addSet);
-  const popSet = useExerciseStore((s) => s.popSet);
-  const createSet = useSetStore((s) => s.createSet);
-  const deleteSet = useSetStore((s) => s.deleteSet);
+  const getExercise = useWorkoutStore((s) => s.getExercise);
+  const resetSet = useWorkoutStore((s) => s.resetSet);
+  const getSet = useWorkoutStore((s) => s.getSet);
+  const addSet = useWorkoutStore((s) => s.addSet);
+  const popSet = useWorkoutStore((s) => s.popSet);
+  const createSet = useWorkoutStore((s) => s.createSet);
+  const deleteSet = useWorkoutStore((s) => s.deleteSet);
   const calcStyle = useMemo(
     () => calcStyles(scheme, isLocked),
     [scheme, isLocked],
@@ -76,7 +74,7 @@ export default function Page() {
   const selectSheetId = useWorkoutStore((s) => s.selectSheetId);
   const selectSheetRef = useRef<BottomSheetModal>(null);
   const setName = useWorkoutStore((s) => s.setName);
-  const setExerciseId = useExerciseStore((s) => s.setExerciseId);
+  const setExerciseId = useWorkoutStore((s) => s.setExerciseId);
   const presets = useExercisePresetStore((s) => s.presets);
   const [filteredExercisedPresets, setFilteredExercisedPresets] =
     useState<ExercisePreset[]>(presets);
