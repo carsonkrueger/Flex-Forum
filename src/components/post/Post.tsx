@@ -16,14 +16,26 @@ import { ColorScheme } from "@/util/colors";
 import { PostModel } from "@/models/post-model";
 import { likePost, unlikePost } from "@/models/like-model";
 import PostWorkout from "./PostWorkout";
+import { useRouter } from "expo-router";
+import { ROUTES } from "@/util/routes";
 
 export type Props = {
   postModel: PostModel;
   width: number;
+  showLike?: boolean;
+  showChat?: boolean;
+  clickable?: boolean;
 };
 
-export default function Post({ postModel, width }: Props) {
+export default function Post({
+  postModel,
+  width,
+  showChat = true,
+  showLike = true,
+  clickable = true,
+}: Props) {
   const scheme = useSettingsStore((state) => state.colorScheme);
+  const router = useRouter();
   const [curId_OneRelative, setCurId_OneRelative] = useState<number>(1);
   const [isLiked, setIsLiked] = useState<boolean>(postModel.is_liked);
   const [numLikes, setNumLikes] = useState<number>(postModel.num_likes);
@@ -61,6 +73,10 @@ export default function Post({ postModel, width }: Props) {
     setNumLikes(isLiked ? postModel.num_likes : postModel.num_likes + 1);
     if (isLiked) unlikePost(postModel.id);
     else if (!isLiked) likePost(postModel.id);
+  };
+
+  const onChatClicked = () => {
+    router.push(ROUTES.post(postModel.id));
   };
 
   useEffect(() => {
@@ -141,27 +157,31 @@ export default function Post({ postModel, width }: Props) {
       <View style={[styles.bottomContainer, calcStyle.bottomContainer]}>
         {/* Like/chat Icons */}
         <View style={[styles.iconsBar]}>
-          <TouchableOpacity
-            style={styles.like}
-            disabled={isLoading}
-            onPress={onLikeClicked}
-          >
-            <Ionicons
-              name={isLiked ? "heart-sharp" : "heart-outline"}
-              size={iconSize.current}
-              color={scheme.quaternary}
-            />
-            <Text style={[styles.numLikes, calcStyle.numLikes]}>
-              {numLikes}
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity disabled={isLoading}>
-            <Ionicons
-              name={"chatbubble-outline"}
-              size={iconSize.current}
-              color={scheme.loTertiary}
-            />
-          </TouchableOpacity>
+          {showLike && (
+            <TouchableOpacity
+              style={styles.like}
+              disabled={isLoading}
+              onPress={onLikeClicked}
+            >
+              <Ionicons
+                name={isLiked ? "heart-sharp" : "heart-outline"}
+                size={iconSize.current}
+                color={scheme.quaternary}
+              />
+              <Text style={[styles.numLikes, calcStyle.numLikes]}>
+                {numLikes}
+              </Text>
+            </TouchableOpacity>
+          )}
+          {showChat && (
+            <TouchableOpacity disabled={isLoading} onPress={onChatClicked}>
+              <Ionicons
+                name={"chatbubble-outline"}
+                size={iconSize.current}
+                color={scheme.loTertiary}
+              />
+            </TouchableOpacity>
+          )}
         </View>
         {/* description */}
         <Text style={[styles.description, calcStyle.description]}>

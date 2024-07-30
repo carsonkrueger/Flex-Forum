@@ -2,6 +2,7 @@ export const ROUTES = {
   login: "/",
   signup: "/signup",
   home: "/home",
+  post: (id: number) => `/post/${id}`,
   settings: "/settings",
   user: "/user/:username",
   templates: "/workout/templates",
