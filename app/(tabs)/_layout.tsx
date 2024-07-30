@@ -13,6 +13,7 @@ import { StatusBar } from "expo-status-bar";
 import { SQLiteProvider } from "expo-sqlite";
 import { DATABASE_NAME } from "@/db/db";
 import { migrateAll } from "@/db/migrate";
+import useWorkoutStore from "@/stores/workout";
 
 const WORKOUT_REG_EXP = /\/workout\/\d+/;
 
@@ -25,10 +26,12 @@ export default function Layout() {
   );
   const iconColor = scheme.tertiary;
   const setUserId = useUserStore((s) => s.setUsername);
+  const resetSheets = useWorkoutStore((s) => s.resetSheets);
   const router = useRouter();
   const pathname = usePathname();
 
   const navigateTo = (route: string) => {
+    resetSheets();
     if (WORKOUT_REG_EXP.test(pathname)) {
       router.back();
       router.navigate(route);

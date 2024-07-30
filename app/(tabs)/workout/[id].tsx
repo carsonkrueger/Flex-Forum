@@ -74,6 +74,8 @@ export default function Page() {
   const setSelectSheetId = useWorkoutStore((s) => s.setSelectSheetId);
   const selectSheetId = useWorkoutStore((s) => s.selectSheetId);
   const selectSheetRef = useRef<BottomSheetModal>(null);
+  const getExerciseSheetId = useWorkoutStore((s) => s.getExerciseSheetId);
+  const getSelectSheetId = useWorkoutStore((s) => s.getSelectSheetId);
   const setName = useWorkoutStore((s) => s.setName);
   const setExerciseId = useWorkoutStore((s) => s.setExerciseId);
   const presets = useExercisePresetStore((s) => s.presets);
@@ -189,7 +191,6 @@ export default function Page() {
     setPerformed(new Date(), workout.id);
 
     let sessionId = await saveWorkoutSession(db, workout);
-    // console.log()
     for (let i = 0; i < workout.exerciseIds.length; ++i) {
       let exercise = getExercise(workout.exerciseIds[i]);
       let exerciseId = await saveExercise(db, exercise, sessionId, i);
@@ -233,13 +234,10 @@ export default function Page() {
   }, [selectSheetId]);
 
   useEffect(() => {
-    setExerciseSheetId(undefined);
-    setSelectSheetId(undefined);
-
     const backHander = BackHandler.addEventListener("hardwareBackPress", () => {
       if (
-        exerciseSheetId !== undefined ||
-        selectSheetId !== undefined ||
+        getExerciseSheetId() !== undefined ||
+        getSelectSheetId() !== undefined ||
         showModal
       ) {
         setExerciseSheetId(undefined);

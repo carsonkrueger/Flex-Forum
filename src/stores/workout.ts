@@ -58,8 +58,11 @@ type Action = {
   removeExercise: (id: Id, exerciseId: Id) => void;
   toggleLocked: (id: Id) => void;
   setExerciseSheetId: (id?: Id) => void;
+  getExerciseSheetId: () => Id | undefined;
   setSelectSheetId: (id?: Id) => void;
+  getSelectSheetId: () => Id | undefined;
   setTemplateSheetId: (id?: Id) => void;
+  resetSheets: () => void;
   moveUp: (id: Id, exerciseId: Id) => void;
   moveDown: (id: Id, exerciseId: Id) => void;
   isInProgress: (id: Id) => boolean;
@@ -185,6 +188,16 @@ const useWorkoutStore = create<State & Action>((set, get) => ({
   setExerciseSheetId: (id?: Id) => set((s) => ({ exerciseSheetId: id })),
   setSelectSheetId: (id?: Id) => set((s) => ({ selectSheetId: id })),
   setTemplateSheetId: (id?: Id) => set((s) => ({ templateSheetId: id })),
+
+  getExerciseSheetId: () => get().exerciseSheetId,
+  getSelectSheetId: () => get().selectSheetId,
+
+  resetSheets: () =>
+    set((s) => ({
+      selectSheetId: undefined,
+      exerciseSheetId: undefined,
+      templateSheetId: undefined,
+    })),
 
   moveUp: (id: Id, exerciseId: Id) => {
     let ids = [...get().workouts[id].exerciseIds];

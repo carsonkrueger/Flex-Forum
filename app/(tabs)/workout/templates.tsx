@@ -216,7 +216,7 @@ export default function Page() {
 
           <BottomSheetModal
             ref={sheetRef}
-            snapPoints={["70%"]}
+            snapPoints={["40%"]}
             onChange={onSheetChange}
             backgroundStyle={[
               // styles.selectBottomSheet,
