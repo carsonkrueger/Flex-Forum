@@ -17,7 +17,7 @@ export default function Page() {
   const newestCommentDate = useRef<Date | undefined>(undefined);
 
   useEffect(() => {
-    getNewerComments(post.id, newestCommentDate.current);
+    //getNewerComments(post.id, newestCommentDate.current);
   }, []);
 
   return (
