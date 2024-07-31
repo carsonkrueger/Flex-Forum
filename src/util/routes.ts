@@ -4,7 +4,7 @@ export const ROUTES = {
   home: "/home",
   post: (id: number) => `/post/${id}`,
   settings: "/settings",
-  user: "/user/:username",
+  user: (username: string) => `/user/${username}`,
   templates: "/workout/templates",
   workout: (id: number) => `/workout/${id}`,
   exercises: "/workout/exercises",

@@ -26,6 +26,7 @@ export default function Layout() {
   );
   const iconColor = scheme.tertiary;
   const setUserId = useUserStore((s) => s.setUsername);
+  const username = useUserStore((s) => s.username);
   const resetSheets = useWorkoutStore((s) => s.resetSheets);
   const router = useRouter();
   const pathname = usePathname();
@@ -89,8 +90,8 @@ export default function Layout() {
           <NavItem
             icon={<Ionicons name="person" size={30} color={iconColor} />}
             onPress={() => {
-              setUserId(undefined);
-              navigateTo(ROUTES.user);
+              if (username !== undefined) navigateTo(ROUTES.user(username));
+              else console.error("undefined username");
             }}
           />
         </View>

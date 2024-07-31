@@ -8,6 +8,7 @@ import {
   NativeScrollEvent,
   NativeSyntheticEvent,
   TouchableOpacity,
+  TouchableWithoutFeedback,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import PostImage from "./PostImage";
@@ -76,7 +77,11 @@ export default function Post({
   };
 
   const onChatClicked = () => {
-    router.push(ROUTES.post(postModel.id));
+    router.navigate(ROUTES.post(postModel.id));
+  };
+
+  const onHeaderClicked = () => {
+    router.navigate(ROUTES.user(postModel.username));
   };
 
   useEffect(() => {
@@ -85,12 +90,15 @@ export default function Post({
 
   return (
     <View style={[styles.container, calcStyle.container]}>
-      <View style={[styles.headerContainer]}>
+      <TouchableWithoutFeedback
+        style={[styles.headerContainer]}
+        onPress={onHeaderClicked}
+      >
         <View style={[styles.profileIcon, calcStyle.profileIcon]} />
         <Text style={[styles.headerText, calcStyle.headerText]}>
           {postModel.username}
         </Text>
-      </View>
+      </TouchableWithoutFeedback>
 
       {/* Images */}
       {postModel.post_type === "images" && (
