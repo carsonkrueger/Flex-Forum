@@ -22,12 +22,7 @@ export default function Page() {
 
   return (
     <View style={[calcStyle.container]}>
-      <Post
-        postModel={post}
-        width={windowWidth}
-        showChat={false}
-        clickable={false}
-      />
+      <Post postModel={post} width={windowWidth} clickable={false} />
     </View>
   );
 }

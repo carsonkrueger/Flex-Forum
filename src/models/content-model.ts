@@ -39,3 +39,11 @@ export const downloadContent = <T>(
 
 export const uploadWorkout = (workout: WorkoutPost) =>
   client.post(`/content/workouts`, workout);
+
+export const downloadProfilePicture = async (username: string) =>
+  (
+    await client.get<Blob>(`/content/profile-picture/${username}`, {
+      responseType: "blob",
+      timeout: 3000,
+    })
+  ).data;

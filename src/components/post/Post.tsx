@@ -23,18 +23,10 @@ import { ROUTES } from "@/util/routes";
 export type Props = {
   postModel: PostModel;
   width: number;
-  showLike?: boolean;
-  showChat?: boolean;
   clickable?: boolean;
 };
 
-export default function Post({
-  postModel,
-  width,
-  showChat = true,
-  showLike = true,
-  clickable = true,
-}: Props) {
+export default function Post({ postModel, width, clickable = true }: Props) {
   const scheme = useSettingsStore((state) => state.colorScheme);
   const router = useRouter();
   const [curId_OneRelative, setCurId_OneRelative] = useState<number>(1);
@@ -90,14 +82,13 @@ export default function Post({
 
   return (
     <View style={[styles.container, calcStyle.container]}>
-      <TouchableWithoutFeedback
-        style={[styles.headerContainer]}
-        onPress={onHeaderClicked}
-      >
-        <View style={[styles.profileIcon, calcStyle.profileIcon]} />
-        <Text style={[styles.headerText, calcStyle.headerText]}>
-          {postModel.username}
-        </Text>
+      <TouchableWithoutFeedback onPress={onHeaderClicked}>
+        <View style={[styles.headerContainer]}>
+          <View style={[styles.profileIcon, calcStyle.profileIcon]} />
+          <Text style={[styles.headerText, calcStyle.headerText]}>
+            {postModel.username}
+          </Text>
+        </View>
       </TouchableWithoutFeedback>
 
       {/* Images */}
@@ -165,23 +156,21 @@ export default function Post({
       <View style={[styles.bottomContainer, calcStyle.bottomContainer]}>
         {/* Like/chat Icons */}
         <View style={[styles.iconsBar]}>
-          {showLike && (
-            <TouchableOpacity
-              style={styles.like}
-              disabled={isLoading}
-              onPress={onLikeClicked}
-            >
-              <Ionicons
-                name={isLiked ? "heart-sharp" : "heart-outline"}
-                size={iconSize.current}
-                color={scheme.quaternary}
-              />
-              <Text style={[styles.numLikes, calcStyle.numLikes]}>
-                {numLikes}
-              </Text>
-            </TouchableOpacity>
-          )}
-          {showChat && (
+          <TouchableOpacity
+            style={styles.like}
+            disabled={isLoading}
+            onPress={onLikeClicked}
+          >
+            <Ionicons
+              name={isLiked ? "heart-sharp" : "heart-outline"}
+              size={iconSize.current}
+              color={scheme.quaternary}
+            />
+            <Text style={[styles.numLikes, calcStyle.numLikes]}>
+              {numLikes}
+            </Text>
+          </TouchableOpacity>
+          {clickable && (
             <TouchableOpacity disabled={isLoading} onPress={onChatClicked}>
               <Ionicons
                 name={"chatbubble-outline"}

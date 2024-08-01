@@ -20,7 +20,6 @@ export default function PostImage({
 }: Props) {
   const scheme = useSettingsStore((state) => state.colorScheme);
   const [imgSrc, setImgSrc] = useState<string | null>(null);
-  const isLoading = useRef(false);
   const calcStyle = useMemo(
     () => calcStyles(width, aspectRatio, scheme),
     [scheme],
