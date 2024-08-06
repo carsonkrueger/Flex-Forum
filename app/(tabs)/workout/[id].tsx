@@ -30,7 +30,10 @@ import { SizeVariant } from "@/util/variants";
 import { Ionicons } from "@expo/vector-icons";
 import Modal from "@/components/modal";
 import { ROUTES } from "@/util/routes";
-import { saveWorkoutSession } from "@/db/row-models/workout-model";
+import {
+  getOneTemplate,
+  saveWorkoutSession,
+} from "@/db/row-models/workout-model";
 import { saveExercise } from "@/db/row-models/exercise-model";
 import { saveSet } from "@/db/row-models/set-model";
 import { useSQLiteContext } from "expo-sqlite";
@@ -209,6 +212,15 @@ export default function Page() {
     setShowModal(true);
   }
 
+  async function cancelConfirmed() {
+    if (workout.templateId === undefined) {
+      router.back();
+      return;
+    }
+    const workoutRow = await getOneTemplate(db, workout.templateId);
+    //if
+  }
+
   function onSearchPreset(
     input: NativeSyntheticEvent<TextInputTextInputEventData>,
   ) {
@@ -333,6 +345,7 @@ export default function Page() {
               </TouchableOpacity>
               <TouchableOpacity
                 style={[styles.yesAndNowContainer, calcStyle.yesContainer]}
+                onPress={cancelConfirmed}
               >
                 <Text style={[styles.yesNoText, calcStyle.yesText]}>Yes</Text>
               </TouchableOpacity>

@@ -25,9 +25,8 @@ export default function PostImage({
     [scheme],
   );
 
-  const fetchImage = async () => {
-    return await downloadContent<Blob>(contentModel, "blob");
-  };
+  const fetchImage = async () =>
+    await downloadContent<Blob>(contentModel, "blob");
 
   const query = useQuery({
     queryKey: [`img.${contentModel.post_id}.${contentModel.content_id}`],

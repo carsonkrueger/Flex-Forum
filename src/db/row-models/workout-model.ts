@@ -8,6 +8,28 @@ export type WorkoutSessionRow = {
   performed: Date;
 };
 
+export async function getOneTemplate(
+  db: SQLiteDatabase,
+  templateId: number,
+): Promise<WorkoutSessionRow | null> {
+  return await db.getFirstAsync(
+    `
+      SELECT ws.id, ws.templateId, ws.name, ws.performed
+      FROM WorkoutSessions ws
+      JOIN WorkoutTemplates wt
+      ON ws.templateId = wt.id
+      WHERE wt.disabled = false
+      AND ws.templateId = ?
+      AND ws.performed = (
+        SELECT MAX(ws2.performed)
+        FROM WorkoutSessions ws2
+        WHERE ws2.templateId = ws.templateId
+      );
+      `,
+    [templateId],
+  );
+}
+
 export async function getAllTemplates(
   db: SQLiteDatabase,
 ): Promise<WorkoutSessionRow[]> {

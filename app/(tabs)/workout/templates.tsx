@@ -39,7 +39,7 @@ export default function Page() {
   const createExercise = useWorkoutStore((s) => s.createExercise);
   const addExercise = useWorkoutStore((s) => s.addExercise);
   const createWorkout = useWorkoutStore((s) => s.createWorkout);
-  const loadFromWorkoutRow = useWorkoutStore((s) => s.loadFromRow);
+  const loadFromWorkoutRow = useWorkoutStore((s) => s.insertFromRow);
   const createFromExerciseRow = useWorkoutStore((s) => s.createFromRow);
   const addSet = useWorkoutStore((s) => s.addSet);
   const createSet = useWorkoutStore((s) => s.createSet);
@@ -74,18 +74,21 @@ export default function Page() {
   const fetchWorkouts = () => {
     getAllTemplates(db).then(async (workoutRows) => {
       for (let i = 0; i < workoutRows.length; ++i) {
-        let workoutId = loadFromWorkoutRow(workoutRows[i]);
-        let exerciseRows = await getExerciseRows(db, workoutRows[i].id);
-        for (let j = 0; j < exerciseRows.length; ++j) {
-          let exerciseId = createFromExerciseRow(exerciseRows[j]);
-          let setRows = await getSetRows(db, exerciseRows[j].id);
-          addExercise(workoutId, exerciseId);
-          for (let k = 0; k < setRows.length; ++k) {
-            let setId = createFromSetRow(setRows[k]);
-            addSet(exerciseId, setId);
-          }
-        }
+        let wId = await loadFromWorkoutRow(db, workoutRows[i]);
       }
+      // for (let i = 0; i < workoutRows.length; ++i) {
+      //   let workoutId = loadFromWorkoutRow(workoutRows[i]);
+      //   let exerciseRows = await getExerciseRows(db, workoutRows[i].id);
+      //   for (let j = 0; j < exerciseRows.length; ++j) {
+      //     let exerciseId = createFromExerciseRow(exerciseRows[j]);
+      //     let setRows = await getSetRows(db, exerciseRows[j].id);
+      //     addExercise(workoutId, exerciseId);
+      //     for (let k = 0; k < setRows.length; ++k) {
+      //       let setId = createFromSetRow(setRows[k]);
+      //       addSet(exerciseId, setId);
+      //     }
+      //   }
+      // }
     });
     setOffset(offset + WORKOUT_QUERY_LIMIT);
   };
