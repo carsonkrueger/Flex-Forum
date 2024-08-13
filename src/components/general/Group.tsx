@@ -33,7 +33,7 @@ const styles = StyleSheet.create({
     padding: 5,
     gap: 8,
     borderRadius: 15,
-    elevation: 8,
+    // elevation: 5,
   },
   children: {
     gap: 10,

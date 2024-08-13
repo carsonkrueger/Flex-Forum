@@ -5,6 +5,7 @@ import useSettingsStore from "@/stores/settings";
 import useUserStore from "@/stores/user";
 import { Feather } from "@expo/vector-icons";
 import {
+  allColorSchemes,
   ColorScheme,
   DarkBlueColorScheme,
   MainColorScheme,
@@ -32,8 +33,11 @@ export default function Page() {
         <>
           <SettingsRow useChevron={false} justifyContent={"flex-start"}>
             <>
-              <ColorSchemeIcon scheme={MainColorScheme} />
-              <ColorSchemeIcon scheme={DarkBlueColorScheme} />
+              {/* <ColorSchemeIcon scheme={MainColorScheme} />
+              <ColorSchemeIcon scheme={DarkBlueColorScheme} /> */}
+              {allColorSchemes.map((sch, i) => (
+                <ColorSchemeIcon scheme={sch} key={`scheme.${i}`} />
+              ))}
             </>
           </SettingsRow>
         </>

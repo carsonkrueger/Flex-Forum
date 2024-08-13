@@ -3,25 +3,23 @@ import { Stack, router, usePathname, useRouter } from "expo-router";
 import { useEffect, useMemo } from "react";
 import { View, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-// import useAuth from "@/hooks/useAuth";
 import NavItem from "@/components/nav/NavItem";
 import { ROUTES } from "@/util/routes";
 import { Ionicons } from "@expo/vector-icons";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import useUserStore from "@/stores/user";
-import { StatusBar } from "expo-status-bar";
 import { SQLiteProvider } from "expo-sqlite";
 import { DATABASE_NAME } from "@/db/db";
 import { migrateAll } from "@/db/migrate";
 import useWorkoutStore from "@/stores/workout";
 
 const WORKOUT_REG_EXP = /\/workout\/\d+/;
+const ICON_SIZE = 25 as const;
 
 export default function Layout() {
-  // useAuth();
   const scheme = useSettingsStore((state) => state.colorScheme);
   const calcStyle = useMemo(
-    () => calcStyles(scheme.secondary, scheme.quaternary),
+    () => calcStyles(scheme.hiPrimary, scheme.quaternary),
     [scheme],
   );
   const iconColor = scheme.tertiary;
@@ -44,10 +42,13 @@ export default function Layout() {
   return (
     <SafeAreaView style={styles.container}>
       <SQLiteProvider databaseName={DATABASE_NAME} onInit={migrateAll}>
-        <StatusBar backgroundColor={scheme.primary} />
-        {/* <Slot initialRouteName={routes.home} /> */}
         <Stack
-          screenOptions={{ headerShown: false, animation: "fade_from_bottom" }}
+          screenOptions={{
+            headerShown: false,
+            animation: "fade_from_bottom",
+            statusBarColor: scheme.primary,
+            navigationBarColor: scheme.hiPrimary,
+          }}
         >
           <Stack.Screen name="home" />
           <Stack.Screen name="workout/[id]" />
@@ -57,12 +58,12 @@ export default function Layout() {
         </Stack>
         <View style={[styles.navContainer, calcStyle.navContainer]}>
           <NavItem
-            icon={<Ionicons name="home" size={30} color={iconColor} />}
+            icon={<Ionicons name="home" size={ICON_SIZE} color={iconColor} />}
             onPress={() => navigateTo(ROUTES.home)}
           />
 
           <NavItem
-            icon={<Ionicons name="search" size={30} color={iconColor} />}
+            icon={<Ionicons name="search" size={ICON_SIZE} color={iconColor} />}
             onPress={() => navigateTo(ROUTES.home)}
           />
 
@@ -73,7 +74,7 @@ export default function Layout() {
               icon={
                 <MaterialCommunityIcons
                   name="weight-lifter"
-                  size={30}
+                  size={ICON_SIZE}
                   color={scheme.primary}
                 />
               }
@@ -83,13 +84,17 @@ export default function Layout() {
 
           <NavItem
             icon={
-              <Ionicons name="settings-sharp" size={30} color={iconColor} />
+              <Ionicons
+                name="settings-sharp"
+                size={ICON_SIZE}
+                color={iconColor}
+              />
             }
             onPress={() => navigateTo(ROUTES.settings)}
           />
 
           <NavItem
-            icon={<Ionicons name="person" size={30} color={iconColor} />}
+            icon={<Ionicons name="person" size={ICON_SIZE} color={iconColor} />}
             onPress={() => {
               if (username !== undefined) navigateTo(ROUTES.user(username));
               else console.error("undefined username");
@@ -108,15 +113,14 @@ const styles = StyleSheet.create({
   },
   navContainer: {
     alignSelf: "center",
-    borderRadius: 25,
-    maxWidth: "97%",
+    // borderRadius: 25,
     flexDirection: "row",
     justifyContent: "space-around",
     alignItems: "center",
     width: "100%",
     height: 50,
     position: "absolute",
-    bottom: 6,
+    bottom: 0,
   },
   navCenterContainer: {
     justifyContent: "center",
@@ -127,7 +131,7 @@ const styles = StyleSheet.create({
     borderRadius: 100,
     position: "absolute",
     bottom: -4,
-    padding: 12,
+    padding: 10,
   },
 });
 

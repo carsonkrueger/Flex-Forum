@@ -36,7 +36,7 @@ const MainColorScheme: ColorScheme = {
   hiQuaternary: "#f57971",
   quaternary: "#eb6e65",
   loQuaternary: "#bf564e",
-};
+} as const;
 
 const DarkBlueColorScheme: ColorScheme = {
   hiPrimary: "#3d434a",
@@ -51,6 +51,32 @@ const DarkBlueColorScheme: ColorScheme = {
   hiQuaternary: "#3d76ba",
   quaternary: "#3268a8",
   loQuaternary: "#224b7d",
-};
+} as const;
 
-export { MainColorScheme, DarkBlueColorScheme };
+const DarkColorScheme: ColorScheme = {
+  hiPrimary: "#141a4a",
+  primary: "#10153d",
+  loPrimary: "#090c24",
+  hiSecondary: "#1f244a",
+  secondary: "#1c2045",
+  loSecondary: "#12162e",
+  hiTertiary: "#FFF",
+  tertiary: "#DDD",
+  loTertiary: "#BBB",
+  hiQuaternary: "#edd311",
+  quaternary: "#e0c812",
+  loQuaternary: "#c2ad13",
+} as const;
+
+const allColorSchemes = [
+  MainColorScheme,
+  DarkColorScheme,
+  DarkBlueColorScheme,
+] as const;
+
+export {
+  MainColorScheme,
+  DarkBlueColorScheme,
+  DarkColorScheme,
+  allColorSchemes,
+};
