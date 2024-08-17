@@ -45,8 +45,7 @@ export async function getAllTemplates(
     `
     SELECT ws.id, ws.templateId, ws.name, ws.performed
     FROM WorkoutSessions ws
-    JOIN WorkoutTemplates wt
-    ON ws.templateId = wt.id
+    JOIN WorkoutTemplates wt ON ws.templateId = wt.id
     WHERE wt.disabled = false
     AND ws.performed = (
       SELECT MAX(ws2.performed)

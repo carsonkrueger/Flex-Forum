@@ -1,4 +1,4 @@
-import useSetStore, { Set } from "@/stores/sets";
+import useSetStore, { Set } from "@/stores/workout";
 import { SQLiteDatabase } from "expo-sqlite";
 
 export type SetRow = {

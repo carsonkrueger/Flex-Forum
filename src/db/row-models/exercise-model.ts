@@ -1,4 +1,4 @@
-import { Exercise } from "@/stores/exercises";
+import { Exercise } from "@/stores/workout";
 import { SQLiteDatabase } from "expo-sqlite";
 
 export type ExerciseRow = {

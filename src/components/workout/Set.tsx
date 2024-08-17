@@ -14,7 +14,7 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import flexWidths from "@/util/setFlexWidths";
-import { toFixedIfNecessary } from "@/util/num";
+import { clamp, toFixedIfNecessary } from "@/util/num";
 
 export type Props = {
   id: Id;
@@ -44,7 +44,7 @@ export default function Set({ id, idx }: Props) {
     if (weight === undefined || reps === undefined) {
       return undefined;
     }
-    return toFixedIfNecessary(weight * reps, 1);
+    return toFixedIfNecessary(clamp(weight * reps, 0, 99999), 1);
   };
 
   const curVolume = useMemo(
@@ -131,7 +131,7 @@ export default function Set({ id, idx }: Props) {
           maxLength={5}
           onChangeText={setTempWeight}
           onEndEditing={OnEndEditingWeight}
-          multiline={true}
+          multiline={false}
         />
       </View>
 

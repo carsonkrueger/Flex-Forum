@@ -1,5 +1,4 @@
 import { SQLiteDatabase } from "expo-sqlite";
-import { WorkoutSessionRow } from "./workout-model";
 
 export type WorkoutTemplate = {
   id: number;

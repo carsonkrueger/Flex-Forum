@@ -1,6 +1,8 @@
 import { ExerciseRow, getExerciseRows } from "@/db/row-models/exercise-model";
 import { getSetRows, SetRow } from "@/db/row-models/set-model";
 import { WorkoutSessionRow } from "@/db/row-models/workout-model";
+import { WorkoutSummaryJoin } from "@/db/row-models/workout-summary";
+import { WorkoutSummary } from "@/models/content-model";
 import { SQLiteDatabase } from "expo-sqlite";
 import { create } from "zustand";
 
@@ -48,12 +50,15 @@ type State = {
 };
 
 type Action = {
+  loadFromSummary: (
+    summary: WorkoutSummaryJoin[],
+    storeWId: Id | undefined,
+  ) => void;
   setWorkout: (w: Workout) => void;
   getWorkout: (id: Id) => Workout;
   setTemplateId: (id: Id, templateId: Id) => void;
   createWorkout: (templateId?: Id) => Id;
   deleteWorkout: (id: Id) => void;
-  insertFromRow: (db: SQLiteDatabase, row: WorkoutSessionRow) => Promise<Id>;
   setName: (name: Workout["name"], id: Workout["id"]) => void;
   addExercise: (id: Id, exerciseId: Id) => void;
   removeExercise: (id: Id, exerciseId: Id) => void;
@@ -77,7 +82,7 @@ type Action = {
   setExercise: (e: Exercise) => void;
   getExercise: (id: Id) => Exercise;
   createExercise: () => Id;
-  createFromRow: (row: ExerciseRow) => Id;
+  // createFromRow: (row: ExerciseRow) => Id;
   deleteExercise: (id: Id) => void;
   setExerciseId: (id: Id, exerciseId: Id) => void;
   setTimerDuration: (id: Id, duration?: number) => void;
@@ -87,7 +92,7 @@ type Action = {
   // sets
   getSet: (id: Id) => Set;
   createSet: () => Id;
-  createFromSetRow: (row: SetRow) => Id;
+  // createFromSetRow: (row: SetRow) => Id;
   deleteSet: (id: Id) => void;
   setWeight: (weight: Set["weight"], id: Set["id"]) => void;
   setReps: (reps: Set["reps"], id: Set["id"]) => void;
@@ -106,6 +111,72 @@ const useWorkoutStore = create<State & Action>((set, get) => ({
   workouts: {},
   inProgress: [],
   loaded: [],
+
+  loadFromSummary: (
+    summary: WorkoutSummaryJoin[],
+    storeWId: Id | undefined = undefined,
+  ) => {
+    let nextId = get().nextId;
+    let wId = storeWId === undefined ? nextId++ : storeWId;
+    let eIds = [];
+    let sIds: { [id: Id]: Id[] } = {};
+    let foundEIds: { [id: Id]: Id } = {};
+
+    let exercises: { [id: Id]: Exercise } = {};
+    let sets: { [id: Id]: Set } = {};
+
+    for (let i = 0; i < summary.length; ++i) {
+      let found = foundEIds[summary[i].eId] !== undefined;
+      let eId = 0;
+
+      // may find duplicate exercises, so remember their new 'store' ids
+      if (found) eId = foundEIds[summary[i].eId];
+      else {
+        eId = nextId++;
+        foundEIds[summary[i].eId] = eId;
+        eIds.push(eId);
+      }
+
+      // always create a new set
+      let sId = nextId++;
+      if (sIds[eId] === undefined) sIds[eId] = [];
+      sIds[eId].push(sId);
+
+      exercises[eId] = {
+        id: eId,
+        name: summary[i].name,
+        presetId: summary[i].exercisePresetId,
+        timerDuration: summary[i].timer,
+        setIds: sIds[eId], // we'll need to update setIds every time
+      };
+      sets[sId] = {
+        id: sId,
+        finished: false,
+        prevReps: summary[i].reps,
+        prevWeight: summary[i].weight,
+      };
+    }
+
+    let workout: Workout = {
+      id: wId,
+      exerciseIds: eIds,
+      isLocked: false,
+      name: summary[0].name,
+      lastPerformed: summary[0].performed,
+      templateId: summary[0].templateId,
+    };
+
+    set((s) => ({
+      workouts: {
+        ...s.workouts,
+        [wId]: workout,
+      },
+      exercises: { ...s.exercises, ...exercises },
+      sets: { ...s.sets, ...sets },
+      nextId: nextId,
+      loaded: [...s.loaded, wId],
+    }));
+  },
 
   setWorkout: (w: Workout) =>
     set((s) => ({ workouts: { ...s.workouts[w.id], [w.id]: w } })),
@@ -138,65 +209,6 @@ const useWorkoutStore = create<State & Action>((set, get) => ({
       const { [id]: _, ...objs } = s.workouts;
       return { workouts: objs };
     }),
-
-  insertFromRow: async (
-    db: SQLiteDatabase,
-    row: WorkoutSessionRow,
-  ): Promise<Id> => {
-    let wId = get().createWorkout(row.templateId);
-    let eIds = [];
-    let sIds: { [id: Id]: number[] } = {};
-    let eRows = await getExerciseRows(db, row.id);
-    //let sRows: {[id: Id]: SetRow} = {};
-
-    let newExercises: { [id: Id]: Exercise } = {};
-    let newSets: { [id: Id]: Set } = {};
-
-    for (let i = 0; i < eRows.length; ++i) {
-      let eId = get().createExercise();
-      eIds.push(eId);
-
-      let sRows = await getSetRows(db, eId);
-      sIds[eId] = [];
-      for (let j = 0; j < sRows.length; ++j) {
-        let sId = get().createSet();
-        sIds[eId].push(sId);
-        newSets[sId] = {
-          finished: false,
-          id: sId,
-          prevReps: sRows[j].reps,
-          prevWeight: sRows[j].weight,
-        };
-      }
-
-      newExercises[eId] = {
-        id: eId,
-        name: "",
-        setIds: sIds[eId],
-        presetId: eRows[i].exercisePresetId,
-        timerDuration: eRows[i].timer,
-      };
-    }
-
-    set((s) => ({
-      workouts: {
-        ...s.workouts,
-        [wId]: {
-          name: row.name,
-          exerciseIds: eIds,
-          id: wId,
-          isLocked: false,
-          lastPerformed: row.performed,
-          templateId: row.templateId,
-        },
-      },
-      exercises: { ...s.exercises, ...newExercises },
-      sets: { ...s.sets, ...newSets },
-      loaded: [...s.loaded, wId],
-    }));
-
-    return wId;
-  },
 
   setName: (name: Workout["name"], id: Workout["id"]) =>
     set((s) => ({

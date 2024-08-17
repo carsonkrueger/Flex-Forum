@@ -31,7 +31,7 @@ import { Ionicons } from "@expo/vector-icons";
 import Modal from "@/components/modal";
 import { ROUTES } from "@/util/routes";
 import {
-  getOneTemplate,
+  getOneTemplate as getLatestSession,
   saveWorkoutSession,
 } from "@/db/row-models/workout-model";
 import { saveExercise } from "@/db/row-models/exercise-model";
@@ -41,12 +41,14 @@ import useExercisePresetStore, {
   ExercisePreset,
 } from "@/stores/exercise-presets";
 import { createNewTemplate } from "@/db/row-models/workout-template-model";
+import { getSummaryFromSessionId } from "@/db/row-models/workout-summary";
 
 export default function Page() {
   const db = useSQLiteContext();
   const id = parseInt(useLocalSearchParams<{ id: string }>().id ?? "1");
   const router = useRouter();
   const scheme = useSettingsStore((state) => state.colorScheme);
+  const loadFromSummary = useWorkoutStore((s) => s.loadFromSummary);
   const isLocked = useWorkoutStore((s) => s.workouts[id].isLocked);
   const toggleLocked = useWorkoutStore((s) => s.toggleLocked);
   const workout = useWorkoutStore((s) => s.workouts[id]);
@@ -212,13 +214,22 @@ export default function Page() {
     setShowModal(true);
   }
 
+  function onCancelDenied() {
+    setShowModal(false);
+  }
+
   async function cancelConfirmed() {
     if (workout.templateId === undefined) {
       router.back();
       return;
     }
-    const workoutRow = await getOneTemplate(db, workout.templateId);
-    //if
+    const latestSession = await getLatestSession(db, workout.templateId);
+    if (latestSession !== null) {
+      const summary = await getSummaryFromSessionId(db, latestSession?.id);
+      loadFromSummary(summary, workout.id);
+      removeInProgress(workout.id);
+    }
+    router.back();
   }
 
   function onSearchPreset(
@@ -330,7 +341,7 @@ export default function Page() {
           zIndex={10}
           opacity={1}
           bgColor={"rgba(0, 0, 0, 0.2)"}
-          onPress={() => setShowModal(false)}
+          onPress={onCancelDenied}
         >
           <View style={[styles.cancelContainer, calcStyle.cancelContainer]}>
             <Text style={[styles.cancelHeaderText, calcStyle.cancelText]}>
@@ -340,7 +351,10 @@ export default function Page() {
               All progress will be lost.
             </Text>
             <View style={styles.yesNoContainer}>
-              <TouchableOpacity style={[styles.yesAndNowContainer]}>
+              <TouchableOpacity
+                style={[styles.yesAndNowContainer]}
+                onPress={onCancelDenied}
+              >
                 <Text style={[styles.yesNoText, calcStyle.noText]}>No</Text>
               </TouchableOpacity>
               <TouchableOpacity

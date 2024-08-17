@@ -28,6 +28,7 @@ import {
   createNewTemplate,
   disableTemplate,
 } from "@/db/row-models/workout-template-model";
+import { getSummaryFromSessionId } from "@/db/row-models/workout-summary";
 
 const WORKOUT_QUERY_LIMIT = 100 as const;
 
@@ -39,11 +40,12 @@ export default function Page() {
   const createExercise = useWorkoutStore((s) => s.createExercise);
   const addExercise = useWorkoutStore((s) => s.addExercise);
   const createWorkout = useWorkoutStore((s) => s.createWorkout);
-  const loadFromWorkoutRow = useWorkoutStore((s) => s.insertFromRow);
-  const createFromExerciseRow = useWorkoutStore((s) => s.createFromRow);
+  const loadFromSummary = useWorkoutStore((s) => s.loadFromSummary);
+  //const loadFromWorkoutRow = useWorkoutStore((s) => s.insertFromRow);
+  //const createFromExerciseRow = useWorkoutStore((s) => s.createFromRow);
   const addSet = useWorkoutStore((s) => s.addSet);
   const createSet = useWorkoutStore((s) => s.createSet);
-  const createFromSetRow = useWorkoutStore((s) => s.createFromSetRow);
+  //const createFromSetRow = useWorkoutStore((s) => s.createFromSetRow);
   const addInProgress = useWorkoutStore((s) => s.addInProgress);
   const inProgress = useWorkoutStore((s) => s.inProgress);
   const loaded = useWorkoutStore((s) => s.loaded);
@@ -71,36 +73,22 @@ export default function Page() {
     router.push({ pathname: ROUTES.workout(wid) });
   };
 
-  // const test = async () => {
-  //   let res = await db.getAllAsync(
-  //     `SELECT *, WorkoutSessions.id as Wid, Exercises.id as Eid, Sets.id as Sid, Sets.idx as setIdx FROM WorkoutSessions
-  //     JOIN Exercises ON WorkoutSessions.id = Exercises.sessionId
-  //     JOIN Sets ON Exercises.id = Sets.exerciseId
-  //     WHERE WorkoutSessions.id = ?;`,
-  //     [4],
-  //   );
-  //   console.log(res);
-  //   // console.log();
-  // };
-
-  const fetchWorkouts = () => {
+  const fetchWorkouts = async () => {
     getAllTemplates(db).then(async (workoutRows) => {
       for (let i = 0; i < workoutRows.length; ++i) {
-        let wId = await loadFromWorkoutRow(db, workoutRows[i]);
+        let summary = await getSummaryFromSessionId(db, workoutRows[i].id);
+        loadFromSummary(summary);
+        //let wId = await loadFromWorkoutRow(db, workoutRows[i]);
       }
-      // for (let i = 0; i < workoutRows.length; ++i) {
-      //   let workoutId = loadFromWorkoutRow(workoutRows[i]);
-      //   let exerciseRows = await getExerciseRows(db, workoutRows[i].id);
-      //   for (let j = 0; j < exerciseRows.length; ++j) {
-      //     let exerciseId = createFromExerciseRow(exerciseRows[j]);
-      //     let setRows = await getSetRows(db, exerciseRows[j].id);
-      //     addExercise(workoutId, exerciseId);
-      //     for (let k = 0; k < setRows.length; ++k) {
-      //       let setId = createFromSetRow(setRows[k]);
-      //       addSet(exerciseId, setId);
-      //     }
-      //   }
-      // }
+    });
+    setOffset(offset + WORKOUT_QUERY_LIMIT);
+  };
+
+  const fetchWorkoutsOld = () => {
+    getAllTemplates(db).then(async (workoutRows) => {
+      for (let i = 0; i < workoutRows.length; ++i) {
+        // let wId = await loadFromWorkoutRow(db, workoutRows[i]);
+      }
     });
     setOffset(offset + WORKOUT_QUERY_LIMIT);
   };
