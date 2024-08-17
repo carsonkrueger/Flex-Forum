@@ -71,6 +71,18 @@ export default function Page() {
     router.push({ pathname: ROUTES.workout(wid) });
   };
 
+  // const test = async () => {
+  //   let res = await db.getAllAsync(
+  //     `SELECT *, WorkoutSessions.id as Wid, Exercises.id as Eid, Sets.id as Sid, Sets.idx as setIdx FROM WorkoutSessions
+  //     JOIN Exercises ON WorkoutSessions.id = Exercises.sessionId
+  //     JOIN Sets ON Exercises.id = Sets.exerciseId
+  //     WHERE WorkoutSessions.id = ?;`,
+  //     [4],
+  //   );
+  //   console.log(res);
+  //   // console.log();
+  // };
+
   const fetchWorkouts = () => {
     getAllTemplates(db).then(async (workoutRows) => {
       for (let i = 0; i < workoutRows.length; ++i) {
