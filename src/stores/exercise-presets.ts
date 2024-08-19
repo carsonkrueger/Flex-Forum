@@ -10,6 +10,7 @@ export type ExercisePreset = {
 
 type State = {
   presets: ExercisePreset[];
+  alphabetical: ExercisePreset[];
   updatePresets: () => Promise<void>;
 };
 
@@ -20,6 +21,7 @@ type Action = {
 
 const useExercisePresetStore = create<State & Action>((set, get) => ({
   presets: [],
+  alphabetical: [],
 
   updatePresets: async () => {
     let presets = (await client.get<ExercisePreset[]>("/exercise-presets"))
@@ -27,7 +29,11 @@ const useExercisePresetStore = create<State & Action>((set, get) => ({
     get().setPresets(presets);
   },
 
-  setPresets: (presets: ExercisePreset[]) => set((s) => ({ presets: presets })),
+  setPresets: (presets: ExercisePreset[]) =>
+    set((s) => ({
+      presets: presets.sort((a, b) => a.id - b.id),
+      alphabetical: [...presets].sort((a, b) => a.name.localeCompare(b.name)),
+    })),
 
   getPreset: (id: Id) => get().presets[id],
 }));

@@ -8,7 +8,7 @@ export type WorkoutSessionRow = {
   performed: Date;
 };
 
-export async function getOneTemplate(
+export async function getLatestSession(
   db: SQLiteDatabase,
   templateId: number,
 ): Promise<WorkoutSessionRow | null> {

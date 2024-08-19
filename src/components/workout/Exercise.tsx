@@ -41,7 +41,7 @@ export default function Exercise({ id, workoutId }: Props) {
         <View style={styles.topHeaderContainer}>
           <TouchableOpacity onPress={onSelectExerciseClick} disabled={isLocked}>
             <Text style={[styles.headerText, calcStyle.headerText]}>
-              {exercise.presetId
+              {exercise.presetId !== undefined
                 ? getPreset(exercise.presetId)?.name
                 : "Select Exercise"}
             </Text>

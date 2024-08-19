@@ -40,12 +40,10 @@ export default function Page() {
   const createExercise = useWorkoutStore((s) => s.createExercise);
   const addExercise = useWorkoutStore((s) => s.addExercise);
   const createWorkout = useWorkoutStore((s) => s.createWorkout);
+  const resetWorkout = useWorkoutStore((s) => s.resetWorkout);
   const loadFromSummary = useWorkoutStore((s) => s.loadFromSummary);
-  //const loadFromWorkoutRow = useWorkoutStore((s) => s.insertFromRow);
-  //const createFromExerciseRow = useWorkoutStore((s) => s.createFromRow);
   const addSet = useWorkoutStore((s) => s.addSet);
   const createSet = useWorkoutStore((s) => s.createSet);
-  //const createFromSetRow = useWorkoutStore((s) => s.createFromSetRow);
   const addInProgress = useWorkoutStore((s) => s.addInProgress);
   const inProgress = useWorkoutStore((s) => s.inProgress);
   const loaded = useWorkoutStore((s) => s.loaded);
@@ -78,16 +76,6 @@ export default function Page() {
       for (let i = 0; i < workoutRows.length; ++i) {
         let summary = await getSummaryFromSessionId(db, workoutRows[i].id);
         loadFromSummary(summary);
-        //let wId = await loadFromWorkoutRow(db, workoutRows[i]);
-      }
-    });
-    setOffset(offset + WORKOUT_QUERY_LIMIT);
-  };
-
-  const fetchWorkoutsOld = () => {
-    getAllTemplates(db).then(async (workoutRows) => {
-      for (let i = 0; i < workoutRows.length; ++i) {
-        // let wId = await loadFromWorkoutRow(db, workoutRows[i]);
       }
     });
     setOffset(offset + WORKOUT_QUERY_LIMIT);
@@ -127,6 +115,12 @@ export default function Page() {
     }
     const post: WorkoutPost = { workout: wSummary, description: "" };
     await uploadWorkout(post);
+  };
+
+  const onResetWorkout = async () => {
+    if (templateSheetId === undefined) return;
+    await resetWorkout(templateSheetId, db);
+    setTemplateSheetId(undefined);
   };
 
   const onDeleteWorkout = () => {
@@ -238,17 +232,27 @@ export default function Page() {
                 touchableProps={{ onPress: onShareWorkout }}
               />
               {templateSheetId !== undefined &&
-                !isInProgress(templateSheetId) && (
-                  <Submit
-                    btnProps={{
-                      primaryColor: scheme.hiPrimary,
-                      secondaryColor: scheme.quaternary,
-                      text: "Delete Workout",
-                      variant: ButtonVariant.Filled,
-                    }}
-                    touchableProps={{ onPress: onDeleteWorkout }}
-                  />
-                )}
+              !isInProgress(templateSheetId) ? (
+                <Submit
+                  btnProps={{
+                    primaryColor: scheme.hiPrimary,
+                    secondaryColor: scheme.quaternary,
+                    text: "Delete Workout",
+                    variant: ButtonVariant.Filled,
+                  }}
+                  touchableProps={{ onPress: onDeleteWorkout }}
+                />
+              ) : (
+                <Submit
+                  btnProps={{
+                    primaryColor: scheme.hiPrimary,
+                    secondaryColor: scheme.quaternary,
+                    text: "Cancel Workout",
+                    variant: ButtonVariant.Filled,
+                  }}
+                  touchableProps={{ onPress: onResetWorkout }}
+                />
+              )}
             </BottomSheetView>
           </BottomSheetModal>
         </ScrollView>

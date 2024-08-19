@@ -4,16 +4,12 @@ import ColorSchemeIcon from "@/components/icons/ColorSchemeIcon";
 import useSettingsStore from "@/stores/settings";
 import useUserStore from "@/stores/user";
 import { Feather } from "@expo/vector-icons";
-import {
-  allColorSchemes,
-  ColorScheme,
-  DarkBlueColorScheme,
-  MainColorScheme,
-} from "@/util/colors";
+import { allColorSchemes, ColorScheme } from "@/util/colors";
 import { ROUTES } from "@/util/routes";
 import { useRouter } from "expo-router";
 import { useMemo, useRef } from "react";
-import { Text, View, StyleSheet, TouchableOpacity } from "react-native";
+import { Text, View, StyleSheet } from "react-native";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 
 export default function Page() {
   const router = useRouter();
@@ -31,10 +27,10 @@ export default function Page() {
     <View style={[styles.container, calcStyle.container]}>
       <Group headerText="Preferences">
         <>
+          <SettingsRow text="Notifications" />
+          {/* <SettingsRow text="" /> */}
           <SettingsRow useChevron={false} justifyContent={"flex-start"}>
             <>
-              {/* <ColorSchemeIcon scheme={MainColorScheme} />
-              <ColorSchemeIcon scheme={DarkBlueColorScheme} /> */}
               {allColorSchemes.map((sch, i) => (
                 <ColorSchemeIcon scheme={sch} key={`scheme.${i}`} />
               ))}
@@ -42,12 +38,29 @@ export default function Page() {
           </SettingsRow>
         </>
       </Group>
-      <Group headerText="Account">
-        <SettingsRow
-          text="Logout"
-          onPress={logOut}
-          icon={<Feather name="log-out" size={25} color={scheme.quaternary} />}
-        />
+      <Group headerText="Account" useDivider={false}>
+        <>
+          <SettingsRow text="Email" />
+          <SettingsRow text="Username" />
+          <SettingsRow text="Password" />
+          <SettingsRow
+            text="Premium"
+            icon={
+              <MaterialCommunityIcons
+                name="crown"
+                size={25}
+                color={scheme.quaternary}
+              />
+            }
+          />
+          <SettingsRow
+            text="Logout"
+            onPress={logOut}
+            icon={
+              <Feather name="log-out" size={25} color={scheme.quaternary} />
+            }
+          />
+        </>
       </Group>
     </View>
   );
@@ -57,7 +70,7 @@ const styles = StyleSheet.create({
   container: {
     padding: 15,
     flex: 1,
-    gap: 15,
+    // gap: 10,
   },
 });
 

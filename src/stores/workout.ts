@@ -1,7 +1,13 @@
 import { ExerciseRow, getExerciseRows } from "@/db/row-models/exercise-model";
 import { getSetRows, SetRow } from "@/db/row-models/set-model";
-import { WorkoutSessionRow } from "@/db/row-models/workout-model";
-import { WorkoutSummaryJoin } from "@/db/row-models/workout-summary";
+import {
+  getLatestSession,
+  WorkoutSessionRow,
+} from "@/db/row-models/workout-model";
+import {
+  getSummaryFromSessionId,
+  WorkoutSummaryJoin,
+} from "@/db/row-models/workout-summary";
 import { WorkoutSummary } from "@/models/content-model";
 import { SQLiteDatabase } from "expo-sqlite";
 import { create } from "zustand";
@@ -50,15 +56,13 @@ type State = {
 };
 
 type Action = {
-  loadFromSummary: (
-    summary: WorkoutSummaryJoin[],
-    storeWId: Id | undefined,
-  ) => void;
+  loadFromSummary: (summary: WorkoutSummaryJoin[], storeWId?: Id) => void;
   setWorkout: (w: Workout) => void;
   getWorkout: (id: Id) => Workout;
   setTemplateId: (id: Id, templateId: Id) => void;
   createWorkout: (templateId?: Id) => Id;
   deleteWorkout: (id: Id) => void;
+  resetWorkout: (id: Id, db: SQLiteDatabase) => Promise<void>;
   setName: (name: Workout["name"], id: Workout["id"]) => void;
   addExercise: (id: Id, exerciseId: Id) => void;
   removeExercise: (id: Id, exerciseId: Id) => void;
@@ -112,10 +116,7 @@ const useWorkoutStore = create<State & Action>((set, get) => ({
   inProgress: [],
   loaded: [],
 
-  loadFromSummary: (
-    summary: WorkoutSummaryJoin[],
-    storeWId: Id | undefined = undefined,
-  ) => {
+  loadFromSummary: (summary: WorkoutSummaryJoin[], storeWId?: Id) => {
     let nextId = get().nextId;
     let wId = storeWId === undefined ? nextId++ : storeWId;
     let eIds = [];
@@ -209,6 +210,17 @@ const useWorkoutStore = create<State & Action>((set, get) => ({
       const { [id]: _, ...objs } = s.workouts;
       return { workouts: objs };
     }),
+
+  resetWorkout: async (id: Id, db: SQLiteDatabase) => {
+    let workout = get().getWorkout(id);
+    if (workout.templateId === undefined) return;
+    const latestSession = await getLatestSession(db, workout.templateId);
+    if (latestSession !== null) {
+      const summary = await getSummaryFromSessionId(db, latestSession?.id);
+      get().loadFromSummary(summary, workout.id);
+      get().removeInProgress(workout.id);
+    }
+  },
 
   setName: (name: Workout["name"], id: Workout["id"]) =>
     set((s) => ({

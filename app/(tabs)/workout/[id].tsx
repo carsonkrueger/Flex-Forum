@@ -30,10 +30,7 @@ import { SizeVariant } from "@/util/variants";
 import { Ionicons } from "@expo/vector-icons";
 import Modal from "@/components/modal";
 import { ROUTES } from "@/util/routes";
-import {
-  getOneTemplate as getLatestSession,
-  saveWorkoutSession,
-} from "@/db/row-models/workout-model";
+import { saveWorkoutSession } from "@/db/row-models/workout-model";
 import { saveExercise } from "@/db/row-models/exercise-model";
 import { saveSet } from "@/db/row-models/set-model";
 import { useSQLiteContext } from "expo-sqlite";
@@ -41,14 +38,12 @@ import useExercisePresetStore, {
   ExercisePreset,
 } from "@/stores/exercise-presets";
 import { createNewTemplate } from "@/db/row-models/workout-template-model";
-import { getSummaryFromSessionId } from "@/db/row-models/workout-summary";
 
 export default function Page() {
   const db = useSQLiteContext();
   const id = parseInt(useLocalSearchParams<{ id: string }>().id ?? "1");
   const router = useRouter();
   const scheme = useSettingsStore((state) => state.colorScheme);
-  const loadFromSummary = useWorkoutStore((s) => s.loadFromSummary);
   const isLocked = useWorkoutStore((s) => s.workouts[id].isLocked);
   const toggleLocked = useWorkoutStore((s) => s.toggleLocked);
   const workout = useWorkoutStore((s) => s.workouts[id]);
@@ -60,6 +55,7 @@ export default function Page() {
   const removeExercise = useWorkoutStore((s) => s.removeExercise);
   const createExercise = useWorkoutStore((s) => s.createExercise);
   const deleteExercise = useWorkoutStore((s) => s.deleteExercise);
+  const resetWorkout = useWorkoutStore((s) => s.resetWorkout);
   const moveUp = useWorkoutStore((s) => s.moveUp);
   const moveDown = useWorkoutStore((s) => s.moveDown);
   const getExercise = useWorkoutStore((s) => s.getExercise);
@@ -83,9 +79,9 @@ export default function Page() {
   const getSelectSheetId = useWorkoutStore((s) => s.getSelectSheetId);
   const setName = useWorkoutStore((s) => s.setName);
   const setExerciseId = useWorkoutStore((s) => s.setExerciseId);
-  const presets = useExercisePresetStore((s) => s.presets);
+  const alphabetical = useExercisePresetStore((s) => s.alphabetical);
   const [filteredExercisedPresets, setFilteredExercisedPresets] =
-    useState<ExercisePreset[]>(presets);
+    useState<ExercisePreset[]>(alphabetical);
   const [showModal, setShowModal] = useState<boolean>(false);
 
   function onCreateExercise(): void {
@@ -101,7 +97,6 @@ export default function Page() {
 
   function onExercisePresetClick(preset: ExercisePreset) {
     if (selectSheetId === undefined) return;
-    //setExerciseName(selectSheetId, preset.name);
     setExerciseId(selectSheetId, preset.id);
     setSelectSheetId(undefined);
   }
@@ -219,16 +214,7 @@ export default function Page() {
   }
 
   async function cancelConfirmed() {
-    if (workout.templateId === undefined) {
-      router.back();
-      return;
-    }
-    const latestSession = await getLatestSession(db, workout.templateId);
-    if (latestSession !== null) {
-      const summary = await getSummaryFromSessionId(db, latestSession?.id);
-      loadFromSummary(summary, workout.id);
-      removeInProgress(workout.id);
-    }
+    await resetWorkout(workout.id, db);
     router.back();
   }
 
@@ -236,7 +222,7 @@ export default function Page() {
     input: NativeSyntheticEvent<TextInputTextInputEventData>,
   ) {
     const re = new RegExp(`.*${input.nativeEvent.text}.*`, "i");
-    let list = presets.filter((item) => re.test(item.name));
+    let list = alphabetical.filter((item) => re.test(item.name));
     setFilteredExercisedPresets(list);
   }
 

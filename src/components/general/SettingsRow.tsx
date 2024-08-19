@@ -86,7 +86,6 @@ const styles = StyleSheet.create({
 const calcStyles = (scheme: ColorScheme, justify: JustifyType) =>
   StyleSheet.create({
     container: {
-      backgroundColor: scheme.hiPrimary,
       justifyContent: justify,
     },
     text: {
