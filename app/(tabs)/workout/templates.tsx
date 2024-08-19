@@ -126,24 +126,9 @@ export default function Page() {
   const onDeleteWorkout = () => {
     if (templateSheetId === undefined) return;
     let workout = getWorkout(templateSheetId);
-    // only loaded workouts can be delete, not in progress workouts
-    if (isInProgress(workout.id)) return;
+    disableTemplate(db, workout.templateId!);
+    deleteWorkout(templateSheetId);
     setTemplateSheetId(undefined);
-    removeLoaded(workout.id);
-    console.log(loaded);
-
-    if (workout.templateId !== undefined) {
-      disableTemplate(db, workout.templateId!);
-    } else console.error(workout);
-    deleteWorkout(workout.id);
-    for (let i = 0; i < workout.exerciseIds.length; ++i) {
-      let exercise = getExercise(workout.exerciseIds[i]);
-      deleteExercise(exercise.id);
-      for (let j = 0; j < exercise.setIds.length; ++j) {
-        let set = getSet(exercise.setIds[j]);
-        deleteSet(set.id);
-      }
-    }
   };
 
   useEffect(() => {

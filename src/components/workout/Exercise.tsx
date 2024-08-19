@@ -47,10 +47,10 @@ export default function Exercise({ id, workoutId }: Props) {
             </Text>
           </TouchableOpacity>
           {!isLocked && (
-            <TouchableOpacity onPress={onEllipsisClick}>
+            <TouchableOpacity onPress={onEllipsisClick} style={{ padding: 14 }}>
               <Ionicons
                 name="ellipsis-horizontal-sharp"
-                size={20}
+                size={16}
                 color={scheme.quaternary}
               />
             </TouchableOpacity>
@@ -126,7 +126,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     flexDirection: "row",
-    paddingHorizontal: 10,
+    paddingLeft: 10,
     paddingVertical: 6,
   },
   btmHeaderContainer: {

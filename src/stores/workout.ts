@@ -205,11 +205,31 @@ const useWorkoutStore = create<State & Action>((set, get) => ({
     return id;
   },
 
-  deleteWorkout: (id: Id) =>
-    set((s) => {
-      const { [id]: _, ...objs } = s.workouts;
-      return { workouts: objs };
-    }),
+  deleteWorkout: (id: Id) => {
+    let workouts = { ...get().workouts };
+    let exercises = { ...get().exercises };
+    let sets = { ...get().sets };
+    let w = workouts[id];
+
+    for (let i = 0; i < w.exerciseIds.length; ++i) {
+      let eId = w.exerciseIds[i];
+      let e = get().getExercise(eId);
+
+      for (let j = 0; j < e.setIds.length; ++j) {
+        let sId = e.setIds[j];
+        delete sets[sId];
+      }
+      delete exercises[eId];
+    }
+    delete workouts[id];
+
+    set((s) => ({
+      workouts: workouts,
+      exercises: exercises,
+      sets: sets,
+      loaded: get().loaded.filter((i) => i !== id),
+    }));
+  },
 
   resetWorkout: async (id: Id, db: SQLiteDatabase) => {
     let workout = get().getWorkout(id);
@@ -218,8 +238,10 @@ const useWorkoutStore = create<State & Action>((set, get) => ({
     if (latestSession !== null) {
       const summary = await getSummaryFromSessionId(db, latestSession?.id);
       get().loadFromSummary(summary, workout.id);
-      get().removeInProgress(workout.id);
+    } else {
+      get().deleteWorkout(id);
     }
+    get().removeInProgress(workout.id);
   },
 
   setName: (name: Workout["name"], id: Workout["id"]) =>
