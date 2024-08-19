@@ -124,6 +124,7 @@ const styles = StyleSheet.create({
   },
   topHeaderContainer: {
     justifyContent: "space-between",
+    alignItems: "center",
     flexDirection: "row",
     paddingHorizontal: 10,
     paddingVertical: 6,
@@ -147,12 +148,12 @@ const styles = StyleSheet.create({
     textAlign: "center",
     alignSelf: "center",
   },
-  exerciseMenu: {
-    position: "absolute",
-    top: 10,
-    right: 8,
-    elevation: 1000,
-  },
+  // exerciseMenu: {
+  //   position: "absolute",
+  //   top: 15,
+  //   right: 8,
+  //   elevation: 1000,
+  // },
 });
 
 const calcStyles = (scheme: ColorScheme, isLocked: boolean) =>
