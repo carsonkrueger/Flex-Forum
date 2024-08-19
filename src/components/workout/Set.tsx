@@ -216,7 +216,7 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius,
     paddingHorizontal: 5,
     width: "100%",
-    maxWidth: 50,
+    maxWidth: 55,
   },
 });
 
@@ -227,6 +227,7 @@ const calcStyles = (scheme: ColorScheme, finished: boolean) =>
     },
     text: {
       color: finished ? scheme.primary : scheme.tertiary,
+      fontSize: 15,
     },
     set_prev: {
       color: finished ? scheme.primary : scheme.tertiary,

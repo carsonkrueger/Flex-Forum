@@ -38,7 +38,7 @@ export default function Exercise({ id, workoutId }: Props) {
       {/* Header container */}
       <View style={[styles.headerContainer, calcStyle.headerContainer]}>
         {/* Top header */}
-        <View style={styles.topHeaderContainer}>
+        <View style={[styles.topHeaderContainer, calcStyle.topHeaderContainer]}>
           <TouchableOpacity onPress={onSelectExerciseClick} disabled={isLocked}>
             <Text style={[styles.headerText, calcStyle.headerText]}>
               {exercise.presetId !== undefined
@@ -57,7 +57,7 @@ export default function Exercise({ id, workoutId }: Props) {
           )}
         </View>
         {/* Bottom header */}
-        <View style={styles.btmHeaderContainer}>
+        <View style={[styles.btmHeaderContainer, calcStyle.btmHeaderContainer]}>
           <Text
             style={[
               styles.columnHeaderText,
@@ -120,25 +120,25 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   headerContainer: {
-    paddingVertical: 5,
+    // paddingVertical: 5,
   },
   topHeaderContainer: {
     justifyContent: "space-between",
     flexDirection: "row",
     paddingHorizontal: 10,
-    paddingVertical: 10,
+    paddingVertical: 6,
   },
   btmHeaderContainer: {
     flexDirection: "row",
     justifyContent: "space-around",
+    paddingBottom: 5,
   },
   headerText: {
     // fontFamily: "PermanentMarker",
     fontFamily: "Oswald",
-    fontSize: 17,
-    borderRadius: 10,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
+    fontSize: 19,
+    borderRadius: 18,
+    paddingVertical: 3,
     // minWidth: 140,
   },
   columnHeaderText: {
@@ -160,13 +160,19 @@ const calcStyles = (scheme: ColorScheme, isLocked: boolean) =>
     container: {},
     headerContainer: {},
     headerText: {
-      // color: isLocked ? scheme.tertiary : scheme.tertiary,
-      // backgroundColor: isLocked ? scheme.primary : scheme.secondary,
-      color: isLocked ? scheme.tertiary : scheme.primary,
-      backgroundColor: isLocked ? scheme.primary : scheme.quaternary,
+      paddingHorizontal: isLocked ? 2 : 14,
+      color: isLocked ? scheme.quaternary : scheme.tertiary,
+      backgroundColor: isLocked ? scheme.primary : scheme.secondary,
     },
     columnHeaderText: {
       color: scheme.tertiary,
+      fontSize: 14,
+    },
+    topHeaderContainer: {
+      // backgroundColor: scheme.loPrimary,
+    },
+    btmHeaderContainer: {
+      // backgroundColor: scheme.,
     },
     addSet: {
       backgroundColor: scheme.loQuaternary,
