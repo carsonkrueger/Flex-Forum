@@ -1,5 +1,6 @@
 import FlexForumIcon from "@/components/icons/flex-forum-icon";
 import Post from "@/components/post/Post";
+import CircularButton from "@/forms/CircularButton";
 import { PostModel, downloadNextPosts } from "@/models/post-model";
 import usePostStore from "@/stores/posts";
 import useSettingsStore from "@/stores/settings";
@@ -8,8 +9,12 @@ import { FlashList } from "@shopify/flash-list";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { Image, Text, StyleSheet, View, Dimensions } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { SizeVariant } from "@/util/variants";
+import { useRouter } from "expo-router";
 
 export default function Page() {
+  const router = useRouter();
   const scheme = useSettingsStore((state) => state.colorScheme);
   const calcStyle = useMemo(() => calcStyles(scheme), [scheme]);
   const [postCards, setPostCards] = useState<PostModel[]>([]);
@@ -21,6 +26,10 @@ export default function Page() {
     let posts = await downloadNextPosts(lastDate);
     addPosts(posts);
     setPostCards(posts);
+  };
+
+  const createNewPost = () => {
+    router.push("post/new");
   };
 
   return (
@@ -39,6 +48,14 @@ export default function Page() {
         estimatedItemSize={500}
         onEndReached={handleEndReached}
       />
+      <CircularButton
+        backgroundColor={scheme.quaternary}
+        size={SizeVariant.XL}
+        style={styles.newPost}
+        onPress={createNewPost}
+      >
+        <Ionicons name="add-outline" size={25} color={scheme.hiPrimary} />
+      </CircularButton>
     </View>
   );
 }
@@ -46,6 +63,10 @@ export default function Page() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    position: "relative",
+    // height: 500,
+    // minHeight: "100%",
+    // minWidth: "100%",
   },
   header: {
     flexDirection: "row",
@@ -56,6 +77,13 @@ const styles = StyleSheet.create({
   headerText: {
     fontFamily: "PermanentMarker",
     fontSize: 15,
+  },
+  newPost: {
+    justifyContent: "center",
+    alignContent: "center",
+    position: "absolute",
+    right: 10,
+    bottom: 60,
   },
 });
 

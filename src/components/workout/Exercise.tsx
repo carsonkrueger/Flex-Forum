@@ -47,7 +47,10 @@ export default function Exercise({ id, workoutId }: Props) {
             </Text>
           </TouchableOpacity>
           {!isLocked && (
-            <TouchableOpacity onPress={onEllipsisClick} style={{ padding: 14 }}>
+            <TouchableOpacity
+              onPress={onEllipsisClick}
+              style={{ padding: 10, marginRight: 5 }}
+            >
               <Ionicons
                 name="ellipsis-horizontal-sharp"
                 size={16}

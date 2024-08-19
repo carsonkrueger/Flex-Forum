@@ -18,7 +18,7 @@ export default function CircularButton(props: TouchableOpacityProps & Props) {
   return (
     <TouchableOpacity
       {...props}
-      style={[calcStyle.container, styles.container]}
+      style={[calcStyle.container, styles.container, props.style]}
     >
       {props.children}
     </TouchableOpacity>

@@ -55,6 +55,7 @@ export default function Layout() {
           <Stack.Screen name="workout/templates" />
           <Stack.Screen name="settings" />
           <Stack.Screen name="post/[id]" />
+          <Stack.Screen name="post/new" />
         </Stack>
         <View style={[styles.navContainer, calcStyle.navContainer]}>
           <NavItem
