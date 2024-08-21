@@ -11,11 +11,29 @@ import {
   TextInput,
   TouchableOpacity,
 } from "react-native";
+import * as ImagePicker from "expo-image-picker";
 
 export default function Page() {
   const scheme = useSettingsStore((s) => s.colorScheme);
   const calcStyle = useMemo(() => calcStyles(scheme), [scheme]);
   const [uris, setUris] = useState<(string | null)[]>([null, null, null]);
+
+  const pickImage = async (idx: number) => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4, 5],
+      allowsMultipleSelection: false,
+      base64: true,
+    });
+    if (result.assets != null) {
+      setUris((s) => {
+        let newUris = [...s];
+        newUris[idx] = `data:image/jpeg;base64,${result.assets[0].base64}`;
+        return newUris;
+      });
+    }
+  };
 
   return (
     <View style={[styles.container, calcStyle.container]}>
@@ -32,6 +50,7 @@ export default function Page() {
             <TouchableOpacity
               style={[styles.img, calcStyle.img]}
               key={`img.${idx}`}
+              onPress={() => pickImage(idx)}
             >
               <Ionicons name="add-outline" size={50} color={scheme.hiPrimary} />
             </TouchableOpacity>
@@ -44,6 +63,7 @@ export default function Page() {
         style={[styles.caption, calcStyle.caption]}
         multiline={true}
       />
+      <Submit />
     </View>
   );
 }
@@ -58,7 +78,7 @@ const styles = StyleSheet.create({
   },
   img: {
     flex: 1,
-    aspectRatio: 1,
+    aspectRatio: 4 / 5,
     justifyContent: "center",
     alignItems: "center",
   },
