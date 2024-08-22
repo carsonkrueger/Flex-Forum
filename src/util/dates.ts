@@ -1,3 +1,5 @@
+export const MY_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSSSS'Z'" as const;
+
 export const FormatDate = (date: Date): string => {
   // Get individual components
   const year = date.getUTCFullYear();
@@ -7,9 +9,22 @@ export const FormatDate = (date: Date): string => {
   const minutes = String(date.getUTCMinutes()).padStart(2, "0");
   const seconds = String(date.getUTCSeconds()).padStart(2, "0");
   const milliseconds = String(date.getUTCMilliseconds()).padStart(3, "0");
+  const tz = String(date.getTimezoneOffset()).padEnd(4, "0");
 
   // Construct the formatted date string
   const formattedDate = `${year}-${month}-${day}T${hours}:${minutes}:${seconds}.${milliseconds} -0000`;
 
   return formattedDate;
+};
+
+export const UTCNow = () => {
+  let d = new Date();
+  return new Date(
+    d.getUTCFullYear(),
+    d.getUTCMonth(),
+    d.getUTCDate(),
+    d.getUTCHours(),
+    d.getUTCMinutes(),
+    d.getUTCSeconds(),
+  );
 };

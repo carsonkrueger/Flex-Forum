@@ -2,7 +2,7 @@ import { PostModel } from "@/models/post-model";
 import { Id } from "./workout";
 import { create } from "zustand";
 
-type State = { posts: { [id: Id]: PostModel } };
+type State = { posts: { [id: Id]: PostModel }; oldestDate?: Date };
 
 type Action = {
   addPosts: (posts: PostModel[]) => void;
@@ -12,6 +12,7 @@ type Action = {
 
 const usePostStore = create<State & Action>((set, get) => ({
   posts: {},
+  oldestDate: undefined,
 
   addPosts: (posts: PostModel[]) => {
     const temp = { ...get().posts };

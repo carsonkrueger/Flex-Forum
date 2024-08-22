@@ -40,7 +40,6 @@ export default function Page() {
       </Group>
       <Group headerText="Account" useDivider={false}>
         <>
-          <SettingsRow text="Email" />
           <SettingsRow text="Username" />
           <SettingsRow text="Password" />
           <SettingsRow

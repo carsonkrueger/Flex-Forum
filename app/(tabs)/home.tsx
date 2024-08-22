@@ -6,30 +6,51 @@ import usePostStore from "@/stores/posts";
 import useSettingsStore from "@/stores/settings";
 import { ColorScheme } from "@/util/colors";
 import { FlashList } from "@shopify/flash-list";
-import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
-import { Image, Text, StyleSheet, View, Dimensions } from "react-native";
+import {
+  Image,
+  Text,
+  StyleSheet,
+  View,
+  Dimensions,
+  RefreshControl,
+} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { SizeVariant } from "@/util/variants";
 import { useRouter } from "expo-router";
+import { ROUTES } from "@/util/routes";
+import { parse } from "date-fns";
+import { MY_DATE_FORMAT, UTCNow } from "@/util/dates";
 
 export default function Page() {
   const router = useRouter();
   const scheme = useSettingsStore((state) => state.colorScheme);
   const calcStyle = useMemo(() => calcStyles(scheme), [scheme]);
   const [postCards, setPostCards] = useState<PostModel[]>([]);
+  const [refreshing, setRefreshing] = useState<boolean>(false);
   const windowWidth = Dimensions.get("window").width;
-  const lastDate: string = "2024-07-30T19:49:01.727 -0000";
+  const lastDate = UTCNow();
   const addPosts = usePostStore((s) => s.addPosts);
 
   const handleEndReached = async () => {
-    let posts = await downloadNextPosts(lastDate);
+    const date =
+      postCards.length > 0
+        ? postCards[postCards.length - 1].created_at
+        : lastDate;
+    let posts = await downloadNextPosts(date);
     addPosts(posts);
-    setPostCards(posts);
+    setPostCards([...postCards, ...posts]);
   };
 
   const createNewPost = () => {
-    router.push("post/new");
+    router.push(ROUTES.newPost);
+  };
+
+  const onRefresh = async () => {
+    setPostCards([]);
+    let posts = await downloadNextPosts(lastDate);
+    addPosts(posts);
+    setPostCards([...posts]);
   };
 
   return (
@@ -47,6 +68,10 @@ export default function Page() {
         )}
         estimatedItemSize={500}
         onEndReached={handleEndReached}
+        // onRefresh={onRefresh}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
       />
       <CircularButton
         backgroundColor={scheme.quaternary}

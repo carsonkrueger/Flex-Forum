@@ -36,6 +36,7 @@ export default function Post({ postModel, width, clickable = true }: Props) {
   const imageModels = useRef<ContentModel[]>(initImageModels(postModel));
   const calcStyle = useMemo(() => calcStyles(scheme), [scheme]);
   const iconSize = useRef<number>(35);
+  let lastPress: number | null = Date.now();
 
   const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const offsetX = event.nativeEvent.contentOffset.x;
@@ -76,116 +77,133 @@ export default function Post({ postModel, width, clickable = true }: Props) {
     router.navigate(ROUTES.user(postModel.username));
   };
 
+  const onPostPress = () => {
+    const now = Date.now();
+    console.log(`${now} - ${lastPress}`);
+    if (lastPress !== null && now - 500 <= lastPress) {
+      onLikeClicked();
+      lastPress = null;
+    } else {
+      lastPress = now;
+    }
+  };
+
   useEffect(() => {
     setIsLoading(false);
   }, []);
 
   return (
-    <View style={[styles.container, calcStyle.container]}>
-      <TouchableWithoutFeedback onPress={onHeaderClicked}>
-        <View style={[styles.headerContainer]}>
-          <View style={[styles.profileIcon, calcStyle.profileIcon]} />
-          <Text style={[styles.headerText, calcStyle.headerText]}>
-            {postModel.username}
-          </Text>
-        </View>
-      </TouchableWithoutFeedback>
+    <TouchableWithoutFeedback
+      style={[styles.container, calcStyle.container]}
+      onPress={onPostPress}
+    >
+      <>
+        <TouchableWithoutFeedback onPress={onHeaderClicked}>
+          <View style={[styles.headerContainer]}>
+            <View style={[styles.profileIcon, calcStyle.profileIcon]} />
+            <Text style={[styles.headerText, calcStyle.headerText]}>
+              {postModel.username}
+            </Text>
+          </View>
+        </TouchableWithoutFeedback>
 
-      {/* Images */}
-      {postModel.post_type === "images" && (
-        <View
-          style={{
-            height: width,
-          }}
-        >
-          {postModel.post_type == "images" && (
-            <>
-              <ScrollView
-                horizontal={true}
-                snapToInterval={width}
-                showsHorizontalScrollIndicator={false}
-              >
-                {imageModels.current.map((model) => (
-                  <PostImage
-                    key={`img.${postModel.id}.${model.content_id}`}
-                    contentModel={model}
-                    curImgIdx={curId_OneRelative}
-                    width={width}
-                  />
-                ))}
-              </ScrollView>
-              {/* Dot indices */}
-              {imageModels.current.length > 1 && (
-                <View style={styles.dotsContainer}>
-                  {imageModels.current.map((_, idx) => (
-                    <View
-                      key={`dot.${postModel.id}.${idx}`}
-                      style={[
-                        styles.dot,
-                        calcStyle.dot,
-                        curId_OneRelative === idx + 1
-                          ? calcStyle.selectedDot
-                          : undefined,
-                      ]}
+        {/* Images */}
+        {postModel.post_type === "images" && (
+          <View
+            style={{
+              height: width,
+            }}
+          >
+            {postModel.post_type == "images" && (
+              <>
+                <ScrollView
+                  horizontal={true}
+                  snapToInterval={width}
+                  showsHorizontalScrollIndicator={false}
+                  onScroll={handleScroll}
+                >
+                  {imageModels.current.map((model) => (
+                    <PostImage
+                      key={`img.${postModel.id}.${model.content_id}`}
+                      contentModel={model}
+                      curImgIdx={curId_OneRelative}
+                      width={width}
                     />
                   ))}
-                </View>
-              )}
-            </>
-          )}
-        </View>
-      )}
+                </ScrollView>
+                {/* Dot indices */}
+                {imageModels.current.length > 1 && (
+                  <View style={styles.dotsContainer}>
+                    {imageModels.current.map((_, idx) => (
+                      <View
+                        key={`dot.${postModel.id}.${idx}`}
+                        style={[
+                          styles.dot,
+                          calcStyle.dot,
+                          curId_OneRelative === idx + 1
+                            ? calcStyle.selectedDot
+                            : undefined,
+                        ]}
+                      />
+                    ))}
+                  </View>
+                )}
+              </>
+            )}
+          </View>
+        )}
 
-      {/* Workout */}
-      {postModel.post_type === "workout" && (
-        <View style={{ width: width }}>
-          {postModel.post_type == "workout" && (
-            <PostWorkout
-              contentModel={{
-                content_id: 1,
-                post_id: postModel.id,
-                username: postModel.username,
-                post_type: postModel.post_type,
-              }}
-              width={width}
-            />
-          )}
-        </View>
-      )}
-
-      <View style={[styles.bottomContainer, calcStyle.bottomContainer]}>
-        {/* Like/chat Icons */}
-        <View style={[styles.iconsBar]}>
-          <TouchableOpacity
-            style={styles.like}
-            disabled={isLoading}
-            onPress={onLikeClicked}
-          >
-            <Ionicons
-              name={isLiked ? "heart-sharp" : "heart-outline"}
-              size={iconSize.current}
-              color={scheme.quaternary}
-            />
-            <Text style={[styles.numLikes, calcStyle.numLikes]}>
-              {numLikes}
-            </Text>
-          </TouchableOpacity>
-          {clickable && (
-            <TouchableOpacity disabled={isLoading} onPress={onChatClicked}>
-              <Ionicons
-                name={"chatbubble-outline"}
-                size={iconSize.current}
-                color={scheme.loTertiary}
+        {/* Workout */}
+        {postModel.post_type === "workout" && (
+          <View style={{ width: width }}>
+            {postModel.post_type == "workout" && (
+              <PostWorkout
+                contentModel={{
+                  content_id: 1,
+                  post_id: postModel.id,
+                  username: postModel.username,
+                  post_type: postModel.post_type,
+                }}
+                width={width}
               />
+            )}
+          </View>
+        )}
+
+        <View style={[styles.bottomContainer, calcStyle.bottomContainer]}>
+          {/* Like/chat Icons */}
+          <View style={[styles.iconsBar]}>
+            <TouchableOpacity
+              style={styles.like}
+              disabled={isLoading}
+              onPress={onLikeClicked}
+            >
+              <Ionicons
+                name={isLiked ? "heart-sharp" : "heart-outline"}
+                size={iconSize.current}
+                color={scheme.quaternary}
+              />
+              <Text style={[styles.numLikes, calcStyle.numLikes]}>
+                {numLikes}
+              </Text>
             </TouchableOpacity>
-          )}
+            {clickable && (
+              <TouchableOpacity disabled={isLoading} onPress={onChatClicked}>
+                <Ionicons
+                  name={"chatbubble-outline"}
+                  size={iconSize.current}
+                  color={scheme.loTertiary}
+                />
+              </TouchableOpacity>
+            )}
+          </View>
+          {/* description */}
+          <Text style={[styles.description, calcStyle.description]}>
+            {postModel.description}
+          </Text>
         </View>
-        {/* description */}
-        <Text style={[styles.description, calcStyle.description]}>
-          {postModel.description}
-        </Text>
-      </View>
-    </View>
+      </>
+    </TouchableWithoutFeedback>
   );
 }
 

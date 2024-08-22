@@ -37,6 +37,18 @@ export const downloadContent = <T>(
     )
     .then((res) => res.data);
 
+// export interface UploadImagesMultipart {
+//   image1:
+// }
+
+export const uploadImages = async (form: FormData) =>
+  await client.post("/content/images", form, {
+    headers: { "Content-Type": "multipart/form-data" },
+    // transformRequest: (data, headers) => {
+    //   return form;
+    // },
+  });
+
 export const uploadWorkout = (workout: WorkoutPost) =>
   client.post(`/content/workouts`, workout);
 
