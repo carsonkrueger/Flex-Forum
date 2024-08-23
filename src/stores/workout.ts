@@ -1,14 +1,10 @@
 import { ExerciseRow, getExerciseRows } from "@/db/row-models/exercise-model";
 import { getSetRows, SetRow } from "@/db/row-models/set-model";
-import {
-  getLatestSession,
-  WorkoutSessionRow,
-} from "@/db/row-models/workout-model";
+import { getLatestSession } from "@/db/row-models/workout-model";
 import {
   getSummaryFromSessionId,
   WorkoutSummaryJoin,
 } from "@/db/row-models/workout-summary";
-import { WorkoutSummary } from "@/models/content-model";
 import { SQLiteDatabase } from "expo-sqlite";
 import { create } from "zustand";
 

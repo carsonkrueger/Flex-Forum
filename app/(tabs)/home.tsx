@@ -6,7 +6,7 @@ import usePostStore from "@/stores/posts";
 import useSettingsStore from "@/stores/settings";
 import { ColorScheme } from "@/util/colors";
 import { FlashList } from "@shopify/flash-list";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import {
   Image,
   Text,
@@ -21,6 +21,7 @@ import { useRouter } from "expo-router";
 import { ROUTES } from "@/util/routes";
 import { parse } from "date-fns";
 import { MY_DATE_FORMAT, UTCNow } from "@/util/dates";
+import useUserStore from "@/stores/user";
 
 export default function Page() {
   const router = useRouter();
@@ -29,29 +30,42 @@ export default function Page() {
   const [postCards, setPostCards] = useState<PostModel[]>([]);
   const [refreshing, setRefreshing] = useState<boolean>(false);
   const windowWidth = Dimensions.get("window").width;
-  const requestAt = UTCNow();
   const addPosts = usePostStore((s) => s.addPosts);
+  const addUsersFromPosts = useUserStore((s) => s.addUsersFromPosts);
+  const setOldest = usePostStore((s) => s.setOldestDate);
+  const oldest = usePostStore((s) => s.oldestDate);
 
   const handleEndReached = async () => {
     const date =
       postCards.length > 0
         ? postCards[postCards.length - 1].created_at
-        : requestAt;
-    let posts = await downloadNextPosts(date);
-    addPosts(posts);
-    setPostCards([...postCards, ...posts]);
+        : UTCNow();
+    await fetchPosts(date);
   };
 
   const createNewPost = () => {
     router.push(ROUTES.newPost);
   };
 
+  const fetchPosts = async (from: Date) => {
+    if (oldest !== undefined && from <= oldest) return;
+    let posts = await downloadNextPosts(from);
+
+    if (posts.length === 0) {
+      setOldest(postCards[postCards.length - 1].created_at);
+    } else {
+      addPosts(posts);
+      setPostCards([...postCards, ...posts]);
+      addUsersFromPosts(posts);
+    }
+  };
+
   const onRefresh = async () => {
     try {
+      setOldest(undefined);
+      setPostCards([]);
       setRefreshing(true);
-      let posts = await downloadNextPosts(requestAt);
-      addPosts(posts);
-      setPostCards([...posts]);
+      await fetchPosts(UTCNow());
     } catch (e) {
     } finally {
       setRefreshing(false);
