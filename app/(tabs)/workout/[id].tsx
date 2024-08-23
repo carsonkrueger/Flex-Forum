@@ -284,7 +284,7 @@ export default function Page() {
           <FlashList
             data={workout.exerciseIds}
             renderItem={({ item }) => <Exercise workoutId={id} id={item} />}
-            estimatedItemSize={100}
+            estimatedItemSize={160}
             ListFooterComponent={
               <View style={styles.listFooter}>
                 {!isLocked && (

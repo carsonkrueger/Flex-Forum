@@ -26,5 +26,6 @@ export const UTCNow = () => {
     d.getUTCHours(),
     d.getUTCMinutes(),
     d.getUTCSeconds(),
+    d.getUTCMilliseconds(),
   );
 };

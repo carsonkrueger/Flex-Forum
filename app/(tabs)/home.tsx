@@ -29,14 +29,14 @@ export default function Page() {
   const [postCards, setPostCards] = useState<PostModel[]>([]);
   const [refreshing, setRefreshing] = useState<boolean>(false);
   const windowWidth = Dimensions.get("window").width;
-  const lastDate = UTCNow();
+  const requestAt = UTCNow();
   const addPosts = usePostStore((s) => s.addPosts);
 
   const handleEndReached = async () => {
     const date =
       postCards.length > 0
         ? postCards[postCards.length - 1].created_at
-        : lastDate;
+        : requestAt;
     let posts = await downloadNextPosts(date);
     addPosts(posts);
     setPostCards([...postCards, ...posts]);
@@ -47,10 +47,15 @@ export default function Page() {
   };
 
   const onRefresh = async () => {
-    setPostCards([]);
-    let posts = await downloadNextPosts(lastDate);
-    addPosts(posts);
-    setPostCards([...posts]);
+    try {
+      setRefreshing(true);
+      let posts = await downloadNextPosts(requestAt);
+      addPosts(posts);
+      setPostCards([...posts]);
+    } catch (e) {
+    } finally {
+      setRefreshing(false);
+    }
   };
 
   return (
@@ -68,7 +73,7 @@ export default function Page() {
         )}
         estimatedItemSize={500}
         onEndReached={handleEndReached}
-        // onRefresh={onRefresh}
+        onEndReachedThreshold={1}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }

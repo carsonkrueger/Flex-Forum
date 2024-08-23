@@ -65,7 +65,7 @@ const calcStyles = (scheme: ColorScheme, row: boolean) =>
       flexDirection: row ? "row" : "column",
     },
     headerText: {
-      color: scheme.loPrimary,
+      color: scheme.quaternary,
     },
     divider: {
       backgroundColor: scheme.loPrimary,

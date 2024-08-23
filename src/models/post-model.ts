@@ -28,11 +28,9 @@ interface PrivatePostModel {
 
 export const downloadNextPosts = async (from: Date): Promise<PostModel[]> => {
   const date = format(from, MY_DATE_FORMAT);
-  console.log(date);
   let posts: PostModel[] = [];
   let post = await client.get<PrivatePostModel[]>(`/content/posts/${date}`);
   for (let i = 0; i < post.data.length; ++i) {
-    console.log(post.data[i].created_at);
     posts.push({
       ...post.data[i],
       created_at: parse(post.data[i].created_at, MY_DATE_FORMAT, new Date()),
