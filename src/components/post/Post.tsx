@@ -19,6 +19,8 @@ import { likePost, unlikePost } from "@/models/like-model";
 import PostWorkout from "./PostWorkout";
 import { useRouter } from "expo-router";
 import { ROUTES } from "@/util/routes";
+import { followUser, unfollowUser } from "@/models/following-model";
+import useUserStore from "@/stores/user";
 
 export type Props = {
   postModel: PostModel;
@@ -33,8 +35,16 @@ export default function Post({ postModel, width, clickable = true }: Props) {
   const [isLiked, setIsLiked] = useState<boolean>(postModel.is_liked);
   const [numLikes, setNumLikes] = useState<number>(postModel.num_likes);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const isSelfPost = useUserStore((s) => s.username === postModel.username);
+  const isFollowing = useUserStore(
+    (s) => s.users[postModel.username]?.isFollowing ?? false,
+  );
+  const setIsFollowing = useUserStore((s) => s.setIsFollowing);
   const imageModels = useRef<ContentModel[]>(initImageModels(postModel));
-  const calcStyle = useMemo(() => calcStyles(scheme), [scheme]);
+  const calcStyle = useMemo(
+    () => calcStyles(scheme, isFollowing),
+    [scheme, isFollowing],
+  );
   const iconSize = useRef<number>(35);
   let lastPress: number | null = Date.now();
 
@@ -69,6 +79,14 @@ export default function Post({ postModel, width, clickable = true }: Props) {
     else if (!isLiked) likePost(postModel.id);
   };
 
+  const onFollowClicked = () => {
+    if (isLoading) return;
+
+    setIsFollowing(postModel.username, !isFollowing);
+    if (isFollowing) unfollowUser(postModel.username);
+    else if (!isFollowing) followUser(postModel.username);
+  };
+
   const onChatClicked = () => {
     router.navigate(ROUTES.post(postModel.id));
   };
@@ -98,14 +116,23 @@ export default function Post({ postModel, width, clickable = true }: Props) {
       onPress={onPostPress}
     >
       <>
-        <TouchableWithoutFeedback onPress={onHeaderClicked}>
-          <View style={[styles.headerContainer]}>
-            <View style={[styles.profileIcon, calcStyle.profileIcon]} />
-            <Text style={[styles.headerText, calcStyle.headerText]}>
-              {postModel.username}
-            </Text>
-          </View>
-        </TouchableWithoutFeedback>
+        <View style={[styles.headerContainer]}>
+          <TouchableWithoutFeedback onPress={onHeaderClicked}>
+            <View style={[styles.leftHeaderContainer]}>
+              <View style={[styles.profileIcon, calcStyle.profileIcon]} />
+              <Text style={[styles.headerText, calcStyle.headerText]}>
+                {postModel.username}
+              </Text>
+            </View>
+          </TouchableWithoutFeedback>
+          {!isSelfPost && (
+            <TouchableOpacity onPress={onFollowClicked}>
+              <Text style={[styles.headerText, calcStyle.followText]}>
+                {isFollowing ? "Unfollow" : "Follow"}
+              </Text>
+            </TouchableOpacity>
+          )}
+        </View>
 
         {/* Images */}
         {postModel.post_type === "images" && (
@@ -215,9 +242,16 @@ const styles = StyleSheet.create({
   headerContainer: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "space-between",
     width: "100%",
     padding: 8,
     gap: 8,
+  },
+  leftHeaderContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    // justifyContent: "flex-start",
   },
   headerText: {
     fontFamily: "Oswald",
@@ -270,7 +304,7 @@ const styles = StyleSheet.create({
   },
 });
 
-const calcStyles = (scheme: ColorScheme) =>
+const calcStyles = (scheme: ColorScheme, isFollowing: boolean) =>
   StyleSheet.create({
     container: {},
     profileIcon: {
@@ -278,6 +312,9 @@ const calcStyles = (scheme: ColorScheme) =>
     },
     headerText: {
       color: scheme.tertiary,
+    },
+    followText: {
+      color: isFollowing ? scheme.hiSecondary : scheme.quaternary,
     },
     dot: {
       borderColor: scheme.loTertiary,

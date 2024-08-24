@@ -5,6 +5,7 @@ import { create } from "zustand";
 export type User = {
   username: string;
   postIds: number[];
+  isFollowing: boolean;
 };
 
 type State = {
@@ -18,6 +19,7 @@ type Action = {
   addUser: (user: User) => void;
   addUsersFromPosts: (posts: PostModel[]) => void;
   getUser: (username: string) => User | undefined;
+  setIsFollowing: (username: string, isFollowing: boolean) => void;
 };
 
 const useUserStore = create<State & Action>((set, get) => ({
@@ -34,11 +36,14 @@ const useUserStore = create<State & Action>((set, get) => ({
     const username = user.username;
     let postIds: number[] = [];
     let foundUser = get().getUser(username);
+    let isFollowing = user.isFollowing;
     if (foundUser !== undefined) {
       let filtered = user.postIds.filter((p) => foundUser.postIds.includes(p));
       if (filtered.length > 0) postIds = foundUser.postIds.concat(filtered);
     }
-    set((s) => ({ users: { ...s.users, [username]: { username, postIds } } }));
+    set((s) => ({
+      users: { ...s.users, [username]: { username, postIds, isFollowing } },
+    }));
   },
 
   addUsersFromPosts: (posts: PostModel[]) => {
@@ -51,6 +56,7 @@ const useUserStore = create<State & Action>((set, get) => ({
         user = {
           postIds: [posts[i].id],
           username: posts[i].username,
+          isFollowing: posts[i].is_following,
         };
       }
       users[user.username] = user;
@@ -59,6 +65,11 @@ const useUserStore = create<State & Action>((set, get) => ({
   },
 
   getUser: (username: string) => get().users[username],
+
+  setIsFollowing: (username: string, isFollowing: boolean) =>
+    set((s) => ({
+      users: { ...s.users, [username]: { ...s.users[username], isFollowing } },
+    })),
 }));
 
 export default useUserStore;

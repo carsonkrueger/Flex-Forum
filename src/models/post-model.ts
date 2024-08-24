@@ -13,6 +13,7 @@ export interface PostModel {
   created_at: Date;
   num_likes: number;
   is_liked: boolean;
+  is_following: boolean;
 }
 
 interface PrivatePostModel {
@@ -24,6 +25,7 @@ interface PrivatePostModel {
   created_at: string;
   num_likes: number;
   is_liked: boolean;
+  is_following: boolean;
 }
 
 export const downloadNextPosts = async (from: Date): Promise<PostModel[]> => {
