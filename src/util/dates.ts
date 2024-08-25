@@ -1,4 +1,4 @@
-export const MY_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSSSS'Z'" as const;
+export const MY_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS" as const;
 
 export const FormatDate = (date: Date): string => {
   // Get individual components
@@ -9,10 +9,10 @@ export const FormatDate = (date: Date): string => {
   const minutes = String(date.getUTCMinutes()).padStart(2, "0");
   const seconds = String(date.getUTCSeconds()).padStart(2, "0");
   const milliseconds = String(date.getUTCMilliseconds()).padStart(3, "0");
-  const tz = String(date.getTimezoneOffset()).padEnd(4, "0");
+  // const tz = String(date.getTimezoneOffset()).padEnd(3, "0");
 
   // Construct the formatted date string
-  const formattedDate = `${year}-${month}-${day}T${hours}:${minutes}:${seconds}.${milliseconds} -0000`;
+  const formattedDate = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}.${milliseconds}`;
 
   return formattedDate;
 };
