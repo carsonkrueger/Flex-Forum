@@ -25,7 +25,9 @@ export default function Page() {
   const router = useRouter();
   const scheme = useSettingsStore((state) => state.colorScheme);
   const calcStyle = useMemo(() => calcStyles(scheme), [scheme]);
-  const [postCards, setPostCards] = useState<PostModel[]>([]);
+  const postIds = usePostStore((s) => s.postIds);
+  const getPost = usePostStore((s) => s.getPost);
+  // const [postCards, setPostCards] = useState<PostModel[]>([]);
   const [refreshing, setRefreshing] = useState<boolean>(false);
   const isLoading = useRef<boolean>(false);
   const windowWidth = Dimensions.get("window").width;
@@ -36,8 +38,8 @@ export default function Page() {
 
   const handleEndReached = async () => {
     const date =
-      postCards.length > 0
-        ? postCards[postCards.length - 1].created_at
+      postIds.length > 0
+        ? getPost(postIds[postIds.length - 1]).created_at
         : UTCNow();
     await fetchPosts(date);
   };
@@ -59,12 +61,12 @@ export default function Page() {
     }
 
     if (posts.length === 0) {
-      setOldest(postCards[postCards.length - 1].created_at);
+      setOldest(getPost(postIds[postIds.length - 1]).created_at);
     } else {
-      addPosts(posts);
-      if (append) setPostCards([...postCards, ...posts]);
-      else setPostCards(posts);
       addUsersFromPosts(posts);
+      addPosts(posts);
+      // if (append) setPostCards([...postCards, ...posts]);
+      // else setPostCards(posts);
     }
   };
 
@@ -88,9 +90,9 @@ export default function Page() {
         </Text>
       </View>
       <FlashList
-        data={postCards}
+        data={postIds}
         renderItem={({ item }) => (
-          <Post key={`post.${item.id}`} postModel={item} width={windowWidth} />
+          <Post key={`post.${item}`} id={item} width={windowWidth} />
         )}
         estimatedItemSize={500}
         onEndReached={handleEndReached}

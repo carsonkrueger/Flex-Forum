@@ -1,24 +1,35 @@
 import { PostModel } from "@/models/post-model";
 import { Id } from "./workout";
 import { create } from "zustand";
+import { likePost, unlikePost } from "@/models/like-model";
 
-type State = { posts: { [id: Id]: PostModel }; oldestDate?: Date };
+type State = {
+  postIds: Id[];
+  posts: { [id: Id]: PostModel };
+  oldestDate?: Date;
+};
 
 type Action = {
   addPosts: (posts: PostModel[]) => void;
   addPost: (post: PostModel) => void;
   getPost: (id: Id) => PostModel;
   setOldestDate: (date: State["oldestDate"]) => void;
+  toggleLiked: (id: Id) => Promise<void>;
 };
 
 const usePostStore = create<State & Action>((set, get) => ({
   posts: {},
   oldestDate: undefined,
+  postIds: [],
 
   addPosts: (posts: PostModel[]) => {
     const temp = { ...get().posts };
     posts.map((p) => (temp[p.id] = p));
-    set((s) => ({ posts: { ...s.posts, ...temp } }));
+    const newIds = posts.map((p) => p.id);
+    set((s) => ({
+      posts: { ...s.posts, ...temp },
+      postIds: [...s.postIds, ...newIds],
+    }));
   },
 
   addPost: (post: PostModel) =>
@@ -28,6 +39,25 @@ const usePostStore = create<State & Action>((set, get) => ({
 
   setOldestDate: (date: State["oldestDate"]) =>
     set((s) => ({ oldestDate: date })),
+
+  toggleLiked: async (id: Id) => {
+    const post = get().getPost(id);
+    const postModelId = post.id;
+
+    set((s) => ({
+      posts: {
+        ...s.posts,
+        [id]: {
+          ...s.posts[id],
+          is_liked: !post.is_liked,
+          num_likes: post.is_liked ? post.num_likes - 1 : post.num_likes + 1,
+        },
+      },
+    }));
+
+    if (post.is_liked) await likePost(postModelId);
+    else await unlikePost(postModelId);
+  },
 }));
 
 export default usePostStore;

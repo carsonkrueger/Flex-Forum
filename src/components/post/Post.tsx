@@ -15,36 +15,37 @@ import PostImage from "./PostImage";
 import ContentModel from "@/models/content-model";
 import { ColorScheme } from "@/util/colors";
 import { PostModel } from "@/models/post-model";
-import { likePost, unlikePost } from "@/models/like-model";
 import PostWorkout from "./PostWorkout";
 import { useRouter } from "expo-router";
 import { ROUTES } from "@/util/routes";
 import { followUser, unfollowUser } from "@/models/following-model";
 import useUserStore from "@/stores/user";
+import usePostStore from "@/stores/posts";
+import { Id } from "@/stores/workout";
 
 export type Props = {
-  postModel: PostModel;
+  id: Id;
   width: number;
   clickable?: boolean;
 };
 
-export default function Post({ postModel, width, clickable = true }: Props) {
+export default function Post({ id, width, clickable = true }: Props) {
   const scheme = useSettingsStore((state) => state.colorScheme);
   const router = useRouter();
   const [curId_OneRelative, setCurId_OneRelative] = useState<number>(1);
-  const [isLiked, setIsLiked] = useState<boolean>(postModel.is_liked);
-  const [numLikes, setNumLikes] = useState<number>(postModel.num_likes);
+  const post = usePostStore((s) => s.posts[id]);
+  const toggleLiked = usePostStore((s) => s.toggleLiked);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const username = useUserStore((s) => s.username);
   const isSelfPost = useMemo(
-    () => username?.toLowerCase() === postModel.username.toLowerCase(),
+    () => username?.toLowerCase() === post.username.toLowerCase(),
     [username],
   );
   const isFollowing = useUserStore(
-    (s) => s.users[postModel.username]?.isFollowing ?? false,
+    (s) => s.users[post.username]?.isFollowing ?? false,
   );
-  const setIsFollowing = useUserStore((s) => s.setIsFollowing);
-  const imageModels = useRef<ContentModel[]>(initImageModels(postModel));
+  const toggleFollowing = useUserStore((s) => s.toggleFollowing);
+  const imageModels = useRef<ContentModel[]>(initImageModels(post));
   const calcStyle = useMemo(
     () => calcStyles(scheme, isFollowing),
     [scheme, isFollowing],
@@ -65,38 +66,31 @@ export default function Post({ postModel, width, clickable = true }: Props) {
     );
   }
 
-  function initImageModels(postModel: PostModel): ContentModel[] {
-    return arrayRange(1, postModel.num_images, 1).map((v) => ({
-      post_id: postModel.id,
-      username: postModel.username,
+  function initImageModels(post: PostModel): ContentModel[] {
+    return arrayRange(1, post.num_images, 1).map((v) => ({
+      post_id: post.id,
+      username: post.username,
       content_id: v,
-      post_type: postModel.post_type,
+      post_type: post.post_type,
     }));
   }
 
-  const onLikeClicked = () => {
+  const onLikeClicked = async () => {
     if (isLoading) return;
-
-    setIsLiked(!isLiked);
-    setNumLikes(isLiked ? postModel.num_likes : postModel.num_likes + 1);
-    if (isLiked) unlikePost(postModel.id);
-    else if (!isLiked) likePost(postModel.id);
+    toggleLiked(post.id);
   };
 
-  const onFollowClicked = () => {
+  const onFollowClicked = async () => {
     if (isLoading) return;
-
-    setIsFollowing(postModel.username, !isFollowing);
-    if (isFollowing) unfollowUser(postModel.username);
-    else if (!isFollowing) followUser(postModel.username);
+    toggleFollowing(post.username);
   };
 
   const onChatClicked = () => {
-    router.navigate(ROUTES.post(postModel.id));
+    router.navigate(ROUTES.post(post.id));
   };
 
   const onHeaderClicked = () => {
-    router.navigate(ROUTES.user(postModel.username));
+    router.navigate(ROUTES.user(post.username));
   };
 
   const onPostPress = () => {
@@ -125,7 +119,7 @@ export default function Post({ postModel, width, clickable = true }: Props) {
             <View style={[styles.leftHeaderContainer]}>
               <View style={[styles.profileIcon, calcStyle.profileIcon]} />
               <Text style={[styles.headerText, calcStyle.headerText]}>
-                {postModel.username}
+                {post.username}
               </Text>
             </View>
           </TouchableWithoutFeedback>
@@ -139,13 +133,13 @@ export default function Post({ postModel, width, clickable = true }: Props) {
         </View>
 
         {/* Images */}
-        {postModel.post_type === "images" && (
+        {post.post_type === "images" && (
           <View
             style={{
               height: width,
             }}
           >
-            {postModel.post_type == "images" && (
+            {post.post_type == "images" && (
               <>
                 <ScrollView
                   horizontal={true}
@@ -155,7 +149,7 @@ export default function Post({ postModel, width, clickable = true }: Props) {
                 >
                   {imageModels.current.map((model) => (
                     <PostImage
-                      key={`img.${postModel.id}.${model.content_id}`}
+                      key={`img.${post.id}.${model.content_id}`}
                       contentModel={model}
                       curImgIdx={curId_OneRelative}
                       width={width}
@@ -167,7 +161,7 @@ export default function Post({ postModel, width, clickable = true }: Props) {
                   <View style={styles.dotsContainer}>
                     {imageModels.current.map((_, idx) => (
                       <View
-                        key={`dot.${postModel.id}.${idx}`}
+                        key={`dot.${post.id}.${idx}`}
                         style={[
                           styles.dot,
                           calcStyle.dot,
@@ -185,15 +179,15 @@ export default function Post({ postModel, width, clickable = true }: Props) {
         )}
 
         {/* Workout */}
-        {postModel.post_type === "workout" && (
+        {post.post_type === "workout" && (
           <View style={{ width: width }}>
-            {postModel.post_type == "workout" && (
+            {post.post_type == "workout" && (
               <PostWorkout
                 contentModel={{
                   content_id: 1,
-                  post_id: postModel.id,
-                  username: postModel.username,
-                  post_type: postModel.post_type,
+                  post_id: post.id,
+                  username: post.username,
+                  post_type: post.post_type,
                 }}
                 width={width}
               />
@@ -210,12 +204,12 @@ export default function Post({ postModel, width, clickable = true }: Props) {
               onPress={onLikeClicked}
             >
               <Ionicons
-                name={isLiked ? "heart-sharp" : "heart-outline"}
+                name={post.is_liked ? "heart-sharp" : "heart-outline"}
                 size={iconSize.current}
                 color={scheme.quaternary}
               />
               <Text style={[styles.numLikes, calcStyle.numLikes]}>
-                {numLikes}
+                {post.num_likes}
               </Text>
             </TouchableOpacity>
             {clickable && (
@@ -230,7 +224,7 @@ export default function Post({ postModel, width, clickable = true }: Props) {
           </View>
           {/* description */}
           <Text style={[styles.description, calcStyle.description]}>
-            {postModel.description}
+            {post.description}
           </Text>
         </View>
       </>

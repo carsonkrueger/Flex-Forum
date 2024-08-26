@@ -1,3 +1,4 @@
+import { followUser, unfollowUser } from "@/models/following-model";
 import { PostModel } from "@/models/post-model";
 import client from "@/util/web-client";
 import { create } from "zustand";
@@ -19,7 +20,7 @@ type Action = {
   addUser: (user: User) => void;
   addUsersFromPosts: (posts: PostModel[]) => void;
   getUser: (username: string) => User | undefined;
-  setIsFollowing: (username: string, isFollowing: boolean) => void;
+  toggleFollowing: (username: string) => void;
 };
 
 const useUserStore = create<State & Action>((set, get) => ({
@@ -66,10 +67,20 @@ const useUserStore = create<State & Action>((set, get) => ({
 
   getUser: (username: string) => get().users[username],
 
-  setIsFollowing: (username: string, isFollowing: boolean) =>
+  toggleFollowing: async (username: string) => {
+    const isFollowing = get().getUser(username)?.isFollowing;
+    if (isFollowing === undefined) return;
+
+    if (isFollowing) await unfollowUser(username);
+    else if (!isFollowing) await followUser(username);
+
     set((s) => ({
-      users: { ...s.users, [username]: { ...s.users[username], isFollowing } },
-    })),
+      users: {
+        ...s.users,
+        [username]: { ...s.users[username], isFollowing: !isFollowing },
+      },
+    }));
+  },
 }));
 
 export default useUserStore;
