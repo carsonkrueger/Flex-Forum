@@ -1,4 +1,4 @@
-export const MY_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS" as const;
+export const MY_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSSSS" as const;
 
 export const FormatDate = (date: Date): string => {
   // Get individual components

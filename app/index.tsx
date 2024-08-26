@@ -56,7 +56,7 @@ export default function Page() {
       router.replace(ROUTES.home);
     }
     updatePresets();
-    onSubmit({ username: "username", password: "password" });
+    // onSubmit({ username: "username", password: "password" });
   }, []);
 
   return (

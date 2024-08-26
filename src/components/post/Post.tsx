@@ -35,7 +35,11 @@ export default function Post({ postModel, width, clickable = true }: Props) {
   const [isLiked, setIsLiked] = useState<boolean>(postModel.is_liked);
   const [numLikes, setNumLikes] = useState<number>(postModel.num_likes);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const isSelfPost = useUserStore((s) => s.username === postModel.username);
+  const username = useUserStore((s) => s.username);
+  const isSelfPost = useMemo(
+    () => username?.toLowerCase() === postModel.username.toLowerCase(),
+    [username],
+  );
   const isFollowing = useUserStore(
     (s) => s.users[postModel.username]?.isFollowing ?? false,
   );
