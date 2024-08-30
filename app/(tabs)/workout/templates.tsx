@@ -1,7 +1,5 @@
 import Template from "@/components/workout/Template";
 import Submit, { ButtonVariant } from "@/forms/Submit";
-import { getExerciseRows } from "@/db/row-models/exercise-model";
-import { getSetRows } from "@/db/row-models/set-model";
 import { getAllTemplates } from "@/db/row-models/workout-model";
 import useSettingsStore from "@/stores/settings";
 import useWorkoutStore from "@/stores/workout";
@@ -9,7 +7,7 @@ import { ColorScheme } from "@/util/colors";
 import { ROUTES } from "@/util/routes";
 import { useRouter } from "expo-router";
 import { useSQLiteContext } from "expo-sqlite";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Text, ScrollView, StyleSheet, View } from "react-native";
 import {
   BottomSheetModal,
@@ -24,11 +22,9 @@ import {
   uploadWorkout,
   WorkoutPost,
 } from "@/models/content-model";
-import {
-  createNewTemplate,
-  disableTemplate,
-} from "@/db/row-models/workout-template-model";
+import { disableTemplate } from "@/db/row-models/workout-template-model";
 import { getSummaryFromSessionId } from "@/db/row-models/workout-summary";
+import { Axios } from "axios";
 
 const WORKOUT_QUERY_LIMIT = 100 as const;
 
@@ -56,10 +52,12 @@ export default function Page() {
   const setOffset = useWorkoutStore((s) => s.setTemplateOffset);
   const sheetRef = useRef<BottomSheetModal>(null);
   const deleteWorkout = useWorkoutStore((s) => s.deleteWorkout);
-  const deleteExercise = useWorkoutStore((s) => s.deleteExercise);
-  const deleteSet = useWorkoutStore((s) => s.deleteSet);
   const isInProgress = useWorkoutStore((s) => s.isInProgress);
-  const removeLoaded = useWorkoutStore((s) => s.removeLoaded);
+  const sharedTemplateIds = useWorkoutStore((s) => s.sharedTemplateIds);
+  const addSharedTemplateId = useWorkoutStore((s) => s.addShareTemplateId);
+
+  const [isAlreadyShared, setIsAlreadyShared] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const createNewWorkout = async () => {
     const wid = createWorkout(undefined);
@@ -92,7 +90,7 @@ export default function Page() {
   };
 
   const onShareWorkout = async () => {
-    if (templateSheetId === undefined) return;
+    if (templateSheetId === undefined || isAlreadyShared || isLoading) return;
     let wSummary: WorkoutSummary = { workout_name: "", exercises: [] };
     const workout = getWorkout(templateSheetId);
     wSummary.workout_name = workout.name;
@@ -114,7 +112,20 @@ export default function Page() {
       wSummary.exercises.push(eSummary);
     }
     const post: WorkoutPost = { workout: wSummary, description: "" };
-    await uploadWorkout(post);
+
+    try {
+      setIsLoading(true);
+      await uploadWorkout(post);
+    } catch (e) {
+      // todo report error
+      console.error(e);
+      return;
+    } finally {
+      setIsLoading(false);
+    }
+
+    addSharedTemplateId(templateSheetId);
+    setIsAlreadyShared(true);
   };
 
   const onResetWorkout = async () => {
@@ -133,6 +144,7 @@ export default function Page() {
 
   useEffect(() => {
     if (templateSheetId !== undefined) {
+      setIsAlreadyShared(sharedTemplateIds.includes(templateSheetId));
       sheetRef.current?.present();
     } else {
       sheetRef.current?.close();
@@ -211,10 +223,13 @@ export default function Page() {
                 btnProps={{
                   primaryColor: scheme.quaternary,
                   secondaryColor: scheme.loPrimary,
-                  text: "Share to Profile",
+                  text: isAlreadyShared ? "Shared" : "Share to Profile",
                   variant: ButtonVariant.Filled,
                 }}
-                touchableProps={{ onPress: onShareWorkout }}
+                touchableProps={{
+                  onPress: onShareWorkout,
+                  disabled: isAlreadyShared || isLoading,
+                }}
               />
               {templateSheetId !== undefined &&
               !isInProgress(templateSheetId) ? (

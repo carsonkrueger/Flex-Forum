@@ -44,6 +44,7 @@ type State = {
   templateOffset: number;
   inProgress: Id[];
   loaded: Id[];
+  sharedTemplateIds: Id[];
   workouts: { [id: Id]: Workout };
   //exercises
   exercises: { [id: Id]: Exercise };
@@ -78,6 +79,7 @@ type Action = {
   removeLoaded: (id: Id) => void;
   setPerformed: (date: Date, id: Id) => void;
   setTemplateOffset: (offset: number) => void;
+  addShareTemplateId: (id: Id) => void;
   // exercises
   setExercise: (e: Exercise) => void;
   getExercise: (id: Id) => Exercise;
@@ -111,6 +113,7 @@ const useWorkoutStore = create<State & Action>((set, get) => ({
   workouts: {},
   inProgress: [],
   loaded: [],
+  sharedTemplateIds: [],
 
   loadFromSummary: (summary: WorkoutSummaryJoin[], storeWId?: Id) => {
     let nextId = get().nextId;
@@ -507,6 +510,9 @@ const useWorkoutStore = create<State & Action>((set, get) => ({
       },
     }));
   },
+
+  addShareTemplateId: (id: Id) =>
+    set((s) => ({ sharedTemplateIds: [...s.sharedTemplateIds, id] })),
 }));
 
 export default useWorkoutStore;
