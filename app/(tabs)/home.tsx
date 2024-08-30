@@ -32,6 +32,7 @@ export default function Page() {
   const isLoading = useRef<boolean>(false);
   const windowWidth = Dimensions.get("window").width;
   const addPosts = usePostStore((s) => s.addPosts);
+  const setPosts = usePostStore((s) => s.setPosts);
   const addUsersFromPosts = useUserStore((s) => s.addUsersFromPosts);
   const setOldest = usePostStore((s) => s.setOldestDate);
   const oldest = usePostStore((s) => s.oldestDate);
@@ -64,7 +65,8 @@ export default function Page() {
       setOldest(getPost(postIds[postIds.length - 1]).created_at);
     } else {
       addUsersFromPosts(posts);
-      addPosts(posts);
+      if (append) addPosts(posts);
+      else setPosts(posts);
       // if (append) setPostCards([...postCards, ...posts]);
       // else setPostCards(posts);
     }

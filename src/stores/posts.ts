@@ -11,6 +11,7 @@ type State = {
 
 type Action = {
   addPosts: (posts: PostModel[]) => void;
+  setPosts: (posts: PostModel[]) => void;
   addPost: (post: PostModel) => void;
   getPost: (id: Id) => PostModel;
   setOldestDate: (date: State["oldestDate"]) => void;
@@ -29,6 +30,16 @@ const usePostStore = create<State & Action>((set, get) => ({
     set((s) => ({
       posts: { ...s.posts, ...temp },
       postIds: [...s.postIds, ...newIds],
+    }));
+  },
+
+  setPosts: (posts: PostModel[]) => {
+    const temp = { ...get().posts };
+    posts.map((p) => (temp[p.id] = p));
+    const newIds = posts.map((p) => p.id);
+    set((s) => ({
+      posts: temp,
+      postIds: newIds,
     }));
   },
 
